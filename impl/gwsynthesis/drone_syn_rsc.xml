@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="main">
+    <SubModule name="pwm_controller" Register="97" Lut="206"/>
+</Module>

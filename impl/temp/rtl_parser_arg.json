@@ -1,0 +1,17 @@
+{
+ "Device" : "GW1NR-9C",
+ "Files" : [
+  {
+   "Path" : "//Mac/Home/Documents/Projects/drone/src/main.v",
+   "Type" : "verilog"
+  }
+ ],
+ "IncludePath" : [
+
+ ],
+ "LoopLimit" : 2000,
+ "ResultFile" : "//Mac/Home/Documents/Projects/drone/impl/temp/rtl_parser.result",
+ "Top" : "",
+ "VerilogStd" : "verilog_2001",
+ "VhdlStd" : "vhdl_93"
+}

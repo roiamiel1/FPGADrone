@@ -1,0 +1,29 @@
+Reading netlist file: "\\Mac\Home\Documents\Projects\drone\impl\gwsynthesis\drone.vg"
+Parsing netlist file "\\Mac\Home\Documents\Projects\drone\impl\gwsynthesis\drone.vg" completed
+Processing netlist completed
+Reading constraint file: "\\Mac\Home\Documents\Projects\drone\src\drone.cst"
+Physical Constraint parsed completed
+Running placement......
+[10%] Placement Phase 0 completed
+[20%] Placement Phase 1 completed
+[30%] Placement Phase 2 completed
+[50%] Placement Phase 3 completed
+Running routing......
+[60%] Routing Phase 0 completed
+[70%] Routing Phase 1 completed
+[80%] Routing Phase 2 completed
+[90%] Routing Phase 3 completed
+Running timing analysis......
+[95%] Timing analysis completed
+Placement and routing completed
+Bitstream generation in progress......
+Bitstream generation completed
+Running power analysis......
+[100%] Power analysis completed
+Generate file "\\Mac\Home\Documents\Projects\drone\impl\pnr\drone.power.html" completed
+Generate file "\\Mac\Home\Documents\Projects\drone\impl\pnr\drone.pin.html" completed
+Generate file "\\Mac\Home\Documents\Projects\drone\impl\pnr\drone.rpt.html" completed
+Generate file "\\Mac\Home\Documents\Projects\drone\impl\pnr\drone.rpt.txt" completed
+Generate file "\\Mac\Home\Documents\Projects\drone\impl\pnr\drone.tr.html" completed
+Tue Apr 23 16:33:56 2024
+
