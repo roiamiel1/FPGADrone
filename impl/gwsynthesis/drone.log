@@ -1,7 +1,7 @@
 GowinSynthesis start
 Running parser ...
 Analyzing Verilog file '\\Mac\Home\Documents\Projects\drone\src\main.v'
-Compiling module 'main'("\\Mac\Home\Documents\Projects\drone\src\main.v":52)
+Compiling module 'main'("\\Mac\Home\Documents\Projects\drone\src\main.v":49)
 Compiling module 'PWMController'("\\Mac\Home\Documents\Projects\drone\src\main.v":1)
 NOTE  (EX0101) : Current top module is "main"
 [5%] Running netlist conversion ...
