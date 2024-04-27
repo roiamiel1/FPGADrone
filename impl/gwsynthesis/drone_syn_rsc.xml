@@ -1,4 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Module name="main">
-    <SubModule name="pwm_controller" Register="97" Lut="200"/>
-</Module>
+<Module name="I2C_Master" Register="27" Alu="17" Lut="41"/>
