@@ -1,7 +1,7 @@
 //
 //Written by GowinSynthesis
 //Product Version "V1.9.9 Beta-6"
-//Sun Apr 28 01:24:38 2024
+//Thu May 30 20:08:48 2024
 
 //Source file index table:
 //file0 "\//Mac/Home/Documents/Projects/drone/src/main.v"
@@ -16,86 +16,110 @@ input clk;
 output scl;
 inout sda;
 wire clk_d;
-wire sda_d;
 wire scl_d;
-wire n41_5;
-wire n135_25;
-wire sda_enable_7;
-wire scl_enable_6;
-wire i2c_counter_2_6;
-wire i2c_state_2_7;
-wire i2c_state_0_7;
-wire sda_out_9;
-wire n142_17;
-wire n140_21;
-wire n139_20;
-wire n138_22;
-wire n143_21;
-wire n136_24;
-wire i2c_state_1_10;
-wire scl_d_3;
+wire n74_5;
+wire n237_34;
+wire n238_50;
+wire n240_46;
+wire scl_enable_7;
+wire i2c_state_3_8;
+wire sda_out_10;
+wire n243_34;
+wire n242_35;
+wire n236_29;
+wire n129_15;
+wire sda_enable_8;
+wire n239_55;
 wire scl_d_4;
 wire scl_d_5;
-wire n41_6;
-wire n41_7;
-wire sda_enable_8;
-wire scl_enable_7;
-wire i2c_counter_2_7;
-wire i2c_state_2_8;
-wire i2c_state_2_9;
-wire i2c_state_0_8;
-wire i2c_state_0_9;
-wire sda_out_10;
-wire n138_23;
-wire n143_22;
 wire scl_d_6;
-wire scl_d_7;
+wire n74_6;
+wire n237_35;
+wire n237_36;
+wire scl_enable_8;
+wire scl_enable_9;
+wire i2c_counter_2_8;
+wire i2c_state_1_9;
+wire sda_out_11;
+wire n244_37;
 wire i2c_state_2_10;
-wire i2c_state_2_11;
+wire n129_16;
+wire n129_17;
+wire sda_enable_9;
+wire sda_enable_10;
+wire scl_d_7;
+wire scl_d_8;
+wire scl_d_9;
+wire scl_d_10;
+wire n74_7;
+wire n74_8;
+wire n237_37;
+wire scl_enable_10;
+wire i2c_state_1_10;
+wire n129_18;
+wire sda_enable_11;
+wire scl_enable_11;
+wire i2c_state_1_11;
 wire i2c_state_2_12;
-wire n140_24;
-wire sda_enable;
+wire i2c_state_1_13;
+wire n244_43;
+wire i2c_counter_2_10;
 wire scl_enable;
 wire sda_out;
-wire n35_1;
-wire n35_2;
-wire n34_1;
-wire n34_2;
-wire n33_1;
-wire n33_2;
-wire n32_1;
-wire n32_2;
-wire n31_1;
-wire n31_2;
-wire n30_1;
-wire n30_2;
-wire n29_1;
-wire n29_2;
-wire n28_1;
-wire n28_2;
-wire n27_1;
-wire n27_2;
-wire n26_1;
-wire n26_2;
-wire n25_1;
-wire n25_2;
-wire n24_1;
-wire n24_2;
-wire n23_1;
-wire n23_2;
-wire n22_1;
-wire n22_2;
-wire n21_1;
-wire n21_2;
-wire n20_1;
-wire n20_2;
-wire n19_1;
-wire n19_0_COUT;
-wire n141_18;
-wire n137_27;
-wire n36_6;
-wire [17:0] clock_ticks;
-wire [2:0] i2c_state;
+wire sda_enable;
+wire n69_1;
+wire n69_2;
+wire n68_1;
+wire n68_2;
+wire n67_1;
+wire n67_2;
+wire n66_1;
+wire n66_2;
+wire n65_1;
+wire n65_2;
+wire n64_1;
+wire n64_2;
+wire n63_1;
+wire n63_2;
+wire n62_1;
+wire n62_2;
+wire n61_1;
+wire n61_2;
+wire n60_1;
+wire n60_2;
+wire n59_1;
+wire n59_2;
+wire n58_1;
+wire n58_2;
+wire n57_1;
+wire n57_2;
+wire n56_1;
+wire n56_2;
+wire n55_1;
+wire n55_2;
+wire n54_1;
+wire n54_2;
+wire n53_1;
+wire n53_2;
+wire n52_1;
+wire n52_2;
+wire n51_1;
+wire n51_2;
+wire n50_1;
+wire n50_2;
+wire n49_1;
+wire n49_2;
+wire n48_1;
+wire n48_2;
+wire n47_1;
+wire n47_2;
+wire n46_1;
+wire n46_0_COUT;
+wire sda_8;
+wire n241_39;
+wire n70_6;
+wire [24:0] clock_ticks;
+wire [3:0] i2c_state;
 wire [2:0] i2c_counter;
 wire VCC;
 wire GND;
@@ -103,646 +127,848 @@ wire GND;
     .O(clk_d),
     .I(clk) 
 );
-  OBUF sda_obuf (
+  TBUF sda_s1 (
     .O(sda),
-    .I(sda_d) 
+    .I(sda_out),
+    .OEN(sda_8) 
 );
   OBUF scl_obuf (
     .O(scl),
     .I(scl_d) 
 );
-  LUT2 sda_d_s (
-    .F(sda_d),
-    .I0(sda_out),
-    .I1(sda_enable) 
-);
-defparam sda_d_s.INIT=4'hB;
   LUT4 scl_d_s (
     .F(scl_d),
-    .I0(scl_d_3),
-    .I1(scl_d_4),
-    .I2(scl_d_5),
+    .I0(scl_d_4),
+    .I1(scl_d_5),
+    .I2(scl_d_6),
     .I3(scl_enable) 
 );
 defparam scl_d_s.INIT=16'hBFFF;
-  LUT3 n41_s2 (
-    .F(n41_5),
-    .I0(scl_d_4),
-    .I1(n41_6),
-    .I2(n41_7) 
+  LUT4 n74_s2 (
+    .F(n74_5),
+    .I0(clock_ticks[0]),
+    .I1(clock_ticks[1]),
+    .I2(n74_6),
+    .I3(scl_d_6) 
 );
-defparam n41_s2.INIT=8'h80;
-  LUT3 n135_s17 (
-    .F(n135_25),
-    .I0(i2c_state[2]),
-    .I1(i2c_state[1]),
-    .I2(i2c_state[0]) 
-);
-defparam n135_s17.INIT=8'hCA;
-  LUT4 sda_enable_s3 (
-    .F(sda_enable_7),
-    .I0(i2c_state[1]),
-    .I1(i2c_state[0]),
-    .I2(scl_d_4),
-    .I3(sda_enable_8) 
-);
-defparam sda_enable_s3.INIT=16'h4000;
-  LUT3 scl_enable_s2 (
-    .F(scl_enable_6),
-    .I0(scl_enable_7),
-    .I1(sda_enable_8),
-    .I2(scl_d_4) 
-);
-defparam scl_enable_s2.INIT=8'h40;
-  LUT3 i2c_counter_2_s2 (
-    .F(i2c_counter_2_6),
-    .I0(i2c_counter_2_7),
-    .I1(sda_enable_8),
-    .I2(scl_d_4) 
-);
-defparam i2c_counter_2_s2.INIT=8'h40;
-  LUT4 i2c_state_2_s3 (
-    .F(i2c_state_2_7),
-    .I0(i2c_state_2_8),
-    .I1(i2c_state_2_9),
-    .I2(scl_d_4),
-    .I3(sda_enable_8) 
-);
-defparam i2c_state_2_s3.INIT=16'h1000;
-  LUT4 i2c_state_0_s3 (
-    .F(i2c_state_0_7),
-    .I0(i2c_state_0_8),
-    .I1(i2c_state_0_9),
-    .I2(scl_d_4),
-    .I3(sda_enable_8) 
-);
-defparam i2c_state_0_s3.INIT=16'hE000;
-  LUT3 sda_out_s4 (
-    .F(sda_out_9),
-    .I0(scl_d_4),
-    .I1(sda_enable_8),
-    .I2(sda_out_10) 
-);
-defparam sda_out_s4.INIT=8'h80;
-  LUT2 n142_s11 (
-    .F(n142_17),
-    .I0(i2c_state[2]),
-    .I1(i2c_state[1]) 
-);
-defparam n142_s11.INIT=4'h4;
-  LUT3 n140_s15 (
-    .F(n140_21),
-    .I0(i2c_counter[0]),
-    .I1(i2c_state_0_9),
-    .I2(n140_24) 
-);
-defparam n140_s15.INIT=8'h10;
-  LUT4 n139_s14 (
-    .F(n139_20),
-    .I0(i2c_state_0_9),
-    .I1(i2c_counter[0]),
-    .I2(i2c_counter[1]),
-    .I3(n140_24) 
-);
-defparam n139_s14.INIT=16'h1400;
-  LUT4 n138_s16 (
-    .F(n138_22),
-    .I0(i2c_state_0_9),
-    .I1(i2c_counter[2]),
-    .I2(n138_23),
-    .I3(n140_24) 
-);
-defparam n138_s16.INIT=16'h1400;
-  LUT4 n143_s15 (
-    .F(n143_21),
-    .I0(i2c_counter[2]),
-    .I1(i2c_state[0]),
-    .I2(n143_22),
+defparam n74_s2.INIT=16'h1000;
+  LUT4 n237_s27 (
+    .F(n237_34),
+    .I0(n237_35),
+    .I1(n237_36),
+    .I2(i2c_state[3]),
     .I3(i2c_state[2]) 
 );
-defparam n143_s15.INIT=16'hFF01;
-  LUT2 n136_s17 (
-    .F(n136_24),
+defparam n237_s27.INIT=16'h3533;
+  LUT4 n238_s41 (
+    .F(n238_50),
     .I0(i2c_state[1]),
-    .I1(i2c_state[0]) 
+    .I1(i2c_state[2]),
+    .I2(i2c_state[3]),
+    .I3(i2c_state[0]) 
 );
-defparam n136_s17.INIT=4'h6;
-  LUT3 i2c_state_1_s5 (
-    .F(i2c_state_1_10),
-    .I0(scl_d_4),
-    .I1(sda_enable_8),
-    .I2(i2c_state_0_9) 
+defparam n238_s41.INIT=16'h08F0;
+  LUT2 n240_s37 (
+    .F(n240_46),
+    .I0(i2c_state[0]),
+    .I1(i2c_state[1]) 
 );
-defparam i2c_state_1_s5.INIT=8'h80;
-  LUT4 scl_d_s0 (
-    .F(scl_d_3),
-    .I0(clock_ticks[2]),
-    .I1(clock_ticks[3]),
-    .I2(clock_ticks[4]),
-    .I3(clock_ticks[5]) 
-);
-defparam scl_d_s0.INIT=16'h8000;
-  LUT4 scl_d_s1 (
-    .F(scl_d_4),
-    .I0(clock_ticks[8]),
-    .I1(clock_ticks[9]),
-    .I2(scl_d_6),
-    .I3(scl_d_7) 
-);
-defparam scl_d_s1.INIT=16'h1000;
-  LUT2 scl_d_s2 (
-    .F(scl_d_5),
-    .I0(clock_ticks[6]),
-    .I1(clock_ticks[7]) 
-);
-defparam scl_d_s2.INIT=4'h1;
-  LUT4 n41_s3 (
-    .F(n41_6),
-    .I0(clock_ticks[0]),
-    .I1(clock_ticks[5]),
-    .I2(clock_ticks[4]),
-    .I3(clock_ticks[1]) 
-);
-defparam n41_s3.INIT=16'h1000;
-  LUT4 n41_s4 (
-    .F(n41_7),
-    .I0(clock_ticks[2]),
-    .I1(clock_ticks[7]),
-    .I2(clock_ticks[6]),
-    .I3(clock_ticks[3]) 
-);
-defparam n41_s4.INIT=16'h1000;
-  LUT4 sda_enable_s4 (
-    .F(sda_enable_8),
-    .I0(clock_ticks[3]),
-    .I1(clock_ticks[2]),
-    .I2(scl_d_5),
-    .I3(n41_6) 
-);
-defparam sda_enable_s4.INIT=16'h4000;
+defparam n240_s37.INIT=4'h6;
   LUT3 scl_enable_s3 (
     .F(scl_enable_7),
-    .I0(i2c_state[2]),
-    .I1(i2c_state[0]),
-    .I2(i2c_state[1]) 
+    .I0(scl_enable_8),
+    .I1(i2c_state[2]),
+    .I2(scl_enable_9) 
 );
-defparam scl_enable_s3.INIT=8'hE3;
-  LUT4 i2c_counter_2_s3 (
-    .F(i2c_counter_2_7),
-    .I0(sda_d),
-    .I1(i2c_state[1]),
-    .I2(i2c_state[0]),
-    .I3(i2c_state[2]) 
-);
-defparam i2c_counter_2_s3.INIT=16'h0E00;
-  LUT4 i2c_state_2_s4 (
-    .F(i2c_state_2_8),
-    .I0(i2c_state[2]),
-    .I1(i2c_counter[2]),
-    .I2(n143_22),
-    .I3(i2c_state_2_10) 
-);
-defparam i2c_state_2_s4.INIT=16'hBF00;
-  LUT4 i2c_state_2_s5 (
-    .F(i2c_state_2_9),
-    .I0(sda_d),
-    .I1(i2c_state[0]),
-    .I2(i2c_state_2_11),
-    .I3(i2c_state_2_12) 
-);
-defparam i2c_state_2_s5.INIT=16'h0E00;
+defparam scl_enable_s3.INIT=8'h10;
   LUT4 i2c_state_0_s4 (
-    .F(i2c_state_0_8),
-    .I0(sda_d),
-    .I1(i2c_state[0]),
-    .I2(i2c_state_2_11),
-    .I3(i2c_state_2_12) 
+    .F(i2c_state_3_8),
+    .I0(i2c_state[2]),
+    .I1(i2c_state[1]),
+    .I2(i2c_state_1_9),
+    .I3(scl_enable_9) 
 );
 defparam i2c_state_0_s4.INIT=16'hF100;
-  LUT4 i2c_state_0_s5 (
-    .F(i2c_state_0_9),
-    .I0(i2c_counter[2]),
-    .I1(n143_22),
-    .I2(i2c_state_2_10),
-    .I3(i2c_state[2]) 
-);
-defparam i2c_state_0_s5.INIT=16'h008F;
-  LUT3 sda_out_s5 (
+  LUT2 sda_out_s5 (
     .F(sda_out_10),
-    .I0(i2c_state[0]),
-    .I1(i2c_state[2]),
-    .I2(i2c_state[1]) 
+    .I0(sda_out_11),
+    .I1(scl_enable_9) 
 );
-defparam sda_out_s5.INIT=8'h3E;
-  LUT2 n138_s17 (
-    .F(n138_23),
+defparam sda_out_s5.INIT=4'h4;
+  LUT3 n243_s26 (
+    .F(n243_34),
     .I0(i2c_counter[0]),
-    .I1(i2c_counter[1]) 
+    .I1(i2c_counter[1]),
+    .I2(n244_37) 
 );
-defparam n138_s17.INIT=4'h8;
-  LUT2 n143_s16 (
-    .F(n143_22),
-    .I0(i2c_counter[0]),
-    .I1(i2c_counter[1]) 
-);
-defparam n143_s16.INIT=4'h4;
-  LUT4 scl_d_s3 (
-    .F(scl_d_6),
-    .I0(clock_ticks[14]),
-    .I1(clock_ticks[15]),
-    .I2(clock_ticks[16]),
-    .I3(clock_ticks[17]) 
-);
-defparam scl_d_s3.INIT=16'h0001;
-  LUT4 scl_d_s4 (
-    .F(scl_d_7),
-    .I0(clock_ticks[10]),
-    .I1(clock_ticks[11]),
-    .I2(clock_ticks[12]),
-    .I3(clock_ticks[13]) 
-);
-defparam scl_d_s4.INIT=16'h0001;
-  LUT2 i2c_state_2_s6 (
-    .F(i2c_state_2_10),
-    .I0(i2c_state[0]),
-    .I1(i2c_state[1]) 
-);
-defparam i2c_state_2_s6.INIT=4'h4;
-  LUT4 i2c_state_2_s7 (
-    .F(i2c_state_2_11),
+defparam n243_s26.INIT=8'h60;
+  LUT4 n242_s27 (
+    .F(n242_35),
     .I0(i2c_counter[0]),
     .I1(i2c_counter[1]),
     .I2(i2c_counter[2]),
-    .I3(i2c_state[0]) 
+    .I3(n244_37) 
 );
-defparam i2c_state_2_s7.INIT=16'h8000;
-  LUT2 i2c_state_2_s8 (
-    .F(i2c_state_2_12),
-    .I0(i2c_state[1]),
-    .I1(i2c_state[2]) 
+defparam n242_s27.INIT=16'h7800;
+  LUT2 n236_s23 (
+    .F(n236_29),
+    .I0(i2c_state[3]),
+    .I1(i2c_state[1]) 
 );
-defparam i2c_state_2_s8.INIT=4'h4;
-  LUT4 n140_s17 (
-    .F(n140_24),
-    .I0(sda_out),
-    .I1(sda_enable),
-    .I2(i2c_state[0]),
+defparam n236_s23.INIT=4'h4;
+  LUT4 n129_s9 (
+    .F(n129_15),
+    .I0(n129_16),
+    .I1(scl_d_6),
+    .I2(n129_17),
+    .I3(i2c_state[3]) 
+);
+defparam n129_s9.INIT=16'h807F;
+  LUT3 sda_enable_s3 (
+    .F(sda_enable_8),
+    .I0(sda_enable_9),
+    .I1(scl_enable_9),
+    .I2(sda_enable_10) 
+);
+defparam sda_enable_s3.INIT=8'hF8;
+  LUT4 n239_s44 (
+    .F(n239_55),
+    .I0(i2c_state[0]),
+    .I1(i2c_state[1]),
+    .I2(i2c_state[3]),
+    .I3(i2c_state[2]) 
+);
+defparam n239_s44.INIT=16'hF7F8;
+  LUT4 scl_d_s0 (
+    .F(scl_d_4),
+    .I0(clock_ticks[4]),
+    .I1(scl_d_7),
+    .I2(clock_ticks[6]),
+    .I3(clock_ticks[7]) 
+);
+defparam scl_d_s0.INIT=16'hF800;
+  LUT4 scl_d_s1 (
+    .F(scl_d_5),
+    .I0(clock_ticks[8]),
+    .I1(clock_ticks[9]),
+    .I2(clock_ticks[10]),
+    .I3(clock_ticks[11]) 
+);
+defparam scl_d_s1.INIT=16'h0001;
+  LUT4 scl_d_s2 (
+    .F(scl_d_6),
+    .I0(clock_ticks[12]),
+    .I1(scl_d_8),
+    .I2(scl_d_9),
+    .I3(scl_d_10) 
+);
+defparam scl_d_s2.INIT=16'h4000;
+  LUT4 n74_s3 (
+    .F(n74_6),
+    .I0(clock_ticks[9]),
+    .I1(clock_ticks[8]),
+    .I2(n74_7),
+    .I3(n74_8) 
+);
+defparam n74_s3.INIT=16'h4000;
+  LUT2 n237_s28 (
+    .F(n237_35),
+    .I0(i2c_counter[1]),
+    .I1(i2c_counter[2]) 
+);
+defparam n237_s28.INIT=4'h9;
+  LUT4 n237_s29 (
+    .F(n237_36),
+    .I0(n237_37),
+    .I1(i2c_state[0]),
+    .I2(i2c_state[3]),
     .I3(i2c_state[1]) 
 );
-defparam n140_s17.INIT=16'h0FFB;
+defparam n237_s29.INIT=16'h313F;
+  LUT3 scl_enable_s4 (
+    .F(scl_enable_8),
+    .I0(i2c_state[3]),
+    .I1(i2c_state[0]),
+    .I2(i2c_state[1]) 
+);
+defparam scl_enable_s4.INIT=8'hE3;
+  LUT4 scl_enable_s5 (
+    .F(scl_enable_9),
+    .I0(clock_ticks[2]),
+    .I1(clock_ticks[3]),
+    .I2(scl_enable_10),
+    .I3(scl_d_6) 
+);
+defparam scl_enable_s5.INIT=16'h1000;
+  LUT4 i2c_counter_2_s4 (
+    .F(i2c_counter_2_8),
+    .I0(i2c_state[0]),
+    .I1(i2c_state[2]),
+    .I2(i2c_state[1]),
+    .I3(i2c_state[3]) 
+);
+defparam i2c_counter_2_s4.INIT=16'hFC21;
+  LUT2 i2c_state_1_s5 (
+    .F(i2c_state_1_9),
+    .I0(i2c_state[3]),
+    .I1(i2c_state_1_10) 
+);
+defparam i2c_state_1_s5.INIT=4'h4;
+  LUT4 sda_out_s6 (
+    .F(sda_out_11),
+    .I0(i2c_state[0]),
+    .I1(i2c_state[2]),
+    .I2(i2c_state[1]),
+    .I3(i2c_state[3]) 
+);
+defparam sda_out_s6.INIT=16'hFCC5;
+  LUT4 n244_s29 (
+    .F(n244_37),
+    .I0(i2c_state[1]),
+    .I1(i2c_state[0]),
+    .I2(i2c_state[3]),
+    .I3(i2c_state[2]) 
+);
+defparam n244_s29.INIT=16'h0C0A;
+  LUT3 i2c_state_2_s6 (
+    .F(i2c_state_2_10),
+    .I0(i2c_state[1]),
+    .I1(i2c_state[2]),
+    .I2(i2c_state[3]) 
+);
+defparam i2c_state_2_s6.INIT=8'h80;
+  LUT4 n129_s10 (
+    .F(n129_16),
+    .I0(i2c_state[1]),
+    .I1(i2c_state[0]),
+    .I2(i2c_state[2]),
+    .I3(i2c_state[3]) 
+);
+defparam n129_s10.INIT=16'h01BF;
+  LUT4 n129_s11 (
+    .F(n129_17),
+    .I0(n129_18),
+    .I1(clock_ticks[0]),
+    .I2(scl_d_5),
+    .I3(n74_7) 
+);
+defparam n129_s11.INIT=16'h8000;
+  LUT3 sda_enable_s4 (
+    .F(sda_enable_9),
+    .I0(i2c_state[1]),
+    .I1(i2c_state[2]),
+    .I2(i2c_state[0]) 
+);
+defparam sda_enable_s4.INIT=8'h10;
+  LUT3 sda_enable_s5 (
+    .F(sda_enable_10),
+    .I0(sda_enable_11),
+    .I1(scl_d_6),
+    .I2(n129_17) 
+);
+defparam sda_enable_s5.INIT=8'h40;
+  LUT4 scl_d_s3 (
+    .F(scl_d_7),
+    .I0(clock_ticks[2]),
+    .I1(clock_ticks[3]),
+    .I2(clock_ticks[1]),
+    .I3(clock_ticks[5]) 
+);
+defparam scl_d_s3.INIT=16'hFE00;
+  LUT4 scl_d_s4 (
+    .F(scl_d_8),
+    .I0(clock_ticks[13]),
+    .I1(clock_ticks[14]),
+    .I2(clock_ticks[15]),
+    .I3(clock_ticks[24]) 
+);
+defparam scl_d_s4.INIT=16'h0001;
+  LUT4 scl_d_s5 (
+    .F(scl_d_9),
+    .I0(clock_ticks[20]),
+    .I1(clock_ticks[21]),
+    .I2(clock_ticks[22]),
+    .I3(clock_ticks[23]) 
+);
+defparam scl_d_s5.INIT=16'h0001;
+  LUT4 scl_d_s6 (
+    .F(scl_d_10),
+    .I0(clock_ticks[16]),
+    .I1(clock_ticks[17]),
+    .I2(clock_ticks[18]),
+    .I3(clock_ticks[19]) 
+);
+defparam scl_d_s6.INIT=16'h0001;
+  LUT4 n74_s4 (
+    .F(n74_7),
+    .I0(clock_ticks[6]),
+    .I1(clock_ticks[7]),
+    .I2(clock_ticks[2]),
+    .I3(clock_ticks[3]) 
+);
+defparam n74_s4.INIT=16'h1000;
+  LUT4 n74_s5 (
+    .F(n74_8),
+    .I0(clock_ticks[4]),
+    .I1(clock_ticks[5]),
+    .I2(clock_ticks[10]),
+    .I3(clock_ticks[11]) 
+);
+defparam n74_s5.INIT=16'h0001;
+  LUT3 n237_s30 (
+    .F(n237_37),
+    .I0(i2c_counter[1]),
+    .I1(i2c_counter[0]),
+    .I2(i2c_counter[2]) 
+);
+defparam n237_s30.INIT=8'h0D;
+  LUT4 scl_enable_s6 (
+    .F(scl_enable_10),
+    .I0(clock_ticks[7]),
+    .I1(clock_ticks[6]),
+    .I2(scl_d_5),
+    .I3(scl_enable_11) 
+);
+defparam scl_enable_s6.INIT=16'h4000;
+  LUT4 i2c_state_1_s6 (
+    .F(i2c_state_1_10),
+    .I0(i2c_state[1]),
+    .I1(i2c_state[2]),
+    .I2(i2c_state[0]),
+    .I3(i2c_state_1_11) 
+);
+defparam i2c_state_1_s6.INIT=16'hFD3F;
+  LUT3 n129_s12 (
+    .F(n129_18),
+    .I0(clock_ticks[1]),
+    .I1(clock_ticks[4]),
+    .I2(clock_ticks[5]) 
+);
+defparam n129_s12.INIT=8'h80;
+  LUT4 sda_enable_s6 (
+    .F(sda_enable_11),
+    .I0(i2c_state[0]),
+    .I1(i2c_state[1]),
+    .I2(i2c_state[2]),
+    .I3(i2c_state[3]) 
+);
+defparam sda_enable_s6.INIT=16'hFE0F;
+  LUT4 scl_enable_s7 (
+    .F(scl_enable_11),
+    .I0(clock_ticks[4]),
+    .I1(clock_ticks[5]),
+    .I2(clock_ticks[0]),
+    .I3(clock_ticks[1]) 
+);
+defparam scl_enable_s7.INIT=16'h1000;
+  LUT4 i2c_state_1_s7 (
+    .F(i2c_state_1_11),
+    .I0(i2c_counter[0]),
+    .I1(i2c_state[2]),
+    .I2(i2c_counter[1]),
+    .I3(i2c_counter[2]) 
+);
+defparam i2c_state_1_s7.INIT=16'hA333;
+  LUT4 i2c_state_2_s7 (
+    .F(i2c_state_2_12),
+    .I0(i2c_state[3]),
+    .I1(i2c_state_1_10),
+    .I2(i2c_state_2_10),
+    .I3(scl_enable_9) 
+);
+defparam i2c_state_2_s7.INIT=16'hF400;
+  LUT3 i2c_state_1_s8 (
+    .F(i2c_state_1_13),
+    .I0(scl_enable_9),
+    .I1(i2c_state[3]),
+    .I2(i2c_state_1_10) 
+);
+defparam i2c_state_1_s8.INIT=8'h20;
+  LUT4 n244_s31 (
+    .F(n244_43),
+    .I0(i2c_counter[0]),
+    .I1(n244_37),
+    .I2(i2c_counter_2_8),
+    .I3(scl_enable_9) 
+);
+defparam n244_s31.INIT=16'hA4AA;
+  LUT2 i2c_counter_2_s5 (
+    .F(i2c_counter_2_10),
+    .I0(i2c_counter_2_8),
+    .I1(scl_enable_9) 
+);
+defparam i2c_counter_2_s5.INIT=4'h4;
+  DFFR clock_ticks_24_s0 (
+    .Q(clock_ticks[24]),
+    .D(n46_1),
+    .CLK(clk_d),
+    .RESET(n74_5) 
+);
+defparam clock_ticks_24_s0.INIT=1'b0;
+  DFFR clock_ticks_23_s0 (
+    .Q(clock_ticks[23]),
+    .D(n47_1),
+    .CLK(clk_d),
+    .RESET(n74_5) 
+);
+defparam clock_ticks_23_s0.INIT=1'b0;
+  DFFR clock_ticks_22_s0 (
+    .Q(clock_ticks[22]),
+    .D(n48_1),
+    .CLK(clk_d),
+    .RESET(n74_5) 
+);
+defparam clock_ticks_22_s0.INIT=1'b0;
+  DFFR clock_ticks_21_s0 (
+    .Q(clock_ticks[21]),
+    .D(n49_1),
+    .CLK(clk_d),
+    .RESET(n74_5) 
+);
+defparam clock_ticks_21_s0.INIT=1'b0;
+  DFFR clock_ticks_20_s0 (
+    .Q(clock_ticks[20]),
+    .D(n50_1),
+    .CLK(clk_d),
+    .RESET(n74_5) 
+);
+defparam clock_ticks_20_s0.INIT=1'b0;
+  DFFR clock_ticks_19_s0 (
+    .Q(clock_ticks[19]),
+    .D(n51_1),
+    .CLK(clk_d),
+    .RESET(n74_5) 
+);
+defparam clock_ticks_19_s0.INIT=1'b0;
+  DFFR clock_ticks_18_s0 (
+    .Q(clock_ticks[18]),
+    .D(n52_1),
+    .CLK(clk_d),
+    .RESET(n74_5) 
+);
+defparam clock_ticks_18_s0.INIT=1'b0;
+  DFFR clock_ticks_17_s0 (
+    .Q(clock_ticks[17]),
+    .D(n53_1),
+    .CLK(clk_d),
+    .RESET(n74_5) 
+);
+defparam clock_ticks_17_s0.INIT=1'b0;
   DFFR clock_ticks_16_s0 (
     .Q(clock_ticks[16]),
-    .D(n20_1),
+    .D(n54_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_16_s0.INIT=1'b0;
   DFFR clock_ticks_15_s0 (
     .Q(clock_ticks[15]),
-    .D(n21_1),
+    .D(n55_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_15_s0.INIT=1'b0;
   DFFR clock_ticks_14_s0 (
     .Q(clock_ticks[14]),
-    .D(n22_1),
+    .D(n56_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_14_s0.INIT=1'b0;
   DFFR clock_ticks_13_s0 (
     .Q(clock_ticks[13]),
-    .D(n23_1),
+    .D(n57_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_13_s0.INIT=1'b0;
   DFFR clock_ticks_12_s0 (
     .Q(clock_ticks[12]),
-    .D(n24_1),
+    .D(n58_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_12_s0.INIT=1'b0;
   DFFR clock_ticks_11_s0 (
     .Q(clock_ticks[11]),
-    .D(n25_1),
+    .D(n59_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_11_s0.INIT=1'b0;
   DFFR clock_ticks_10_s0 (
     .Q(clock_ticks[10]),
-    .D(n26_1),
+    .D(n60_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_10_s0.INIT=1'b0;
   DFFR clock_ticks_9_s0 (
     .Q(clock_ticks[9]),
-    .D(n27_1),
+    .D(n61_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_9_s0.INIT=1'b0;
   DFFR clock_ticks_8_s0 (
     .Q(clock_ticks[8]),
-    .D(n28_1),
+    .D(n62_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_8_s0.INIT=1'b0;
   DFFR clock_ticks_7_s0 (
     .Q(clock_ticks[7]),
-    .D(n29_1),
+    .D(n63_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_7_s0.INIT=1'b0;
   DFFR clock_ticks_6_s0 (
     .Q(clock_ticks[6]),
-    .D(n30_1),
+    .D(n64_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_6_s0.INIT=1'b0;
   DFFR clock_ticks_5_s0 (
     .Q(clock_ticks[5]),
-    .D(n31_1),
+    .D(n65_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_5_s0.INIT=1'b0;
   DFFR clock_ticks_4_s0 (
     .Q(clock_ticks[4]),
-    .D(n32_1),
+    .D(n66_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_4_s0.INIT=1'b0;
   DFFR clock_ticks_3_s0 (
     .Q(clock_ticks[3]),
-    .D(n33_1),
+    .D(n67_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_3_s0.INIT=1'b0;
   DFFR clock_ticks_2_s0 (
     .Q(clock_ticks[2]),
-    .D(n34_1),
+    .D(n68_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_2_s0.INIT=1'b0;
   DFFR clock_ticks_1_s0 (
     .Q(clock_ticks[1]),
-    .D(n35_1),
+    .D(n69_1),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_1_s0.INIT=1'b0;
   DFFR clock_ticks_0_s0 (
     .Q(clock_ticks[0]),
-    .D(n36_6),
+    .D(n70_6),
     .CLK(clk_d),
-    .RESET(n41_5) 
+    .RESET(n74_5) 
 );
 defparam clock_ticks_0_s0.INIT=1'b0;
+  DFFE scl_enable_s0 (
+    .Q(scl_enable),
+    .D(n236_29),
+    .CLK(clk_d),
+    .CE(scl_enable_7) 
+);
+defparam scl_enable_s0.INIT=1'b0;
+  DFFE i2c_state_3_s0 (
+    .Q(i2c_state[3]),
+    .D(n238_50),
+    .CLK(clk_d),
+    .CE(i2c_state_3_8) 
+);
+defparam i2c_state_3_s0.INIT=1'b0;
   DFFE i2c_state_2_s0 (
     .Q(i2c_state[2]),
-    .D(n135_25),
+    .D(n239_55),
     .CLK(clk_d),
-    .CE(i2c_state_2_7) 
+    .CE(i2c_state_2_12) 
 );
 defparam i2c_state_2_s0.INIT=1'b0;
   DFFE i2c_state_1_s0 (
     .Q(i2c_state[1]),
-    .D(n136_24),
+    .D(n240_46),
     .CLK(clk_d),
-    .CE(i2c_state_1_10) 
+    .CE(i2c_state_1_13) 
 );
 defparam i2c_state_1_s0.INIT=1'b0;
   DFFE i2c_state_0_s0 (
     .Q(i2c_state[0]),
-    .D(n137_27),
+    .D(n241_39),
     .CLK(clk_d),
-    .CE(i2c_state_0_7) 
+    .CE(i2c_state_3_8) 
 );
 defparam i2c_state_0_s0.INIT=1'b0;
   DFFE i2c_counter_2_s0 (
     .Q(i2c_counter[2]),
-    .D(n138_22),
+    .D(n242_35),
     .CLK(clk_d),
-    .CE(i2c_counter_2_6) 
+    .CE(i2c_counter_2_10) 
 );
 defparam i2c_counter_2_s0.INIT=1'b0;
   DFFE i2c_counter_1_s0 (
     .Q(i2c_counter[1]),
-    .D(n139_20),
+    .D(n243_34),
     .CLK(clk_d),
-    .CE(i2c_counter_2_6) 
+    .CE(i2c_counter_2_10) 
 );
 defparam i2c_counter_1_s0.INIT=1'b0;
-  DFFE i2c_counter_0_s0 (
-    .Q(i2c_counter[0]),
-    .D(n140_21),
-    .CLK(clk_d),
-    .CE(i2c_counter_2_6) 
-);
-defparam i2c_counter_0_s0.INIT=1'b0;
-  DFFE sda_enable_s0 (
-    .Q(sda_enable),
-    .D(n141_18),
-    .CLK(clk_d),
-    .CE(sda_enable_7) 
-);
-defparam sda_enable_s0.INIT=1'b0;
-  DFFE scl_enable_s0 (
-    .Q(scl_enable),
-    .D(n142_17),
-    .CLK(clk_d),
-    .CE(scl_enable_6) 
-);
-defparam scl_enable_s0.INIT=1'b0;
-  DFFR clock_ticks_17_s0 (
-    .Q(clock_ticks[17]),
-    .D(n19_1),
-    .CLK(clk_d),
-    .RESET(n41_5) 
-);
-defparam clock_ticks_17_s0.INIT=1'b0;
   DFFSE sda_out_s1 (
     .Q(sda_out),
-    .D(n143_21),
+    .D(n237_34),
     .CLK(clk_d),
-    .CE(sda_out_9),
+    .CE(sda_out_10),
     .SET(GND) 
 );
 defparam sda_out_s1.INIT=1'b1;
-  ALU n35_s (
-    .SUM(n35_1),
-    .COUT(n35_2),
+  DFFE sda_enable_s1 (
+    .Q(sda_enable),
+    .D(n129_15),
+    .CLK(clk_d),
+    .CE(sda_enable_8) 
+);
+defparam sda_enable_s1.INIT=1'b0;
+  DFF i2c_counter_0_s3 (
+    .Q(i2c_counter[0]),
+    .D(n244_43),
+    .CLK(clk_d) 
+);
+defparam i2c_counter_0_s3.INIT=1'b0;
+  ALU n69_s (
+    .SUM(n69_1),
+    .COUT(n69_2),
     .I0(clock_ticks[1]),
     .I1(clock_ticks[0]),
     .I3(GND),
     .CIN(GND) 
 );
-defparam n35_s.ALU_MODE=0;
-  ALU n34_s (
-    .SUM(n34_1),
-    .COUT(n34_2),
+defparam n69_s.ALU_MODE=0;
+  ALU n68_s (
+    .SUM(n68_1),
+    .COUT(n68_2),
     .I0(clock_ticks[2]),
     .I1(GND),
     .I3(GND),
-    .CIN(n35_2) 
+    .CIN(n69_2) 
 );
-defparam n34_s.ALU_MODE=0;
-  ALU n33_s (
-    .SUM(n33_1),
-    .COUT(n33_2),
+defparam n68_s.ALU_MODE=0;
+  ALU n67_s (
+    .SUM(n67_1),
+    .COUT(n67_2),
     .I0(clock_ticks[3]),
     .I1(GND),
     .I3(GND),
-    .CIN(n34_2) 
+    .CIN(n68_2) 
 );
-defparam n33_s.ALU_MODE=0;
-  ALU n32_s (
-    .SUM(n32_1),
-    .COUT(n32_2),
+defparam n67_s.ALU_MODE=0;
+  ALU n66_s (
+    .SUM(n66_1),
+    .COUT(n66_2),
     .I0(clock_ticks[4]),
     .I1(GND),
     .I3(GND),
-    .CIN(n33_2) 
+    .CIN(n67_2) 
 );
-defparam n32_s.ALU_MODE=0;
-  ALU n31_s (
-    .SUM(n31_1),
-    .COUT(n31_2),
+defparam n66_s.ALU_MODE=0;
+  ALU n65_s (
+    .SUM(n65_1),
+    .COUT(n65_2),
     .I0(clock_ticks[5]),
     .I1(GND),
     .I3(GND),
-    .CIN(n32_2) 
+    .CIN(n66_2) 
 );
-defparam n31_s.ALU_MODE=0;
-  ALU n30_s (
-    .SUM(n30_1),
-    .COUT(n30_2),
+defparam n65_s.ALU_MODE=0;
+  ALU n64_s (
+    .SUM(n64_1),
+    .COUT(n64_2),
     .I0(clock_ticks[6]),
     .I1(GND),
     .I3(GND),
-    .CIN(n31_2) 
+    .CIN(n65_2) 
 );
-defparam n30_s.ALU_MODE=0;
-  ALU n29_s (
-    .SUM(n29_1),
-    .COUT(n29_2),
+defparam n64_s.ALU_MODE=0;
+  ALU n63_s (
+    .SUM(n63_1),
+    .COUT(n63_2),
     .I0(clock_ticks[7]),
     .I1(GND),
     .I3(GND),
-    .CIN(n30_2) 
+    .CIN(n64_2) 
 );
-defparam n29_s.ALU_MODE=0;
-  ALU n28_s (
-    .SUM(n28_1),
-    .COUT(n28_2),
+defparam n63_s.ALU_MODE=0;
+  ALU n62_s (
+    .SUM(n62_1),
+    .COUT(n62_2),
     .I0(clock_ticks[8]),
     .I1(GND),
     .I3(GND),
-    .CIN(n29_2) 
+    .CIN(n63_2) 
 );
-defparam n28_s.ALU_MODE=0;
-  ALU n27_s (
-    .SUM(n27_1),
-    .COUT(n27_2),
+defparam n62_s.ALU_MODE=0;
+  ALU n61_s (
+    .SUM(n61_1),
+    .COUT(n61_2),
     .I0(clock_ticks[9]),
     .I1(GND),
     .I3(GND),
-    .CIN(n28_2) 
+    .CIN(n62_2) 
 );
-defparam n27_s.ALU_MODE=0;
-  ALU n26_s (
-    .SUM(n26_1),
-    .COUT(n26_2),
+defparam n61_s.ALU_MODE=0;
+  ALU n60_s (
+    .SUM(n60_1),
+    .COUT(n60_2),
     .I0(clock_ticks[10]),
     .I1(GND),
     .I3(GND),
-    .CIN(n27_2) 
+    .CIN(n61_2) 
 );
-defparam n26_s.ALU_MODE=0;
-  ALU n25_s (
-    .SUM(n25_1),
-    .COUT(n25_2),
+defparam n60_s.ALU_MODE=0;
+  ALU n59_s (
+    .SUM(n59_1),
+    .COUT(n59_2),
     .I0(clock_ticks[11]),
     .I1(GND),
     .I3(GND),
-    .CIN(n26_2) 
+    .CIN(n60_2) 
 );
-defparam n25_s.ALU_MODE=0;
-  ALU n24_s (
-    .SUM(n24_1),
-    .COUT(n24_2),
+defparam n59_s.ALU_MODE=0;
+  ALU n58_s (
+    .SUM(n58_1),
+    .COUT(n58_2),
     .I0(clock_ticks[12]),
     .I1(GND),
     .I3(GND),
-    .CIN(n25_2) 
+    .CIN(n59_2) 
 );
-defparam n24_s.ALU_MODE=0;
-  ALU n23_s (
-    .SUM(n23_1),
-    .COUT(n23_2),
+defparam n58_s.ALU_MODE=0;
+  ALU n57_s (
+    .SUM(n57_1),
+    .COUT(n57_2),
     .I0(clock_ticks[13]),
     .I1(GND),
     .I3(GND),
-    .CIN(n24_2) 
+    .CIN(n58_2) 
 );
-defparam n23_s.ALU_MODE=0;
-  ALU n22_s (
-    .SUM(n22_1),
-    .COUT(n22_2),
+defparam n57_s.ALU_MODE=0;
+  ALU n56_s (
+    .SUM(n56_1),
+    .COUT(n56_2),
     .I0(clock_ticks[14]),
     .I1(GND),
     .I3(GND),
-    .CIN(n23_2) 
+    .CIN(n57_2) 
 );
-defparam n22_s.ALU_MODE=0;
-  ALU n21_s (
-    .SUM(n21_1),
-    .COUT(n21_2),
+defparam n56_s.ALU_MODE=0;
+  ALU n55_s (
+    .SUM(n55_1),
+    .COUT(n55_2),
     .I0(clock_ticks[15]),
     .I1(GND),
     .I3(GND),
-    .CIN(n22_2) 
+    .CIN(n56_2) 
 );
-defparam n21_s.ALU_MODE=0;
-  ALU n20_s (
-    .SUM(n20_1),
-    .COUT(n20_2),
+defparam n55_s.ALU_MODE=0;
+  ALU n54_s (
+    .SUM(n54_1),
+    .COUT(n54_2),
     .I0(clock_ticks[16]),
     .I1(GND),
     .I3(GND),
-    .CIN(n21_2) 
+    .CIN(n55_2) 
 );
-defparam n20_s.ALU_MODE=0;
-  ALU n19_s (
-    .SUM(n19_1),
-    .COUT(n19_0_COUT),
+defparam n54_s.ALU_MODE=0;
+  ALU n53_s (
+    .SUM(n53_1),
+    .COUT(n53_2),
     .I0(clock_ticks[17]),
     .I1(GND),
     .I3(GND),
-    .CIN(n20_2) 
+    .CIN(n54_2) 
 );
-defparam n19_s.ALU_MODE=0;
-  INV n141_s13 (
-    .O(n141_18),
-    .I(i2c_state[2]) 
+defparam n53_s.ALU_MODE=0;
+  ALU n52_s (
+    .SUM(n52_1),
+    .COUT(n52_2),
+    .I0(clock_ticks[18]),
+    .I1(GND),
+    .I3(GND),
+    .CIN(n53_2) 
 );
-  INV n137_s19 (
-    .O(n137_27),
+defparam n52_s.ALU_MODE=0;
+  ALU n51_s (
+    .SUM(n51_1),
+    .COUT(n51_2),
+    .I0(clock_ticks[19]),
+    .I1(GND),
+    .I3(GND),
+    .CIN(n52_2) 
+);
+defparam n51_s.ALU_MODE=0;
+  ALU n50_s (
+    .SUM(n50_1),
+    .COUT(n50_2),
+    .I0(clock_ticks[20]),
+    .I1(GND),
+    .I3(GND),
+    .CIN(n51_2) 
+);
+defparam n50_s.ALU_MODE=0;
+  ALU n49_s (
+    .SUM(n49_1),
+    .COUT(n49_2),
+    .I0(clock_ticks[21]),
+    .I1(GND),
+    .I3(GND),
+    .CIN(n50_2) 
+);
+defparam n49_s.ALU_MODE=0;
+  ALU n48_s (
+    .SUM(n48_1),
+    .COUT(n48_2),
+    .I0(clock_ticks[22]),
+    .I1(GND),
+    .I3(GND),
+    .CIN(n49_2) 
+);
+defparam n48_s.ALU_MODE=0;
+  ALU n47_s (
+    .SUM(n47_1),
+    .COUT(n47_2),
+    .I0(clock_ticks[23]),
+    .I1(GND),
+    .I3(GND),
+    .CIN(n48_2) 
+);
+defparam n47_s.ALU_MODE=0;
+  ALU n46_s (
+    .SUM(n46_1),
+    .COUT(n46_0_COUT),
+    .I0(clock_ticks[24]),
+    .I1(GND),
+    .I3(GND),
+    .CIN(n47_2) 
+);
+defparam n46_s.ALU_MODE=0;
+  INV sda_s5 (
+    .O(sda_8),
+    .I(sda_enable) 
+);
+  INV n241_s31 (
+    .O(n241_39),
     .I(i2c_state[0]) 
 );
-  INV n36_s2 (
-    .O(n36_6),
+  INV n70_s2 (
+    .O(n70_6),
     .I(clock_ticks[0]) 
 );
   VCC VCC_cZ (

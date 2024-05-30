@@ -1,18 +1,20 @@
 GowinSynthesis start
 Running parser ...
 Analyzing Verilog file '\\Mac\Home\Documents\Projects\drone\src\main.v'
-WARN  (EX3209) : Root scope declaration is not allowed in Verilog 2001 mode("\\Mac\Home\Documents\Projects\drone\src\main.v":1)
-WARN  (EX3209) : Root scope declaration is not allowed in Verilog 2001 mode("\\Mac\Home\Documents\Projects\drone\src\main.v":2)
-WARN  (EX3209) : Root scope declaration is not allowed in Verilog 2001 mode("\\Mac\Home\Documents\Projects\drone\src\main.v":3)
-WARN  (EX2582) : Parameter 'CLOCK_FREQ' declared inside compilation unit '$unit___mac_home_documents_projects_drone_src_main_v' shall be treated as localparam("\\Mac\Home\Documents\Projects\drone\src\main.v":1)
-WARN  (EX2582) : Parameter 'I2C_FREQ' declared inside compilation unit '$unit___mac_home_documents_projects_drone_src_main_v' shall be treated as localparam("\\Mac\Home\Documents\Projects\drone\src\main.v":2)
-WARN  (EX2582) : Parameter 'I2C_CYCLE_TICKS' declared inside compilation unit '$unit___mac_home_documents_projects_drone_src_main_v' shall be treated as localparam("\\Mac\Home\Documents\Projects\drone\src\main.v":3)
-Compiling module 'I2C_Master'("\\Mac\Home\Documents\Projects\drone\src\main.v":5)
-WARN  (EX3780) : Using initial value of 'i2c_address' since it is never assigned("\\Mac\Home\Documents\Projects\drone\src\main.v":43)
-WARN  (EX3780) : Using initial value of 'i2c_rw' since it is never assigned("\\Mac\Home\Documents\Projects\drone\src\main.v":44)
-WARN  (EX3791) : Expression size 19 truncated to fit in target size 18("\\Mac\Home\Documents\Projects\drone\src\main.v":59)
-WARN  (EX3791) : Expression size 4 truncated to fit in target size 3("\\Mac\Home\Documents\Projects\drone\src\main.v":82)
-WARN  (EX3791) : Expression size 4 truncated to fit in target size 3("\\Mac\Home\Documents\Projects\drone\src\main.v":109)
+WARN  (EX3209) : Root scope declaration is not allowed in Verilog 2001 mode("\\Mac\Home\Documents\Projects\drone\src\main.v":6)
+WARN  (EX3209) : Root scope declaration is not allowed in Verilog 2001 mode("\\Mac\Home\Documents\Projects\drone\src\main.v":8)
+WARN  (EX3209) : Root scope declaration is not allowed in Verilog 2001 mode("\\Mac\Home\Documents\Projects\drone\src\main.v":9)
+WARN  (EX3209) : Root scope declaration is not allowed in Verilog 2001 mode("\\Mac\Home\Documents\Projects\drone\src\main.v":11)
+WARN  (EX3209) : Root scope declaration is not allowed in Verilog 2001 mode("\\Mac\Home\Documents\Projects\drone\src\main.v":12)
+Compiling module 'I2C_Master'("\\Mac\Home\Documents\Projects\drone\src\main.v":14)
+WARN  (EX3780) : Using initial value of 'i2c_address' since it is never assigned("\\Mac\Home\Documents\Projects\drone\src\main.v":52)
+WARN  (EX3780) : Using initial value of 'i2c_rw' since it is never assigned("\\Mac\Home\Documents\Projects\drone\src\main.v":53)
+WARN  (EX3780) : Using initial value of 'i2c_register' since it is never assigned("\\Mac\Home\Documents\Projects\drone\src\main.v":54)
+WARN  (EX3791) : Expression size 8 truncated to fit in target size 7("\\Mac\Home\Documents\Projects\drone\src\main.v":28)
+WARN  (EX3791) : Expression size 26 truncated to fit in target size 25("\\Mac\Home\Documents\Projects\drone\src\main.v":69)
+WARN  (EX3791) : Expression size 4 truncated to fit in target size 3("\\Mac\Home\Documents\Projects\drone\src\main.v":116)
+WARN  (EX3791) : Expression size 4 truncated to fit in target size 3("\\Mac\Home\Documents\Projects\drone\src\main.v":133)
+WARN  (EX3791) : Expression size 4 truncated to fit in target size 3("\\Mac\Home\Documents\Projects\drone\src\main.v":150)
 NOTE  (EX0101) : Current top module is "I2C_Master"
 [5%] Running netlist conversion ...
 Running device independent optimization ...
