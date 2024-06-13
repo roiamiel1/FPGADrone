@@ -1,9 +1,9 @@
--d \\Mac\Home\Documents\Projects\drone\impl\gwsynthesis\drone.vg
+-d /project/impl/gwsynthesis/project.vg
 -p GW1NR-9C-QFN88P-6
 -pn GW1NR-LV9QN88PC6/I5
--cst \\Mac\Home\Documents\Projects\drone\src\drone.cst
--cfg \\Mac\Home\Documents\Projects\drone\impl\pnr\device.cfg
--sdc \\Mac\Home\Documents\Projects\drone\src\drone.sdc
+-cst /project/src/drone.cst
+-cfg /project/impl/pnr/device.cfg
+-sdc /project/src/drone.sdc
 -bit
 -tr
 -ph
@@ -11,3 +11,4 @@
 -cst_error
 -correct_hold 1
 -route_maxfan 23
+-global_freq 50.000
