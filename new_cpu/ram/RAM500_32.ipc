@@ -1,0 +1,12 @@
+[General]
+ipc_version=4
+file=RAM500_32
+module=RAM500_32
+target_device=gw1nr9c-004
+type=ssram_ram16s
+version=1.0
+
+[Config]
+DEPTH=500
+LANG=0
+WIDTH=32

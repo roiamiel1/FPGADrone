@@ -1,9 +1,8 @@
--d /project/impl/gwsynthesis/project.vg
+-d /media/psf/Projects/drone/impl/gwsynthesis/drone.vg
 -p GW1NR-9C-QFN88P-6
 -pn GW1NR-LV9QN88PC6/I5
--cst /project/src/drone.cst
--cfg /project/impl/pnr/device.cfg
--sdc /project/src/drone.sdc
+-cst /media/psf/Projects/drone/new_cpu/drone.cst
+-cfg /media/psf/Projects/drone/impl/pnr/device.cfg
 -bit
 -tr
 -ph

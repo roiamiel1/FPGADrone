@@ -1,0 +1,27 @@
+//Copyright (C)2014-2024 Gowin Semiconductor Corporation.
+//All rights reserved. 
+//File Title: Physical Constraints file
+//Tool Version: V1.9.9.03 Education
+//Part Number: GW1NR-LV9QN88PC6/I5
+//Device: GW1NR-9
+//Device Version: C
+//Created Time: Sat 06 22 13:32:49 2024
+
+IO_LOC "clk" 52;
+IO_PORT "clk" IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+IO_LOC "debug_pc[15]" 17;
+IO_PORT "debug_pc[15]" IO_TYPE=LVCMOS18 PULL_MODE=UP BANK_VCCIO=1.8;
+IO_LOC "debug_pc[14]" 16;
+IO_PORT "debug_pc[14]" IO_TYPE=LVCMOS18 PULL_MODE=UP BANK_VCCIO=1.8;
+IO_LOC "debug_pc[13]" 15;
+IO_PORT "debug_pc[13]" IO_TYPE=LVCMOS18 PULL_MODE=UP BANK_VCCIO=1.8;
+IO_LOC "debug_pc[12]" 14;
+IO_PORT "debug_pc[12]" IO_TYPE=LVCMOS18 PULL_MODE=UP BANK_VCCIO=1.8;
+IO_LOC "debug_pc[11]" 13;
+IO_PORT "debug_pc[11]" IO_TYPE=LVCMOS18 PULL_MODE=UP BANK_VCCIO=1.8;
+IO_LOC "debug_pc[10]" 11;
+IO_PORT "debug_pc[10]" IO_TYPE=LVCMOS18 PULL_MODE=UP BANK_VCCIO=1.8;
+IO_LOC "debug_pc[0]" 10;
+IO_PORT "debug_pc[0]" IO_TYPE=LVCMOS18 PULL_MODE=UP BANK_VCCIO=1.8;
+IO_LOC "rst" 4;
+IO_PORT "rst" IO_TYPE=LVCMOS18 PULL_MODE=UP BANK_VCCIO=1.8;
