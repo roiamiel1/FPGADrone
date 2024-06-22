@@ -1,3 +1,11 @@
+# ----------------------------------------------
+HARDWARE_TOP_MODULE = MIPS_R2000
+HARDWARE_TESTBENCH = MIPS_R2000_tb
+HARDWARE_SRCS := $(shell find ./src/hardware -type f -name \*.v -exec basename {} \;)
+
+# ----------------------------------------------
+
+
 build-cpu:
 	docker run --rm -it -w /project -v ./:/project gowin_builder gw_sh ./Makefile.tcl
 
@@ -27,3 +35,20 @@ rom32:
 run:
 	make build
 	make load
+
+simulate:
+	cd ./src/hardware; iverilog -g2001 -Wall -o ../../bin/hardware/$(HARDWARE_TESTBENCH).vvp $(HARDWARE_SRCS) ../../tests/hardware/$(HARDWARE_TESTBENCH).v
+	cd ./bin/hardware; vvp $(HARDWARE_TESTBENCH).vvp | tee $(HARDWARE_TESTBENCH)_log.txt 1>/dev/null
+
+gtkwave: simulate
+	gtkwave ./bin/hardware/$(HARDWARE_TESTBENCH).vcd
+
+
+
+
+
+lint:
+	verilator -g2001 -Wall --lint-only $(SRCS) $(HARDWARE_TESTBENCH).v
+
+clean:
+	rm -rf $(TESTBENCH).vvp $(TESTBENCH).vcd $(TESTBENCH)_log.txt

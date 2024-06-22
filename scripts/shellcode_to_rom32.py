@@ -9,7 +9,7 @@ MEM_CELL_BITS = 32
 opcode_template_ident = "         "
 opcode_template = "(IMAdress == {ADDRESS}) ? {DATA} :\n"
 
-with open("bin/main.shellcode", "rb") as f:
+with open("bin/software/main.shellcode", "rb") as f:
     shellcode = f.read()
 
 assert(len(shellcode) % BYTES_PER_OPCODE == 0, "Invalid shellcode")
@@ -40,5 +40,5 @@ always @(IMAdress) begin
 endmodule
 """
 
-with open("new_cpu/InstructionMemory.v", "w") as f:
+with open("src/hardware/InstructionMemory.v", "w") as f:
     f.write(template)

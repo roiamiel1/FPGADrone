@@ -8,6 +8,7 @@
         <File path="new_cpu/ALU.v" type="file.verilog" enable="1"/>
         <File path="new_cpu/ConditionCheck.v" type="file.verilog" enable="1"/>
         <File path="new_cpu/Control.v" type="file.verilog" enable="1"/>
+        <File path="new_cpu/DataMemory.v" type="file.verilog" enable="1"/>
         <File path="new_cpu/EXMEMReg.v" type="file.verilog" enable="1"/>
         <File path="new_cpu/Extender.v" type="file.verilog" enable="1"/>
         <File path="new_cpu/ForwardingUnit.v" type="file.verilog" enable="1"/>
@@ -21,7 +22,6 @@
         <File path="new_cpu/PCU.v" type="file.verilog" enable="1"/>
         <File path="new_cpu/clk_div.v" type="file.verilog" enable="1"/>
         <File path="new_cpu/instruction_def.v" type="file.verilog" enable="1"/>
-        <File path="new_cpu/ram/RAM500_32.v" type="file.verilog" enable="1"/>
         <File path="new_cpu/seg7x16.v" type="file.verilog" enable="1"/>
         <File path="new_cpu/signal_def.v" type="file.verilog" enable="1"/>
         <File path="new_cpu/drone.cst" type="file.cst" enable="1"/>

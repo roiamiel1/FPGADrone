@@ -1,0 +1,140 @@
+[
+ {
+  "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+  "InstLine" : 4,
+  "InstName" : "MIPS_R2000",
+  "ModuleFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+  "ModuleLine" : 4,
+  "ModuleName" : "MIPS_R2000",
+  "SubInsts" : [
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 115,
+    "InstName" : "U_PCU",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/PCU.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "PCU"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 126,
+    "InstName" : "U_InstructionMemory",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/InstructionMemory.v",
+    "ModuleLine" : 3,
+    "ModuleName" : "InstructionMemory"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 131,
+    "InstName" : "U_IFIDReg",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/IFIDReg.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "IFIDReg"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 141,
+    "InstName" : "U_HazardUnit",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/HazardUnit.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "HazardUnit"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 151,
+    "InstName" : "U_GPR",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/GPR.v",
+    "ModuleLine" : 2,
+    "ModuleName" : "GPR"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 163,
+    "InstName" : "U_ConditionCheck",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/ConditionCheck.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "ConditionCheck"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 181,
+    "InstName" : "U_Extender",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/Extender.v",
+    "ModuleLine" : 2,
+    "ModuleName" : "Extender"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 187,
+    "InstName" : "U_IDEXReg",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/IDEXReg.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "IDEXReg"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 220,
+    "InstName" : "U_ALU",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/ALU.v",
+    "ModuleLine" : 3,
+    "ModuleName" : "ALU"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 235,
+    "InstName" : "U_EXMEMReg",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/EXMEMReg.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "EXMEMReg"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 256,
+    "InstName" : "U_DataMemory",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/DataMemory.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "DataMemory"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 264,
+    "InstName" : "U_MEMWBReg",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/MEMWBReg.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "MEMWBReg"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 279,
+    "InstName" : "U_Ctrl",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/Control.v",
+    "ModuleLine" : 4,
+    "ModuleName" : "Control"
+   },
+   {
+    "InstFile" : "/media/psf/Projects/drone/new_cpu/MIPS_R2000.v",
+    "InstLine" : 294,
+    "InstName" : "U_ForwardingUnit",
+    "ModuleFile" : "/media/psf/Projects/drone/new_cpu/ForwardingUnit.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "ForwardingUnit"
+   }
+  ]
+ },
+ {
+  "InstFile" : "/media/psf/Projects/drone/new_cpu/clk_div.v",
+  "InstLine" : 2,
+  "InstName" : "clk_div",
+  "ModuleFile" : "/media/psf/Projects/drone/new_cpu/clk_div.v",
+  "ModuleLine" : 2,
+  "ModuleName" : "clk_div"
+ },
+ {
+  "InstFile" : "/media/psf/Projects/drone/new_cpu/seg7x16.v",
+  "InstLine" : 2,
+  "InstName" : "seg7x16",
+  "ModuleFile" : "/media/psf/Projects/drone/new_cpu/seg7x16.v",
+  "ModuleLine" : 2,
+  "ModuleName" : "seg7x16"
+ }
+]

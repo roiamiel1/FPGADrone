@@ -17,7 +17,7 @@ add_file -type verilog new_cpu/clk_div.v
 add_file -type verilog new_cpu/instruction_def.v
 add_file -type verilog new_cpu/seg7x16.v
 add_file -type verilog new_cpu/signal_def.v
-add_file -type verilog new_cpu/ram/RAM500_32.v
+add_file -type verilog new_cpu/DataMemory.v
 add_file -type cst new_cpu/drone.cst
 set_option -top_module MIPS_R2000
 run all

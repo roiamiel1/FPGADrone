@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="MIPS_R2000" Alu="30" Lut="416" T_Register="347(0)" T_Alu="667(30)" T_Lut="3721(416)" T_MULT36X36="1(0)" T_Bsram="1(0)" T_Ssram="40(0)">
+ <SubModule name="U_PCU" Register="32" Lut="73" T_Register="32(32)" T_Lut="73(73)"/>
+ <SubModule name="U_InstructionMemory" Lut="25" T_Lut="25(25)"/>
+ <SubModule name="U_IFIDReg" Register="58" Lut="152" T_Register="58(58)" T_Lut="152(152)"/>
+ <SubModule name="U_HazardUnit" Alu="8" T_Alu="8(8)"/>
+ <SubModule name="U_GPR" Register="10" Lut="234" Ssram="40" T_Register="10(10)" T_Lut="234(234)" T_Ssram="40(40)"/>
+ <SubModule name="U_ConditionCheck" Alu="32" T_Alu="32(32)"/>
+ <SubModule name="U_Extender" Lut="1" T_Lut="1(1)"/>
+ <SubModule name="U_IDEXReg" Register="95" T_Register="95(95)"/>
+ <SubModule name="U_ALU" Register="32" Alu="557" Lut="2783" MULT36X36="1" T_Register="32(32)" T_Alu="557(557)" T_Lut="2783(2783)" T_MULT36X36="1(1)"/>
+ <SubModule name="U_EXMEMReg" Register="70" T_Register="70(70)"/>
+ <SubModule name="U_DataMemory" Bsram="1" T_Bsram="1(1)"/>
+ <SubModule name="U_MEMWBReg" Register="37" T_Register="37(37)"/>
+ <SubModule name="U_Ctrl" Register="13" Lut="37" T_Register="13(13)" T_Lut="37(37)"/>
+ <SubModule name="U_ForwardingUnit" Alu="40" T_Alu="40(40)"/>
+</Module>
