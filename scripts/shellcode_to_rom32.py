@@ -12,7 +12,7 @@ opcode_template = "(IMAdress == {ADDRESS}) ? {DATA} :\n"
 with open("bin/software/main.shellcode", "rb") as f:
     shellcode = f.read()
 
-assert(len(shellcode) % BYTES_PER_OPCODE == 0, "Invalid shellcode")
+assert len(shellcode) % BYTES_PER_OPCODE == 0, "Invalid shellcode"
 
 opcodes_iterator = batched(shellcode, BYTES_PER_OPCODE)
 
@@ -28,6 +28,7 @@ for address, opcode in enumerate(opcodes_iterator):
 
 template = f"""
 // AUTO-GENERATED - DO NOT CHNAGE!
+`ifndef DEBUG
 module InstructionMemory (
     input [{ADDRESS_BITS - 1}:0] IMAdress,
     output reg [{MEM_CELL_BITS - 1}:0] IR
@@ -38,6 +39,18 @@ always @(IMAdress) begin
          {MEM_CELL_BITS}'h00000000;
     end
 endmodule
+`else
+module InstructionMemory(
+    input [31:0] IMAdress,
+    output reg [31:0] IR
+);
+    reg [31:0] IMem [1023:0];
+
+    always@(IMAdress) begin
+        IR <= IMem[IMAdress];
+    end
+endmodule
+`endif
 """
 
 with open("src/hardware/InstructionMemory.v", "w") as f:

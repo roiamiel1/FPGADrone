@@ -1,4 +1,11 @@
-// OP
+// Format
+`define OP_FORMAT_R 6'b000000
+`define OP_FORMAT_I 6'b000000
+`define OP_FORMAT_J 6'b000000
+`define OP_FORMAT_F 6'b000000
+
+
+
 `define INSTR_RTYPE_OP      6'b000000
 
 `define INSTR_BGEZ_OP       6'b000001

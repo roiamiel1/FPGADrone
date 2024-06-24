@@ -1,5 +1,6 @@
 
 // AUTO-GENERATED - DO NOT CHNAGE!
+`ifndef DEBUG
 module InstructionMemory (
     input [31:0] IMAdress,
     output reg [31:0] IR
@@ -58,3 +59,15 @@ always @(IMAdress) begin
          32'h00000000;
     end
 endmodule
+`else
+module InstructionMemory(
+    input [31:0] IMAdress,
+    output reg [31:0] IR
+);
+    reg [31:0] IMem [1023:0];
+
+    always@(IMAdress) begin
+        IR <= IMem[IMAdress];
+    end
+endmodule
+`endif

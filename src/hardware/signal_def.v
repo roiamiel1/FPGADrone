@@ -94,12 +94,3 @@
 `define ALUOp_BNE   5'b01110
 `define ALUOp_SLT   5'b01111
 `define ALUOp_LUI   5'b10001
-
-`define ALUOp_ADDU  `ALUOp_ADD
-`define ALUOp_ADDIU `ALUOp_ADD
-`define ALUOp_SUBU  `ALUOp_SUB
-`define ALUOp_ORI   `ALUOp_OR
-`define ALUOp_LW    `ALUOp_ADD
-`define ALUOp_SW    `ALUOp_ADD
-`define ALUOp_BEQ   `ALUOp_SUB
-`define ALUOp_SLTI  `ALUOp_SLT

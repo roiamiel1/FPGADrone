@@ -9,12 +9,18 @@ HARDWARE_SRCS := $(shell find ./src/hardware -type f -name \*.v -exec basename {
 build-cpu:
 	docker run --rm -it -w /project -v ./:/project gowin_builder gw_sh ./Makefile.tcl
 
+build-asm-test:
+	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-as -mips1 -march=r2000 -o tests/hardware/asm/MIPS_R2000_tb.out tests/hardware/asm/MIPS_R2000_tb.asm
+	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objcopy --dump-section .text=tests/hardware/asm/MIPS_R2000_tb.shellcode tests/hardware/asm/MIPS_R2000_tb.out
+	xxd -c 4 -p tests/hardware/asm/MIPS_R2000_tb.shellcode > tests/hardware/asm/MIPS_R2000_tb.hex
+
 build-mips:
-	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-gcc -mfp32 -march=R2000 -static -nostdlib src/main.c -o bin/main.out
-	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-gcc -S -mfp32 -march=R2000 -static -nostdlib src/main.c -o bin/main.asm
+	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-gcc -mfp32 -march=R2000 -static -nostdlib src/software/main.c -o bin/software/main.out
+	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-gcc -S -mfp32 -march=R2000 -static -nostdlib src/software/main.c -o bin/software/main.asm
 
 build-shellcode:
-	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objcopy --dump-section .text=bin/main.shellcode bin/main.out
+	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objcopy --dump-section .text=bin/software/main.shellcode bin/software/main.out
+	xxd -c 4 -p bin/software/main.shellcode > bin/software/main.hex
 
 load:
 	openFPGALoader -b tangnano9k -m impl/pnr/project.fs
@@ -36,9 +42,9 @@ run:
 	make build
 	make load
 
-simulate:
+simulate: build-asm-test
 	cd ./src/hardware; iverilog -g2001 -Wall -o ../../bin/hardware/$(HARDWARE_TESTBENCH).vvp $(HARDWARE_SRCS) ../../tests/hardware/$(HARDWARE_TESTBENCH).v
-	cd ./bin/hardware; vvp $(HARDWARE_TESTBENCH).vvp | tee $(HARDWARE_TESTBENCH)_log.txt 1>/dev/null
+	cd ./bin/hardware; vvp $(HARDWARE_TESTBENCH).vvp | tee $(HARDWARE_TESTBENCH)_log.txt
 
 gtkwave: simulate
 	gtkwave ./bin/hardware/$(HARDWARE_TESTBENCH).vcd
