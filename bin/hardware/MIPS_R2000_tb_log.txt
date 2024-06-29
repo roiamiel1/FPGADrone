@@ -1,5 +1,0 @@
-VCD info: dumpfile MIPS_R2000_tb.vcd opened for output.
-WARNING: ../../tests/hardware/MIPS_R2000_tb.v:25: $readmemh: The behaviour for reg[...] mem[N:0]; $readmemh("...", mem); changed in the 1364-2005 standard. To avoid ambiguity, use mem[0:N] or explicit range parameters $readmemh("...", mem, start, stop);. Defaulting to 1364-2005 behavior.
-WARNING: ../../tests/hardware/MIPS_R2000_tb.v:25: $readmemh(../../tests/hardware/asm/MIPS_R2000_tb.hex): Not enough words in the file for the requested range [0:1023].
-ASSERTION FAILED in TESTBENCH: U_MIPS_R2000.U_GPR.gprRegisters[2](00000001) != 32'd3(00000003)
-../../tests/hardware/MIPS_R2000_tb.v:62: $finish called at 220 (1s)

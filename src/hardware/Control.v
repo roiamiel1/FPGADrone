@@ -101,27 +101,27 @@ module Control(
             // beq case:
             Jump <= 0;
             RegDst <= 0;
-            Branch <= 0;
+            Branch <= 1;
             MemRead <= 0;
             MemWrite <= 0;
             RegWrite <= 0;
-            ALUSrc <= 0;
-            ExtOp <= 0;
-            ALUOp <= 0;
+            ALUSrc <= `ALU_SRC_REG;
+            ExtOp <= `EXT_SIGNED;
+            ALUOp <= `ALUOp_SUB;
         end else if (OpCode == 6'h5) begin
             // bne case:
             Jump <= 0;
             RegDst <= 0;
-            Branch <= 0;
+            Branch <= 1;
             MemRead <= 0;
             MemWrite <= 0;
             RegWrite <= 0;
-            ALUSrc <= 0;
-            ExtOp <= 0;
-            ALUOp <= 0;
+            ALUSrc <= `ALU_SRC_REG;
+            ExtOp <= `EXT_SIGNED;
+            ALUOp <= `ALUOp_BNE;
         end else if (OpCode == 6'h2) begin
             // j case:
-            Jump <= 0;
+            Jump <= 1;
             RegDst <= 0;
             Branch <= 0;
             MemRead <= 0;

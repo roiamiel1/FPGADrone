@@ -43,6 +43,8 @@ run:
 	make load
 
 simulate: build-asm-test
+	python3 ./scripts/generate_asm_tb.py
+	make build-asm-test
 	cd ./src/hardware; iverilog -g2001 -Wall -o ../../bin/hardware/$(HARDWARE_TESTBENCH).vvp $(HARDWARE_SRCS) ../../tests/hardware/$(HARDWARE_TESTBENCH).v
 	cd ./bin/hardware; vvp $(HARDWARE_TESTBENCH).vvp | tee $(HARDWARE_TESTBENCH)_log.txt
 
