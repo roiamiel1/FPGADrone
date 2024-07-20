@@ -41,22 +41,28 @@ module TESTBENCH (
     end
 
     always@(posedge clk_debug) begin
-		if (cycles == 4 && !(U_MIPS_R2000.U_GPR.gprRegisters[4] == 32'd0)) begin
+        cycles = cycles + 1;
+		if (cycles == 5 && !(U_MIPS_R2000.U_GPR.gprRegisters[4] == 32'd0)) begin
 		    $display("ASSERTION FAILED `li $a0, 0`: signal(%8X) != value(%8X)", U_MIPS_R2000.U_GPR.gprRegisters[4], 32'd0);
 		    $finish;
 		end
 
-		if (cycles == 5 && !(U_MIPS_R2000.U_GPR.gprRegisters[5] == 32'd5)) begin
+		if (cycles == 6 && !(U_MIPS_R2000.U_GPR.gprRegisters[5] == 32'd5)) begin
 		    $display("ASSERTION FAILED `li $a1, 5`: signal(%8X) != value(%8X)", U_MIPS_R2000.U_GPR.gprRegisters[5], 32'd5);
 		    $finish;
 		end
 
-		if (cycles == 6 && !(U_MIPS_R2000.U_GPR.gprRegisters[6] == 32'd4294967295)) begin
-		    $display("ASSERTION FAILED `li $a1, -1`: signal(%8X) != value(%8X)", U_MIPS_R2000.U_GPR.gprRegisters[6], 32'd4294967295);
+		if (cycles == 7 && !(U_MIPS_R2000.U_GPR.gprRegisters[6] == 32'd4294967295)) begin
+		    $display("ASSERTION FAILED `li $a2, -1`: signal(%8X) != value(%8X)", U_MIPS_R2000.U_GPR.gprRegisters[6], 32'd4294967295);
 		    $finish;
 		end
 
-		if (cycles >= 7)
+		if (cycles == 8 && !(U_MIPS_R2000.U_GPR.gprRegisters[7] == 32'd123456)) begin
+		    $display("ASSERTION FAILED `li $a3, 123456`: signal(%8X) != value(%8X)", U_MIPS_R2000.U_GPR.gprRegisters[7], 32'd123456);
+		    $finish;
+		end
+
+		if (cycles >= 8)
 		    $finish;
     end
 

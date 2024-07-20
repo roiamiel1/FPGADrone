@@ -3,8 +3,8 @@ from mips_test_lib import REGS, build_test
 instructions = [
     ("li $a0, 0", REGS.A0 == 0),
     ("li $a1, 5", REGS.A1 == 5),
-    ("li $a1, -1", REGS.A2 == 0xFFFFFFFF),
-    ("li $a1, -1", REGS.A2 == 0x1FFFFFFF),
+    ("li $a2, -1", REGS.A2 == 0xFFFFFFFF),
+    ("li $a3, 123456", REGS.A3 == 123456),
 ]
 
 build_test(

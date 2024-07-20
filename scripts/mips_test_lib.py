@@ -45,6 +45,7 @@ module TESTBENCH (
     end
 
     always@(posedge clk_debug) begin
+        cycles = cycles + 1;
 {VALIDATIONS}
     end
 
@@ -88,7 +89,7 @@ class MipsRuleAssert(MipsRule):
     def __init__(self, actual_expression, logical_operator, expected_expression) -> None:
         def __inner_function__(inst: str, instruction_index: int):
             return f"""
-if (cycles == {instruction_index + 4} && !({actual_expression} {logical_operator} {expected_expression})) begin
+if (cycles == {instruction_index + 5} && !({actual_expression} {logical_operator} {expected_expression})) begin
     $display("ASSERTION FAILED `{inst}`: signal(%8X) != value(%8X)", {actual_expression}, {expected_expression});
     $finish;
 end

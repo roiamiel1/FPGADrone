@@ -42,7 +42,7 @@ run:
 	make build
 	make load
 
-simulate: build-asm-test
+simulate:
 	python3 ./scripts/generate_asm_tb.py
 	make build-asm-test
 	cd ./src/hardware; iverilog -g2001 -Wall -o ../../bin/hardware/$(HARDWARE_TESTBENCH).vvp $(HARDWARE_SRCS) ../../tests/hardware/$(HARDWARE_TESTBENCH).v
@@ -50,10 +50,6 @@ simulate: build-asm-test
 
 gtkwave: simulate
 	gtkwave ./bin/hardware/$(HARDWARE_TESTBENCH).vcd
-
-
-
-
 
 lint:
 	verilator -g2001 -Wall --lint-only $(SRCS) $(HARDWARE_TESTBENCH).v
