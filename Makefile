@@ -5,13 +5,13 @@ HARDWARE_SRCS := $(shell find ./src/hardware -type f -name \*.v -exec basename {
 
 # ----------------------------------------------
 
-
 build-cpu:
 	docker run --rm -it -w /project -v ./:/project gowin_builder gw_sh ./Makefile.tcl
 
 build-asm-test:
 	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-as -mips1 -march=r2000 -o tests/hardware/asm/MIPS_R2000_tb.out tests/hardware/asm/MIPS_R2000_tb.asm
 	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objcopy --dump-section .text=tests/hardware/asm/MIPS_R2000_tb.shellcode tests/hardware/asm/MIPS_R2000_tb.out
+	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objdump -d -M no-aliases tests/hardware/asm/MIPS_R2000_tb.out > tests/hardware/asm/MIPS_R2000_tb.text
 	xxd -c 4 -p tests/hardware/asm/MIPS_R2000_tb.shellcode > tests/hardware/asm/MIPS_R2000_tb.hex
 
 build-mips:
