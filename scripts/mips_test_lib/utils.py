@@ -1,6 +1,19 @@
 import os
+from io import StringIO
+from pyprinter import printer
 from typing import List, Any, Generator
 from string import Formatter
+
+
+class CodePrinter(printer.Printer):
+    def __init__(self):
+        string_io = StringIO()
+        writer = printer.DefaultWriter(string_io)
+        super().__init__(writer, colors=False, width_limit=False)
+        self._string_io = string_io
+
+    def assemble(self):
+        return self._string_io.getvalue()
 
 
 def twos_complement(value, bitWidth):

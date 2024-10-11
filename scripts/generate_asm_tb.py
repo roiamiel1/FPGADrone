@@ -1,5 +1,5 @@
 from mips_test_lib.mips_test_lib import build_test
-from mips_test_lib.mips_objects import REGS
+from scripts.mips_test_lib.mips_testbanch_builder import REGS
 
 instructions = [
     # Test `addiu``:

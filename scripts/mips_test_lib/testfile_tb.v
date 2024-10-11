@@ -1,5 +1,5 @@
 ################### Consts ###################
-`define STAGE_NOT_IN_PIPE = 6;
+`define STAGE_NOT_IN_PIPE = -1;
 `define STAGE_BEFORE_PIPE = 5;
 `define STAGE_AFTER_IF = 4;
 `define STAGE_AFTER_ID = 3;
@@ -12,8 +12,8 @@ inst0_pipe_stage = STAGE_NOT_IN_PIPE;
 inst4_pipe_stage = STAGE_NOT_IN_PIPE;
 
 ############### Condition Vars ###############
-future_4_A_0 = 0;
-future_4_C_1 = 0;
+reg[31:0] future_4_A_BEFORE = 32'd0;
+reg[31:0] future_4_C_AFTER_IF = 32'd0;
 
 ########### Update Pipe Stage Vars ###########
 if (inst0_pipe_stage > STAGE_NOT_IN_PIPE) begin
@@ -45,22 +45,29 @@ end
 
 ################# Conditions #################
 if (inst0_pipe_stage == STAGE_AFTER_PIPE) begin
-    if (REGISTERS[0] == 5) begin
+    if (U_MIPS_R2000.U_GPR.gprRegisters[4] == 5) begin
+        $display("Error");
+        $finish;
+    end
+end
+
+if (inst4_pipe_stage == STAGE_AFTER_PIPE) begin
+    if (U_MIPS_R2000.U_GPR.gprRegisters[4] == 5) begin
         $display("Error");
         $finish;
     end
 end
 
 if (inst4_pipe_stage == STAGE_BEFORE_PIPE) begin
-    future_4_A_0 = REGISTERS[0]
+    future_4_A_BEFORE = U_MIPS_R2000.U_GPR.gprRegisters[5];
 end
 
 if (inst4_pipe_stage == STAGE_AFTER_IF) begin
-    future_4_C_1 = REGISTERS[0]
+    future_4_C_AFTER_IF = U_MIPS_R2000.U_GPR.gprRegisters[5];
 end
 
-if (inst4_pipe_stage == STAGE_AFTER_IF) begin
-    if (future_4_A_0 == (REGISTERS[0] + future_4_C_1)) begin
+if (inst4_pipe_stage == STAGE_AFTER_PIPE) begin
+    if (future_4_A_BEFORE == (U_MIPS_R2000.U_GPR.gprRegisters[5] + future_4_C_AFTER_IF)) begin
         $display("Error");
         $finish;
     end
