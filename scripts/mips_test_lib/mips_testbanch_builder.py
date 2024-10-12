@@ -89,6 +89,7 @@ class TestbanchBuilder(object):
         self._pc_triggers: List[InternalBuilderPCTrigger] = []
         self._conditions: List[InternalBuilderCondition] = []
         self._conditions_vars: List[Tuple[str, int]] = []  # tuple of cariable name and bits count
+        self._insts: List[MipsInstruction] = []
         
     def attach_inst(
         self, 
@@ -106,6 +107,7 @@ class TestbanchBuilder(object):
             self._pipe_stage_vars_names.append(pipe_stage_var_name)
             self._pc_triggers.append(InternalBuilderPCTrigger(pipe_stage_var_name, inst.pc))
             for cond in conditions: self._attach_condition(inst, pipe_stage_var_name, cond)
+            self._insts.append(inst)
         except Exception as e:
             # In case an error happend while attachment, clear the whole internal state, 
             # cause we don't know what cause it exactly.
@@ -147,13 +149,16 @@ class TestbanchBuilder(object):
         # This dict store a map between future operand keys and thier actual values
         operands_key_to_future_vars = {}
 
-        for (key, (obj, stage)) in cond.operands.items():
+        for (key, timed_obj) in cond.operands.items():
+            stage = timed_obj.exec_stage
+            obj = timed_obj.obj
+
             if stage == latest_stage or stage == OpcodeExecutionStage.ANY:
                continue
            
             # This is a future operand, let's store it's value.
             future_key = TestbanchBuilderSerializer._serialize_future_operand_var_name(
-                inst.pc, key, stage
+                inst.pc, obj.name, stage
             )
             operands_key_to_future_vars[key] = future_key
 
@@ -168,7 +173,10 @@ class TestbanchBuilder(object):
             self._conditions_vars.append((future_key, obj.bits_count))
 
         # Now build conditions for the latest operands.
-        for (key, (obj, stage)) in cond.operands.items():
+        for (key, timed_obj) in cond.operands.items():
+            stage = timed_obj.exec_stage
+            obj = timed_obj.obj
+
             if stage != latest_stage:
                 continue
 
@@ -195,13 +203,21 @@ class TestbanchBuilder(object):
         stage = TestbanchBuilder._get_actual_execution_stages(cond)[0] # There is exactly 1.
         func = InternalBuilderConditionLogicTest(str_format(
             cond.condition,
-            {key: mips_obj.value for (key, (mips_obj, exec_stage)) in cond.operands.items()}
+            {key: timed_obj.obj.value for (key, timed_obj) in cond.operands.items()}
         ), "Error")
         self._conditions.append(
             InternalBuilderCondition(pipe_stage_var_name, stage, func)
         )
     
-    def build(self):
+    def build_asm(self):
+        printer = CodePrinter()
+        for inst in self._insts:
+            printer.write_line(inst.opcode)
+
+        printer.write_line()
+        return printer.assemble()
+
+    def build_tb(self):
         printer = CodePrinter()
         printer.write_line("################### Consts ###################")
 
@@ -267,7 +283,7 @@ class TestbanchBuilder(object):
             return False
         
         execution_stages = TestbanchBuilder._get_actual_execution_stages(cond)
-
+        
         assert len(execution_stages) > 0, "No actual execution stage"
 
         if len(execution_stages) == 1:
@@ -283,7 +299,7 @@ class TestbanchBuilder(object):
         """
         return unique(filter(
             lambda x: x != OpcodeExecutionStage.ANY, 
-            (ex_stage for (_, ex_stage) in cond.operands.values())
+            (timed_obj.exec_stage for timed_obj in cond.operands.values())
         ))
 
 
@@ -381,7 +397,9 @@ class TestbanchBuilderSerializer(object):
     
     @classmethod
     def _serialize_future_operand_var_name(cls, pc: int, key: str, from_stage: OpcodeExecutionStage):
-        return f"future_{pc}_{key}_{from_stage.name}"
+        var_name = f"future_{pc}_{key.lower()}_{from_stage.name.lower()}"
+        assert var_name.isidentifier(), f"Invalid var name: {var_name}"
+        return var_name
     
     @classmethod
     def _serialize_execution_stage(cls, exec_stage: OpcodeExecutionStage):
