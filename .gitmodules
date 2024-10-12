@@ -1,0 +1,3 @@
+[submodule "mipsy"]
+	path = scripts/libs/mips_test_lib/scripts/libs/mipsy
+	url = https://github.com/roiamiel1/mipsy.git
