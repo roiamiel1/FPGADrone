@@ -1,60 +1,9 @@
 import os
 from typing import NamedTuple, List, Tuple
 
-from .mips_objects import MipsObject, MipsInstruction, MipsTestCondition, OpcodeExecutionStage
+from .mips_objects import MipsObjects, MipsObject, MipsInstruction, MipsTestCondition, OpcodeExecutionStage
 from .utils import CodePrinter, normalize_tabs, unique, str_format
 
-
-# TODO: I copy this from somewhere else.
-VERILOG_TEST_FORMAT = """
-`include "signal_def.v"
-
-module TESTBENCH (
-    input clk,
-    input rst
-);
-    reg clk_debug;
-    reg rst_debug;
-    reg [31:0] cycles;
-    
-    MIPS_R2000 U_MIPS_R2000(
-        .clk(clk_debug),
-        .rst(rst_debug)
-    );
-
-    initial begin
-        $dumpfile("MIPS_R2000_tb.vcd");
-        $dumpvars;
-        $readmemh("../../tests/hardware/asm/MIPS_R2000_tb.hex", U_MIPS_R2000.U_InstructionMemory.IMem);
-
-        U_MIPS_R2000.U_IFIDReg.StageReg = 0;
-        U_MIPS_R2000.U_IDEXReg.StageReg = 0;
-        U_MIPS_R2000.U_EXMEMReg.StageReg = 0;
-        U_MIPS_R2000.U_MEMWBReg.StageReg = 0;
-
-        clk_debug = 1;
-        rst_debug = 0;
-        cycles = 0;
-
-        rst_debug = 1;
-        #2 rst_debug = 0;
-    end
-    
-    always begin
-        #10 clk_debug = ~clk_debug;
-    end
-
-    always @ (posedge rst_debug) begin
-        cycles = 0;
-    end
-
-    always@(posedge clk_debug) begin
-        cycles = cycles + 1;
-{VALIDATIONS}
-    end
-
-endmodule
-"""
 
 class InternalBuilderPCTrigger(NamedTuple):
     pipe_stage_var_name: str
@@ -218,10 +167,102 @@ class TestbanchBuilder(object):
         printer.write_line()
         return printer.assemble()
 
+    def _write_update_pipe_stage_vars(self, printer: CodePrinter) -> None:
+        printer.write_line("########### Update Pipe Stage Vars ###########")
+        printer.write_line((os.linesep * 2).join(
+            [TestbanchBuilderSerializer._serialize_update_pipe_stage_var(x) for x in self._pipe_stage_vars_names]
+        ))
+        printer.write_line()
+
+    def _write_pc_triggers(self, printer: CodePrinter) -> None:  
+        printer.write_line("################# PC Trigger #################")
+        printer.write_line((os.linesep * 2).join(
+            [TestbanchBuilderSerializer._serialize_inst_pc_trigger(x) for x in self._pc_triggers]
+        ))
+        printer.write_line()
+    
+    def _write_conds(self, printer: CodePrinter) -> None:
+        printer.write_line("################# Conditions #################")
+        printer.write_line(os.linesep.join(
+            [TestbanchBuilderSerializer._serialize_builder_condition(x) for x in self._conditions]
+        ))
+    
     def build_tb(self):
         printer = CodePrinter()
-        printer.write_line("################### Consts ###################")
 
+        printer.write_line('`include \"signal_def.v"')
+        printer.write_line()
+        self._write_define_consts(printer)
+        printer.write_line()
+
+        printer.write_line(normalize_tabs("""
+            module TESTBENCH (
+                input clk,
+                input rst
+            );
+                reg clk_debug;
+                reg rst_debug;
+                reg [31:0] cycles;
+        """))
+
+        with printer.group(indent=4*1):
+            printer.write_line()
+            self._write_init_pipe_stage_vars(printer)
+            self._write_init_cond_vars(printer)
+
+        with printer.group(indent=4*1):     
+            printer.write_line(normalize_tabs("""
+                MIPS_R2000 U_MIPS_R2000(
+                    .clk(clk_debug),
+                    .rst(rst_debug)
+                );
+
+                initial begin
+                    $dumpfile("MIPS_R2000_tb.vcd");
+                    $dumpvars;
+                    $readmemh("../../tests/hardware/asm/MIPS_R2000_tb.hex", U_MIPS_R2000.U_InstructionMemory.IMem);
+
+                    U_MIPS_R2000.U_IFIDReg.StageReg = 0;
+                    U_MIPS_R2000.U_IDEXReg.StageReg = 0;
+                    U_MIPS_R2000.U_EXMEMReg.StageReg = 0;
+                    U_MIPS_R2000.U_MEMWBReg.StageReg = 0;
+
+                    clk_debug = 1;
+                    rst_debug = 0;
+                    cycles = 0;
+
+                    rst_debug = 1;
+                    #2 rst_debug = 0;
+                end
+                
+                always begin
+                    #10 clk_debug = ~clk_debug;
+                end
+
+                always @ (posedge rst_debug) begin
+                    cycles = 0;
+                end
+
+                always@(posedge clk_debug) begin
+                    cycles = cycles + 1;
+            """))
+
+
+        with printer.group(indent=4*2):
+            printer.write_line()
+            self._write_update_pipe_stage_vars(printer)
+            self._write_pc_triggers(printer)
+            self._write_conds(printer)
+        
+        with printer.group(indent=4*1):
+            printer.write_line("end")
+        
+        printer.write_line("endmodule")
+
+        return printer.assemble()
+
+    def _write_define_consts(self, printer: CodePrinter) -> None:
+        printer.write_line("################### Consts ###################")
         MAX_EXEC_STAGE = max(OpcodeExecutionStage).value
         for exec_stage in OpcodeExecutionStage:            
             serialize_execution_stage = TestbanchBuilderSerializer._serialize_execution_stage(exec_stage)
@@ -235,39 +276,20 @@ class TestbanchBuilder(object):
             printer.write_line(f"`define {serialize_execution_stage} = {value};")
         printer.write_line()
 
+    def _write_init_pipe_stage_vars(self, printer: CodePrinter) -> None:
         printer.write_line("################# Initialize #################")
         printer.write_line(os.linesep.join(
             [TestbanchBuilderSerializer._serialize_initiate_pipe_stage_var(x) for x in self._pipe_stage_vars_names]
         ))
         printer.write_line()
-        
 
+    def _write_init_cond_vars(self, printer: CodePrinter) -> None:
         printer.write_line("############### Condition Vars ###############")
         printer.write_line(os.linesep.join(
             [TestbanchBuilderSerializer._serialize_condition_var(name, bits) for (name, bits) in self._conditions_vars]
         ))
         printer.write_line()
-        
-        printer.write_line("########### Update Pipe Stage Vars ###########")
-        printer.write_line((os.linesep * 2).join(
-            [TestbanchBuilderSerializer._serialize_update_pipe_stage_var(x) for x in self._pipe_stage_vars_names]
-        ))
-        printer.write_line()
-        
-        printer.write_line("################# PC Trigger #################")
-        printer.write_line((os.linesep * 2).join(
-            [TestbanchBuilderSerializer._serialize_inst_pc_trigger(x) for x in self._pc_triggers]
-        ))
-        printer.write_line()
-        
-        printer.write_line("################# Conditions #################")
-        printer.write_line(os.linesep.join(
-            [TestbanchBuilderSerializer._serialize_builder_condition(x) for x in self._conditions]
-        ))
-        printer.write_line()
 
-        return printer.assemble()
-    
     @classmethod
     def _is_single_stage_condition(cls, cond: MipsTestCondition):
         """
@@ -355,7 +377,7 @@ class TestbanchBuilderSerializer(object):
         if bits_count == 1:
             return ""
         else:
-            return f"[{bits_count - 1}:0]"
+            return f" [{bits_count - 1}:0]"
 
     @classmethod
     def _serialize_bits_value(cls, value: int, bits_count: int):
@@ -369,7 +391,7 @@ class TestbanchBuilderSerializer(object):
 
     @classmethod
     def _serialize_initiate_pipe_stage_var(cls, pipe_stage_var_name: str):
-        return f"{pipe_stage_var_name} = STAGE_NOT_IN_PIPE;"
+        return f"integer {pipe_stage_var_name} = STAGE_NOT_IN_PIPE;"
     
     @classmethod
     def _serialize_update_pipe_stage_var(cls, pipe_stage_var_name: str):
@@ -382,7 +404,7 @@ class TestbanchBuilderSerializer(object):
     @classmethod
     def _serialize_inst_pc_trigger(cls, trigger: InternalBuilderPCTrigger):
         return normalize_tabs(f"""
-        if (pc == {trigger.pc}) begin
+        if ({MipsObjects.Regs.PC.value} == {trigger.pc}) begin
             if ({trigger.pipe_stage_var_name} != STAGE_NOT_IN_PIPE) begin
                 $display("Instruction already in pipeline");
                 $finish;

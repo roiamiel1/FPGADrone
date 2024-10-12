@@ -1,5 +1,4 @@
-from mips_objects import MipsObjects
-from mips_testbanch_builder import TestbanchBuilder, MipsInstruction, MipsTestCondition, OpcodeExecutionStage
+from mips_test_lib.mips_testbanch_builder import TestbanchBuilder, MipsInstruction, MipsTestCondition
 
 builder = TestbanchBuilder()
 

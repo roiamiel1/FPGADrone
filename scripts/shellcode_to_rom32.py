@@ -6,7 +6,7 @@ BYTES_PER_OPCODE = 4
 ADDRESS_BITS = 32
 MEM_CELL_BITS = 32
 
-opcode_template_ident = "         "
+opcode_template_ident = " " * 9
 opcode_template = "(IMAdress == {ADDRESS}) ? {DATA} :\n"
 
 with open("bin/software/main.shellcode", "rb") as f:
