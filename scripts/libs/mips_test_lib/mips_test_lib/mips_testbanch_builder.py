@@ -1,7 +1,8 @@
 import os
 from typing import NamedTuple, List, Tuple
-from mips_objects import MipsObject, MipsInstruction, MipsTestCondition, OpcodeExecutionStage
-from utils import CodePrinter, normalize_tabs, unique, str_format
+
+from .mips_objects import MipsObject, MipsInstruction, MipsTestCondition, OpcodeExecutionStage
+from .utils import CodePrinter, normalize_tabs, unique, str_format
 
 
 # TODO: I copy this from somewhere else.

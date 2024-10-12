@@ -7,5 +7,12 @@ MIPS test lib
 You can either clone the repository and run
 
 ```
-python setup.py install
+python3 setup.py install
+```
+
+
+### Dev Install
+
+```python
+pip3 install --editable . --user
 ```

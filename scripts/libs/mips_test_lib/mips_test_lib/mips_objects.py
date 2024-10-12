@@ -1,7 +1,8 @@
 from enum import Enum, IntEnum, EnumMeta
 from typing import NamedTuple, Any, Dict
 from functools import partial
-from utils import extract_format_fields
+
+from .utils import extract_format_fields
 
 
 class MipsObject(object):
