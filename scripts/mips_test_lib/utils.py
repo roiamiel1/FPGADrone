@@ -1,7 +1,7 @@
 import os
 from io import StringIO
 from pyprinter import printer
-from typing import List, Any, Generator
+from typing import List, Any, Generator, Dict
 from string import Formatter
 
 
@@ -62,6 +62,19 @@ def extract_format_fields(format_str: str) -> List[str]:
             format_fields.append(field_name)
 
     return format_fields
+
+
+def str_format(format_str: str, args: Dict[str, str]) -> str:
+    format_keys = set(extract_format_fields(format_str))
+    args_keys = set(args.keys())
+    assert format_keys.issubset(args_keys), "Missing keys in `args`."
+
+    for key in format_keys:
+        assert "{" not in key, "Key can't contain '{'"
+        assert "}" not in key, "Key can't contain '}'"
+        format_str = format_str.replace("{" + key + "}", args[key])
+
+    return format_str
 
 
 def unique(l: Generator[Any, None, None]) -> List[Any]:

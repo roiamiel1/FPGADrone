@@ -1,7 +1,7 @@
 import os
 from typing import NamedTuple, List, Tuple
 from mips_objects import MipsObject, MipsInstruction, MipsTestCondition, OpcodeExecutionStage
-from utils import CodePrinter, normalize_tabs, unique
+from utils import CodePrinter, normalize_tabs, unique, str_format
 
 
 # TODO: I copy this from somewhere else.
@@ -177,7 +177,7 @@ class TestbanchBuilder(object):
         self._conditions.append(InternalBuilderCondition(
             pipe_stage_var_name, latest_stage,
             InternalBuilderConditionLogicTest(
-                logic_test=cond.condition.format(**operands_key_to_future_vars),
+                logic_test=str_format(cond.condition, operands_key_to_future_vars),
                 assertion_message="Error"
             )
         ))
@@ -193,8 +193,9 @@ class TestbanchBuilder(object):
         """
         assert TestbanchBuilder._is_single_stage_condition(cond)
         stage = TestbanchBuilder._get_actual_execution_stages(cond)[0] # There is exactly 1.
-        func = InternalBuilderConditionLogicTest(cond.condition.format(
-            **{key: mips_obj.value for (key, (mips_obj, exec_stage)) in cond.operands.items()}
+        func = InternalBuilderConditionLogicTest(str_format(
+            cond.condition,
+            {key: mips_obj.value for (key, (mips_obj, exec_stage)) in cond.operands.items()}
         ), "Error")
         self._conditions.append(
             InternalBuilderCondition(pipe_stage_var_name, stage, func)
