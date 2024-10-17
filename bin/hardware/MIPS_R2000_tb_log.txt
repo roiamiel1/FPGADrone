@@ -1,4 +1,4 @@
 VCD info: dumpfile MIPS_R2000_tb.vcd opened for output.
-WARNING: ../../tests/hardware/MIPS_R2000_tb.v:20: $readmemh: The behaviour for reg[...] mem[N:0]; $readmemh("...", mem); changed in the 1364-2005 standard. To avoid ambiguity, use mem[0:N] or explicit range parameters $readmemh("...", mem, start, stop);. Defaulting to 1364-2005 behavior.
-WARNING: ../../tests/hardware/MIPS_R2000_tb.v:20: $readmemh(../../tests/hardware/asm/MIPS_R2000_tb.hex): Not enough words in the file for the requested range [0:1023].
-../../tests/hardware/MIPS_R2000_tb.v:211: $finish called at 740 (1s)
+WARNING: ../../tests/hardware/MIPS_R2000_tb.v:102: $readmemh: The behaviour for reg[...] mem[N:0]; $readmemh("...", mem); changed in the 1364-2005 standard. To avoid ambiguity, use mem[0:N] or explicit range parameters $readmemh("...", mem, start, stop);. Defaulting to 1364-2005 behavior.
+WARNING: ../../tests/hardware/MIPS_R2000_tb.v:102: $readmemh(../../tests/hardware/asm/MIPS_R2000_tb.hex): Not enough words in the file for the requested range [0:1023].
+../../tests/hardware/MIPS_R2000_tb.v:128: $finish called at 2700 (1s)
