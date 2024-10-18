@@ -109,4 +109,5 @@ nosetests.xml
 .project
 .pydevproject
 
-.vcd
+*.vcd
+*.vpp
