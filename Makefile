@@ -9,7 +9,7 @@ build-cpu:
 	docker run --rm -it -w /project -v ./:/project gowin_builder gw_sh ./Makefile.tcl
 
 build-asm-test:
-	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-as -mips1 -march=r2000 -o tests/hardware/asm/MIPS_R2000_tb.out tests/hardware/asm/MIPS_R2000_tb.asm
+	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-as -mips1 -march=r2000 -O0 -o tests/hardware/asm/MIPS_R2000_tb.out tests/hardware/asm/MIPS_R2000_tb.asm
 	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objcopy --dump-section .text=tests/hardware/asm/MIPS_R2000_tb.shellcode tests/hardware/asm/MIPS_R2000_tb.out
 	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objdump -d -M no-aliases tests/hardware/asm/MIPS_R2000_tb.out > tests/hardware/asm/MIPS_R2000_tb.text
 	xxd -c 4 -p tests/hardware/asm/MIPS_R2000_tb.shellcode > tests/hardware/asm/MIPS_R2000_tb.hex
@@ -42,7 +42,18 @@ run:
 	make build
 	make load
 
-simulate:
+clean_simulate:
+	rm -f tests/hardware/MIPS_R2000_tb.v
+	rm -f tests/hardware/asm/MIPS_R2000_tb.asm
+	rm -f tests/hardware/asm/MIPS_R2000_tb.hex
+	rm -f tests/hardware/asm/MIPS_R2000_tb.out
+	rm -f tests/hardware/asm/MIPS_R2000_tb.shellcode
+	rm -f tests/hardware/asm/MIPS_R2000_tb.text
+	rm -f bin/hardware/MIPS_R2000_tb_log.txt
+	rm -f bin/hardware/MIPS_R2000_tb.vcd
+	rm -f bin/hardware/MIPS_R2000_tb.vvp
+
+simulate: clean_simulate
 	python3 ./scripts/generate_asm_tb.py
 	make build-asm-test
 	cd ./src/hardware; iverilog -g2001 -Wall -o ../../bin/hardware/$(HARDWARE_TESTBENCH).vvp $(HARDWARE_SRCS) ../../tests/hardware/$(HARDWARE_TESTBENCH).v
