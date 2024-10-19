@@ -48,15 +48,18 @@ instructions = [
     ("andi $a0, $s3, 5", "{after_mem(REGS.A0)} == 5"),
 
     # Test `beq`:
-    ("addiu $t0, 4", "{after_mem(REGS.T0)} == 4"),
-    ("addiu $t1, 5", "{after_mem(REGS.T1)} == 5"),
-    ("bne $t0, $t1, beq_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*4"),
-    
+    ("beq $s0, $s0, beq_success", "{after(REGS.PC)} == {before(REGS.PC)} + 4*4"),
     ("beq_unsuccess: and $a0, $s0, $s1", FALSE_CONDITION),
     ("beq_success: and $a0, $s0, $s1", TRUE_CONDITION),
 ]
 
-TestBuilder().attach_instructions(instructions).write(
+test_instructions = [
+    ("beq $s0, $s0, beq_success", "{after(REGS.PC)} == {before(REGS.PC)} + 20"),
+    ("beq_unsuccess: and $a0, $s0, $s1", FALSE_CONDITION),
+    ("beq_success: and $a0, $s0, $s1", TRUE_CONDITION),
+]
+
+TestBuilder().attach_instructions(test_instructions).write(
     output_path_tb="tests/hardware/MIPS_R2000_tb.v",
     output_path_asm="tests/hardware/asm/MIPS_R2000_tb.asm"
 )

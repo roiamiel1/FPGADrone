@@ -1,5 +1,5 @@
 import os
-from typing import NamedTuple, List, Tuple
+from typing import NamedTuple, List, Tuple, Dict
 
 from .mips_objects import MipsObjects, MipsObject, MipsInstruction, MipsTestCondition, OpcodeExecutionStage
 from .utils import CodePrinter, normalize_tabs, unique, str_format
@@ -137,14 +137,10 @@ class TestbanchBuilder(object):
                 continue
 
             operands_key_to_future_vars[key] = obj.value
-            
-        self._conditions.append(InternalBuilderCondition(
-            pipe_stage_var_name, latest_stage,
-            InternalBuilderConditionLogicTest(
-                logic_test=str_format(cond.condition, operands_key_to_future_vars),
-                assertion_message=f"Error: {inst.opcode}"
-            )
-        ))
+        
+        self._construct_and_append_internal_builder_condition(
+            cond.condition, inst.opcode, pipe_stage_var_name, latest_stage, operands_key_to_future_vars
+        )
     
     def _attach_static_condition(
         self, 
@@ -156,14 +152,9 @@ class TestbanchBuilder(object):
         This function attach a given static condition to the internal state.
         """
         assert TestbanchBuilder._is_static_condition(cond)
-
-        func = InternalBuilderConditionLogicTest(cond.condition, f"Error: {inst.opcode}")
-
-        self._conditions.append(InternalBuilderCondition(
-            pipe_stage_var_name, 
-            OpcodeExecutionStage.AFTER, # static conditions getting checked after execution.
-            func
-        ))
+        self._construct_and_append_internal_builder_condition(
+            cond.condition, inst.opcode, pipe_stage_var_name, OpcodeExecutionStage.AFTER, {}
+        )
 
     def _attach_single_stage_condition(
         self, 
@@ -175,15 +166,32 @@ class TestbanchBuilder(object):
         This function attach a given single stage condition to the internal state.
         """
         assert TestbanchBuilder._is_single_stage_condition(cond)
-        stage = TestbanchBuilder._get_actual_execution_stages(cond)[0] # There is exactly 1.
-        func = InternalBuilderConditionLogicTest(str_format(
-            cond.condition,
+        self._construct_and_append_internal_builder_condition(
+            cond.condition, inst.opcode, pipe_stage_var_name, 
+            TestbanchBuilder._get_actual_execution_stages(cond)[0], # There is exactly 1.
             {key: timed_obj.obj.value for (key, timed_obj) in cond.operands.items()}
-        ), f"Error: {inst.opcode}")
-        self._conditions.append(
-            InternalBuilderCondition(pipe_stage_var_name, stage, func)
         )
-    
+        
+    def _construct_and_append_internal_builder_condition(
+        self, 
+        condition_str: str, 
+        opcode_str: str,
+        pipe_stage_var_name: str,
+        stage: OpcodeExecutionStage,
+        operands_key_to_future_vars: Dict[str, str],
+    ) -> None:
+        """
+        Function that build InternalBuilderCondition from a given parameters.
+        """
+        condition = str_format(condition_str, operands_key_to_future_vars)
+        self._conditions.append(InternalBuilderCondition(
+            pipe_stage_var_name, stage, 
+            InternalBuilderConditionLogicTest(
+                condition, 
+                self._create_assertion_message(opcode_str, condition, operands_key_to_future_vars)
+            )
+        ))
+
     def build_asm(self):
         printer = CodePrinter()
         for inst in self._insts:
@@ -191,6 +199,22 @@ class TestbanchBuilder(object):
 
         printer.write_line()
         return printer.assemble()
+
+    def _create_assertion_message(self, opcode: str, condition: str, key_to_future_var_name: Dict[str, str]) -> None:
+        base_message = f"\\n\\n* Opcode:\\n\\t{opcode}\\n\\n* Condition:\\n\\t{condition}"
+
+        variables = []
+        if len(key_to_future_var_name) > 0:
+            base_message += "\\n\\n* Variables:"
+            for (key, value) in key_to_future_var_name.items():
+                base_message += f"\\n\\t{key} = 0x%8X"
+                variables.append(value)
+            base_message += "\\n"
+
+        str_prefix = ("\\n" + "*" * 15 + "  Error  " + "*" * 15)
+        variable_suffix = (", " + ", ".join(variables) if len(variables) > 0 else "")
+
+        return f"\"{str_prefix}{base_message}\"{variable_suffix}"
 
     def _write_update_pipe_stage_vars(self, printer: CodePrinter) -> None:
         printer.write_line("// ########### Update Pipe Stage Vars ###########")
@@ -218,6 +242,7 @@ class TestbanchBuilder(object):
     def build_tb(self):
         printer = CodePrinter()
 
+        printer.write_line('// NOTE! THIS FILE IS AUTO GENERATED!')
         printer.write_line('`include \"signal_def.v"')
         printer.write_line()
         self._write_define_consts(printer)
@@ -406,7 +431,7 @@ class TestbanchBuilderSerializer(object):
         assert isinstance(cond.function, InternalBuilderConditionLogicTest)
         return normalize_tabs(f"""
             if (!({cond.function.logic_test})) begin
-                $display("{cond.function.assertion_message}");
+                $display({cond.function.assertion_message});
                 $finish;
             end
         """)
