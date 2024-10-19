@@ -1,4 +1,5 @@
-from mips_test_lib.test_builder import TestBuilder
+from mips_test_lib.test_builder import TestBuilder, FALSE_CONDITION, TRUE_CONDITION
+
 
 instructions = [
     # Test `addiu``:
@@ -45,8 +46,17 @@ instructions = [
     ("andi $a0, $s1, 1", "{after_mem(REGS.A0)} == 1"),
     ("andi $a0, $s1, 5", "{after_mem(REGS.A0)} == 1"),
     ("andi $a0, $s3, 5", "{after_mem(REGS.A0)} == 5"),
+
+    # Test `beq`:
+    ("addiu $t0, 4", "{after_mem(REGS.T0)} == 4"),
+    ("addiu $t1, 5", "{after_mem(REGS.T1)} == 5"),
+    ("bne $t0, $t1, beq_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*4"),
+    
+    ("beq_unsuccess: and $a0, $s0, $s1", FALSE_CONDITION),
+    ("beq_success: and $a0, $s0, $s1", TRUE_CONDITION),
 ]
 
 TestBuilder().attach_instructions(instructions).write(
-    output_path="tests/hardware", output_filename="MIPS_R2000_tb"
+    output_path_tb="tests/hardware/MIPS_R2000_tb.v",
+    output_path_asm="tests/hardware/asm/MIPS_R2000_tb.asm"
 )

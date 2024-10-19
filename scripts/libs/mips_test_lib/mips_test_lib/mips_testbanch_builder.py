@@ -76,9 +76,15 @@ class TestbanchBuilder(object):
         if (TestbanchBuilder._is_multi_stage_condition(cond)):
             # Condition is multi stage.
             return self._attach_multi_stage_condition(inst, pipe_stage_var_name, cond)
-        else:
+        elif TestbanchBuilder._is_single_stage_condition(cond):
             # Condition is single stage.
             return self._attach_single_stage_condition(inst, pipe_stage_var_name, cond)
+        elif self._is_static_condition(cond):
+            # Condition is static - has no satge.
+            return self._attach_static_condition(inst, pipe_stage_var_name, cond)
+        else:
+            raise Exception("Can't attach given condition")
+            
     
     def _attach_multi_stage_condition(
         self, 
@@ -139,7 +145,26 @@ class TestbanchBuilder(object):
                 assertion_message=f"Error: {inst.opcode}"
             )
         ))
-                 
+    
+    def _attach_static_condition(
+        self, 
+        inst: MipsInstruction, 
+        pipe_stage_var_name: str,
+        cond: MipsTestCondition
+    ) -> None:
+        """
+        This function attach a given static condition to the internal state.
+        """
+        assert TestbanchBuilder._is_static_condition(cond)
+
+        func = InternalBuilderConditionLogicTest(cond.condition, f"Error: {inst.opcode}")
+
+        self._conditions.append(InternalBuilderCondition(
+            pipe_stage_var_name, 
+            OpcodeExecutionStage.AFTER, # static conditions getting checked after execution.
+            func
+        ))
+
     def _attach_single_stage_condition(
         self, 
         inst: MipsInstruction, 
@@ -312,29 +337,34 @@ class TestbanchBuilder(object):
         printer.write_line()
 
     @classmethod
+    def _is_static_condition(cls, cond: MipsTestCondition):
+        """
+        This function check if a given condition operands are static.
+        """
+        if len(cond.operands) <= 0:
+            return True
+        
+        return len(TestbanchBuilder._get_actual_execution_stages(cond)) == 0
+
+    @classmethod
     def _is_single_stage_condition(cls, cond: MipsTestCondition):
         """
-        Opposite of `TestbanchBuilder._is_multi_stage_condition`.
+        This function check if a given condition operands are single stage.
         """
-        return not TestbanchBuilder._is_multi_stage_condition(cond)
+        if len(cond.operands) <= 0:
+            return False
+        
+        return len(TestbanchBuilder._get_actual_execution_stages(cond)) == 1
 
     @classmethod
     def _is_multi_stage_condition(cls, cond: MipsTestCondition):
         """
-        This function check if a given condition operands are muti stages or single stage.
+        This function check if a given condition operands are muti stages.
         """
         if len(cond.operands) <= 1:
             return False
-        
-        execution_stages = TestbanchBuilder._get_actual_execution_stages(cond)
-        
-        assert len(execution_stages) > 0, "No actual execution stage"
 
-        if len(execution_stages) == 1:
-            # There is only one execution stage.
-            return False
-        
-        return True
+        return len(TestbanchBuilder._get_actual_execution_stages(cond)) > 1
 
     @classmethod
     def _get_actual_execution_stages(cls, cond: MipsTestCondition) -> List[OpcodeExecutionStage]:
