@@ -1,0 +1,15 @@
+
+tests/hardware/asm/MIPS_R2000_tb.out:     file format elf32-tradbigmips
+
+
+Disassembly of section .text:
+
+00000000 <beq_unsuccess-0x8>:
+   0:	12100002 	beq	s0,s0,c <beq_success>
+   4:	00000000 	sll	zero,zero,0x0
+
+00000008 <beq_unsuccess>:
+   8:	02112024 	and	a0,s0,s1
+
+0000000c <beq_success>:
+   c:	02112024 	and	a0,s0,s1
