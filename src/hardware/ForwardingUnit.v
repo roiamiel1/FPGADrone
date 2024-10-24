@@ -1,57 +1,20 @@
 module ForwardingUnit (
-    input [4:0] IFIDRs,
-    input [4:0] IFIDRt,
-    input [4:0] IDEXRs,
-    input [4:0] IDEXRt,
-    input [4:0] IDEXWriteReg,
-    input [4:0] EXMEMRd,
-    input [4:0] MEMWBRd,
-    input IDEXRegWrite,
-    input EXMEMRegWrite,
-    input MEMWBRegWrite,
-    output reg [1:0] ForwardA,
-    output reg [1:0] ForwardB,
-    output reg [1:0] ForwardC,
-    output reg [1:0] ForwardD
+    input [4:0] ALUDataIn1RegAddr_in,  // Address of the register being insterted as first input to the ALU?
+    input [4:0] ALUDataIn2RegAddr_in,  // Address of the register being insterted as second input to the ALU?
+    
+    input EXMEM_WriteBackReg,          // Is EXMEM planning to write back to register?
+    input MEMWB_WriteBackReg,          // Is MEMWB planning to write back to register?
+
+    input [4:0] EXMEM_WriteBackRegAddr,  // Which register address EXMEM planning to write to.
+    input [4:0] MEMWB_WriteBackRegAddr,  // Which register address MEMWB planning to write to.
+
+    output [2:0] ALUDataIn1Mux_out,  // First MUX output.
+    output [2:0] ALUDataIn2Mux_out  // Second MUX output.
 );
-    always @(*) begin
-        if (EXMEMRegWrite && (EXMEMRd != 0)
-            && (EXMEMRd == IDEXRs) ) 
-            ForwardA <= 2'b10;
-        else if(MEMWBRegWrite && (MEMWBRd != 0)
-            && (MEMWBRd == IDEXRs) )
-            ForwardA <= 2'b01;
-        else ForwardA <= 2'b00;
+    assign ALUDataIn1Mux_out = (ALUDataIn1RegAddr_in == EXMEM_WriteBackRegAddr & EXMEM_WriteBackReg) ? `FOWARD_MUX_EXMEM_FORWARD :
+        (ALUDataIn1RegAddr_in == MEMWB_WriteBackRegAddr & MEMWB_WriteBackReg) ? `FOWARD_MUX_MEMWB_FORWARD : `FOWARD_MUX_NO_FORWARD;
 
-        if (EXMEMRegWrite && (EXMEMRd != 0)
-            && (EXMEMRd == IDEXRt) ) 
-            ForwardB <= 2'b10;
-        else if (MEMWBRegWrite && (MEMWBRd != 0) 
-            && (MEMWBRd == IDEXRt) ) 
-            ForwardB <= 2'b01;
-        else ForwardB <= 2'b00;
-
-        if (MEMWBRegWrite && (MEMWBRd != 0)
-            && (MEMWBRd == IFIDRs) )
-            ForwardC <= 2'b11;
-        else if (EXMEMRegWrite && (EXMEMRd != 0)
-            && (EXMEMRd == IFIDRs ) )
-            ForwardC <= 2'b10;
-        else if(IDEXRegWrite && (IDEXWriteReg !=0 )
-            && (IFIDRs == IDEXWriteReg) )
-            ForwardC <= 2'b01;
-        else ForwardC <= 2'b00;
-
-        if (MEMWBRegWrite && (MEMWBRd != 0)
-            && (MEMWBRd == IFIDRt) )
-            ForwardD <= 2'b11;
-        else if (EXMEMRegWrite && (EXMEMRd != 0)
-            && (EXMEMRd == IFIDRt ) )
-            ForwardD <= 2'b10;
-        else if(IDEXRegWrite && (IDEXWriteReg !=0 )
-            && (IDEXWriteReg == IFIDRt) )
-            ForwardD <= 2'b01;
-        else ForwardD <= 2'b00;
-    end
+    assign ALUDataIn2Mux_out = (ALUDataIn2RegAddr_in == EXMEM_WriteBackRegAddr & EXMEM_WriteBackReg) ? `FOWARD_MUX_EXMEM_FORWARD :
+        (ALUDataIn2RegAddr_in == MEMWB_WriteBackRegAddr & MEMWB_WriteBackReg) ? `FOWARD_MUX_MEMWB_FORWARD : `FOWARD_MUX_NO_FORWARD;
 
 endmodule
