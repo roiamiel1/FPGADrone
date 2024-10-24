@@ -3,7 +3,6 @@ module IFIDReg (
     // input clk_en,    // Clock Enable
     input       rst,    // Asynchronous reset
 
-    input       Hazard,
     // data
     input[31:0] PC_in,
     input[31:0] Instr_in,
@@ -28,14 +27,10 @@ module IFIDReg (
         if (rst)
             StageReg <= 64'b0;
         else begin
-            if(Hazard) begin
-                StageReg[63:0] <= 64'b0;
-            end else begin
-                StageReg[63:0] <= {
-                    PC_in   [31:0],
-                    Instr_in[31:0]
-                };
-            end
+            StageReg[63:0] <= {
+                PC_in   [31:0],
+                Instr_in[31:0]
+            };
         end
     end
 

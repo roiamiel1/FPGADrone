@@ -32,12 +32,11 @@ module MIPS_R2000 (
     wire U_EXMEMReg_Branch_out;
     wire U_EXMEMReg_MemRead_out;
     wire U_EXMEMReg_MemWrite_out;
+    wire [31:0] U_EXMEMReg_Reg2_out;
     wire U_EXMEMReg_RegWrite_out;
     wire U_EXMEMReg_Zero_out;
     wire [31:0] U_EXMEMReg_ALU_in;
     wire [31:0] U_EXMEMReg_ALU_out;
-    wire [31:0] U_EXMEMReg_FwdBOut_out;
-    wire [31:0] U_EXMEMReg_FwdBOut_in;
     wire [4:0] U_EXMEMReg_Rd_out;
     wire [4:0] U_EXMEMReg_Rd_in;
 
@@ -85,15 +84,7 @@ module MIPS_R2000 (
     // Connections assigns.
     assign U_EXMEMReg_Rd_in = U_IDEXReg_RegDst_out ? U_IDEXReg_Rd_out : U_IDEXReg_Rt_out;
     assign U_GPR_WriteData = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
-    assign U_PCU_PCSrc = U_Ctrl_Branch && (U_ConditionCheck_Equal ^ U_Ctrl_nBranch);
-    assign U_EXMEMReg_FwdBOut_in = `ForwardingMux(
-        U_ForwardingUnit_ForwardB,
-        U_IDEXReg_Reg2_out,
-        U_GPR_WriteData,
-        U_EXMEMReg_ALU_out, 
-        0
-    );
-
+    
     // Debug assign
     always @(clk) begin
         debug_pc = U_PCU_PC;
@@ -104,7 +95,6 @@ module MIPS_R2000 (
     PCU U_PCU (
         .clk(clk),
         .rst(rst),
-        .Hazard(U_HazardUnit_Hazard),
         .PCSrc(U_PCU_PCSrc),
         .Jump(U_Ctrl_Jump),
         .BranchAddr(U_IFIDReg_PC_out + {{14{U_IFIDReg_Instr_out[15]}}, `IMMEDIATE(U_IFIDReg_Instr_out), 2'b00}),
@@ -120,7 +110,6 @@ module MIPS_R2000 (
     IFIDReg U_IFIDReg (
         .clk(clk),
         .rst(rst),
-        .Hazard(U_HazardUnit_Hazard),
         .PC_in(U_PCU_PC + 4),
         .Instr_in(U_InstructionMemory_IR),
         .PC_out(U_IFIDReg_PC_out),
@@ -179,14 +168,8 @@ module MIPS_R2000 (
     );
 
     ALU U_ALU(
-        .DataIn1(`ForwardingMux(
-            U_ForwardingUnit_ForwardA,
-            U_IDEXReg_Reg1_out,
-            U_GPR_WriteData,
-            U_EXMEMReg_ALU_out, 
-            0
-        )),
-        .DataIn2(U_IDEXReg_ALUSrc_out ? U_IDEXReg_Ext_out : U_EXMEMReg_FwdBOut_in),
+        .DataIn1(U_IDEXReg_Reg1_out),
+        .DataIn2(U_Ctrl_ALUSrc ? U_IDEXReg_Ext_out : U_IDEXReg_Reg2_out),
         .ALUOp(U_IDEXReg_ALUOp_out),
         .shamt(U_IDEXReg_shamt_out),
         .ALURes(U_EXMEMReg_ALU_in),
@@ -199,25 +182,25 @@ module MIPS_R2000 (
         .Branch_in(U_IDEXReg_Branch_out),
         .MemRead_in(U_IDEXReg_MemRead_out),
         .MemWrite_in(U_IDEXReg_MemWrite_out),
+        .Reg2_in(U_IDEXReg_Reg2_out),
         .RegWrite_in(U_IDEXReg_RegWrite_out),
         .Zero_in(U_ALU_Zero),
-        .FwdBOut_in(U_EXMEMReg_FwdBOut_in),
         .Rd_in(U_EXMEMReg_Rd_in),
         .Branch_out(U_EXMEMReg_Branch_out),
         .MemRead_out(U_EXMEMReg_MemRead_out),
         .MemWrite_out(U_EXMEMReg_MemWrite_out),
+        .Reg2_out(U_EXMEMReg_Reg2_out),
         .RegWrite_out(U_EXMEMReg_RegWrite_out),
         .Zero_out(U_EXMEMReg_Zero_out),
         .ALU_in(U_EXMEMReg_ALU_in),
         .ALU_out(U_EXMEMReg_ALU_out),
-        .FwdBOut_out(U_EXMEMReg_FwdBOut_out),
         .Rd_out(U_EXMEMReg_Rd_out)
     );
 
     DataMemory U_DataMemory(
         .clk(clk),
         .data_out(U_DataMemory_DataOut),
-        .data_in(U_EXMEMReg_FwdBOut_out),
+        .data_in(U_EXMEMReg_Reg2_out),
         .write_enable(U_EXMEMReg_MemWrite_out),
         .address(U_EXMEMReg_ALU_out)
     );
