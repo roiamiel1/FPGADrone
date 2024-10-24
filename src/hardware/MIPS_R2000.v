@@ -3,11 +3,7 @@
 
 module MIPS_R2000 (
     input clk,
-    input rst,
-
-    // Debug probes
-    output reg [31:0] debug_pc,
-    output reg debug_alu_zero
+    input rst
 );
     // U_Ctrl connections.
     wire U_Ctrl_RegDst;
@@ -30,6 +26,7 @@ module MIPS_R2000 (
 
     // U_EXMEMReg connections.
     wire U_EXMEMReg_Branch_out;
+    wire [31:0] U_EXMEMReg_BranchOffset_out;
     wire U_EXMEMReg_MemRead_out;
     wire U_EXMEMReg_MemWrite_out;
     wire [31:0] U_EXMEMReg_Reg2_out;
@@ -45,12 +42,13 @@ module MIPS_R2000 (
     wire [4:0] U_IDEXReg_ALUOp_out;
     wire U_IDEXReg_ALUSrc_out;
     wire U_IDEXReg_Branch_out;
+    wire [31:0] U_IDEXReg_NextPC_out;
     wire U_IDEXReg_MemRead_out;
     wire U_IDEXReg_MemWrite_out;
     wire U_IDEXReg_RegWrite_out;
     wire [31:0] U_IDEXReg_Reg1_out;
     wire [31:0] U_IDEXReg_Reg2_out;
-    wire [31:0] U_IDEXReg_Ext_out;
+    wire [31:0] U_IDEXReg_ExtImm_out;
     wire [4:0] U_IDEXReg_Rs_out;
     wire [4:0] U_IDEXReg_Rt_out;
     wire [4:0] U_IDEXReg_Rd_out;
@@ -67,13 +65,14 @@ module MIPS_R2000 (
 
     // U_PCU connections.
     wire [31:0] U_PCU_PC;
+    wire [31:0] U_PCU_NextPC;
     wire U_PCU_PCSrc;
 
     // U_InstructionMemory connections.
     wire [31:0] U_InstructionMemory_IR;
 
-    // U_Extender connections.
-    wire [31:0] U_Extender_ExtOut;
+    // U_OpcodeImmExtender connections.
+    wire [31:0] U_OpcodeImmExtender_Out;
 
     // U_ALU connections.
     wire U_ALU_Zero;
@@ -84,25 +83,23 @@ module MIPS_R2000 (
     // Connections assigns.
     assign U_EXMEMReg_Rd_in = U_IDEXReg_RegDst_out ? U_IDEXReg_Rd_out : U_IDEXReg_Rt_out;
     assign U_GPR_WriteData = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
+    assign U_PCU_PCSrc = U_EXMEMReg_Branch_out & U_EXMEMReg_Zero_out;
     
-    // Debug assign
-    always @(clk) begin
-        debug_pc = U_PCU_PC;
-        debug_alu_zero = U_ALU_Zero;
-    end
-
     // Modules section.
     PCU U_PCU (
         .clk(clk),
         .rst(rst),
         .PCSrc(U_PCU_PCSrc),
-        .Jump(U_Ctrl_Jump),
-        .BranchAddr(U_IFIDReg_PC_out + {{14{U_IFIDReg_Instr_out[15]}}, `IMMEDIATE(U_IFIDReg_Instr_out), 2'b00}),
-        .JmpAddr({U_IFIDReg_PC_out[31:28], U_IFIDReg_Instr_out[25:0], 2'b0}),
-        .PC(U_PCU_PC)
+        .BranchOffset(U_EXMEMReg_BranchOffset_out),
+        .PC(U_PCU_PC),
+        .NextPC(U_PCU_NextPC)
     );
 
+    // TODO: read from data memory.
     InstructionMemory U_InstructionMemory(
+        // The `>> 2` is a hack cause InstructionMemory works with regualr indexes, 
+        // i.e. 0, 1, 2, 3, etc... and not 4 multiplies.
+        // In the future we will read the instructions from the data memory, till then let's keep it that way.
         .IMAdress(U_PCU_PC >> 2),
         .IR(U_InstructionMemory_IR)
     );
@@ -110,7 +107,7 @@ module MIPS_R2000 (
     IFIDReg U_IFIDReg (
         .clk(clk),
         .rst(rst),
-        .PC_in(U_PCU_PC + 4),
+        .PC_in(U_PCU_NextPC),
         .Instr_in(U_InstructionMemory_IR),
         .PC_out(U_IFIDReg_PC_out),
         .Instr_out(U_IFIDReg_Instr_out)
@@ -128,10 +125,10 @@ module MIPS_R2000 (
         .DataOut2(U_GPR_DataOut2)
     );
 
-    Extender U_Extender(
-        .DataIn(U_IFIDReg_Instr_out[15:0]),
-        .ExtOp(U_Ctrl_ExtOp),
-        .ExtOut(U_Extender_ExtOut)
+    Extender U_OpcodeImmExtender(
+        .DataIn(U_IFIDReg_Instr_out[15:0]), // Immidiate value from I-format opcode.
+        .ExtOp(U_Ctrl_ExtOp),               // Should the value should be extedned using 0 or MSB.
+        .ExtOut(U_OpcodeImmExtender_Out)
     );
 
     IDEXReg U_IDEXReg (
@@ -141,12 +138,13 @@ module MIPS_R2000 (
         .ALUOp_in(U_Ctrl_ALUOp),
         .ALUSrc_in(U_Ctrl_ALUSrc),
         .Branch_in(U_Ctrl_Branch),
+        .NextPC_in(U_IFIDReg_PC_out),
         .MemRead_in(U_Ctrl_MemRead),
         .MemWrite_in(U_Ctrl_MemWrite),
         .RegWrite_in(U_Ctrl_RegWrite),
         .Reg1_in(U_GPR_DataOut1),
         .Reg2_in(U_GPR_DataOut2),
-        .Ext_in(U_Extender_ExtOut),
+        .ExtImm_in(U_OpcodeImmExtender_Out),
         .Rs_in(U_IFIDReg_Instr_out[25:21]),
         .Rt_in(U_IFIDReg_Instr_out[20:16]),
         .Rd_in(U_IFIDReg_Instr_out[15:11]),
@@ -155,12 +153,13 @@ module MIPS_R2000 (
         .ALUOp_out(U_IDEXReg_ALUOp_out),
         .ALUSrc_out(U_IDEXReg_ALUSrc_out),
         .Branch_out(U_IDEXReg_Branch_out),
+        .NextPC_out(U_IDEXReg_NextPC_out),
         .MemRead_out(U_IDEXReg_MemRead_out),
         .MemWrite_out(U_IDEXReg_MemWrite_out),
         .RegWrite_out(U_IDEXReg_RegWrite_out),
         .Reg1_out(U_IDEXReg_Reg1_out),
         .Reg2_out(U_IDEXReg_Reg2_out),
-        .Ext_out(U_IDEXReg_Ext_out),
+        .ExtImm_out(U_IDEXReg_ExtImm_out),
         .Rs_out(U_IDEXReg_Rs_out),
         .Rt_out(U_IDEXReg_Rt_out),
         .Rd_out(U_IDEXReg_Rd_out),
@@ -169,7 +168,7 @@ module MIPS_R2000 (
 
     ALU U_ALU(
         .DataIn1(U_IDEXReg_Reg1_out),
-        .DataIn2(U_Ctrl_ALUSrc ? U_IDEXReg_Ext_out : U_IDEXReg_Reg2_out),
+        .DataIn2(U_Ctrl_ALUSrc ? U_IDEXReg_ExtImm_out : U_IDEXReg_Reg2_out),
         .ALUOp(U_IDEXReg_ALUOp_out),
         .shamt(U_IDEXReg_shamt_out),
         .ALURes(U_EXMEMReg_ALU_in),
@@ -180,6 +179,7 @@ module MIPS_R2000 (
         .clk(clk),
         .rst(rst),
         .Branch_in(U_IDEXReg_Branch_out),
+        .BranchOffset_in(U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)),
         .MemRead_in(U_IDEXReg_MemRead_out),
         .MemWrite_in(U_IDEXReg_MemWrite_out),
         .Reg2_in(U_IDEXReg_Reg2_out),
@@ -187,6 +187,7 @@ module MIPS_R2000 (
         .Zero_in(U_ALU_Zero),
         .Rd_in(U_EXMEMReg_Rd_in),
         .Branch_out(U_EXMEMReg_Branch_out),
+        .BranchOffset_out(U_EXMEMReg_BranchOffset_out),
         .MemRead_out(U_EXMEMReg_MemRead_out),
         .MemWrite_out(U_EXMEMReg_MemWrite_out),
         .Reg2_out(U_EXMEMReg_Reg2_out),
