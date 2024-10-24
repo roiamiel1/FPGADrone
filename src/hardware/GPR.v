@@ -37,7 +37,7 @@ module GPR (
             gprRegisters[30] <= 32'hFFFFFFFF;
         end else begin
             if(RegWrite) begin
-                gprRegisters[WriteRegister] <= (WriteRegister)?WriteData:32'b0;
+                gprRegisters[WriteRegister] <= WriteRegister ? WriteData : 32'b0;
             end
         end
     end

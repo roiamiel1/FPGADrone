@@ -80,11 +80,31 @@ module MIPS_R2000 (
     // U_DataMemory connections.
     wire [31:0] U_DataMemory_DataOut;
 
+    // U_ForwardingUnit connections.
+    wire [2:0] ALUDataIn1Mux;
+    wire [2:0] ALUDataIn2Mux;
+    wire [31:0] ALURegInput1;
+    wire [31:0] ALURegInput2;
+
     // Connections assigns.
     assign U_EXMEMReg_Rd_in = U_IDEXReg_RegDst_out ? U_IDEXReg_Rd_out : U_IDEXReg_Rt_out;
     assign U_GPR_WriteData = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
     assign U_PCU_PCSrc = U_EXMEMReg_Branch_out & U_EXMEMReg_Zero_out;
-    
+
+    // Assigns Forwaring Mux's
+    assign ALURegInput1 = `ForwardingMux(
+        ALUDataIn1Mux,          // Selector
+        U_IDEXReg_Reg1_out,     // No forwarding
+        U_EXMEMReg_ALU_out,     // Forward from EX/MEM
+        U_MEMWBReg_ALU_out      // Forward from MEM/WB
+    );
+    assign ALURegInput2 = `ForwardingMux(
+        ALUDataIn2Mux,          // Selector
+        U_IDEXReg_Reg2_out,     // No forwarding
+        U_EXMEMReg_ALU_out,     // Forward from EX/MEM
+        U_MEMWBReg_ALU_out      // Forward from MEM/WB
+    );
+
     // Modules section.
     PCU U_PCU (
         .clk(clk),
@@ -166,9 +186,20 @@ module MIPS_R2000 (
         .shamt_out(U_IDEXReg_shamt_out)
     );
 
+    ForwardingUnit U_ForwardingUnit(
+        .ALUDataIn1RegAddr_in(U_IDEXReg_Rs_out),
+        .ALUDataIn2RegAddr_in(U_IDEXReg_Rt_out),
+        .EXMEM_WriteBackReg(U_EXMEMReg_RegWrite_out),
+        .MEMWB_WriteBackReg(U_MEMWBReg_RegWrite_out),
+        .EXMEM_WriteBackRegAddr(U_EXMEMReg_Rd_out),
+        .MEMWB_WriteBackRegAddr(U_MEMWBReg_Rd_out),
+        .ALUDataIn1Mux_out(ALUDataIn1Mux),
+        .ALUDataIn2Mux_out(ALUDataIn2Mux)
+    );
+
     ALU U_ALU(
-        .DataIn1(U_IDEXReg_Reg1_out),
-        .DataIn2(U_IDEXReg_ALUSrc_out ? U_IDEXReg_ExtImm_out : U_IDEXReg_Reg2_out),
+        .DataIn1(ALURegInput1),
+        .DataIn2(U_IDEXReg_ALUSrc_out ? U_IDEXReg_ExtImm_out : ALURegInput2),
         .ALUOp(U_IDEXReg_ALUOp_out),
         .shamt(U_IDEXReg_shamt_out),
         .ALURes(U_EXMEMReg_ALU_in),
