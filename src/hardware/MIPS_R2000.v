@@ -9,12 +9,6 @@ module MIPS_R2000 (
     output reg [31:0] debug_pc,
     output reg debug_alu_zero
 );
-    // U_ForwardingUnit connections.
-    wire [1:0] U_ForwardingUnit_ForwardA;
-    wire [1:0] U_ForwardingUnit_ForwardB;
-    wire [1:0] U_ForwardingUnit_ForwardC;
-    wire [1:0] U_ForwardingUnit_ForwardD;
-
     // U_Ctrl connections.
     wire U_Ctrl_RegDst;
     wire [4:0] U_Ctrl_ALUOp;
@@ -79,12 +73,6 @@ module MIPS_R2000 (
     // U_InstructionMemory connections.
     wire [31:0] U_InstructionMemory_IR;
 
-    // U_HazardUnit connections.
-    wire U_HazardUnit_Hazard;
-
-    // U_ConditionCheck connections.
-    wire U_ConditionCheck_Equal;
-
     // U_Extender connections.
     wire [31:0] U_Extender_ExtOut;
 
@@ -139,16 +127,6 @@ module MIPS_R2000 (
         .Instr_out(U_IFIDReg_Instr_out)
     );
 
-    HazardUnit U_HazardUnit (
-        .Jump(U_Ctrl_Jump),
-        .BranchTaken(U_PCU_PCSrc),
-        .IDMemRead(U_Ctrl_MemRead),
-        .IFRs(`RS(U_IFIDReg.Instr_in)),
-        .IFRt(`RT(U_IFIDReg.Instr_in)),
-        .IDRt(`RT(U_IFIDReg_Instr_out)),
-        .Hazard(U_HazardUnit_Hazard)
-    );
-
     GPR U_GPR(
         .clk(clk),
         .rst(rst),
@@ -159,24 +137,6 @@ module MIPS_R2000 (
         .ReadRegister2(U_IFIDReg_Instr_out[20:16]),
         .DataOut1(U_GPR_DataOut1),
         .DataOut2(U_GPR_DataOut2)
-    );
-
-    ConditionCheck U_ConditionCheck (
-        .in0(`ForwardingMux(
-            U_ForwardingUnit_ForwardC,
-            U_GPR_DataOut1,
-            U_EXMEMReg_ALU_in,
-            U_EXMEMReg_ALU_out,
-            U_GPR_WriteData
-        )),
-        .in1(`ForwardingMux(
-            U_ForwardingUnit_ForwardD,
-            U_GPR_DataOut2,
-            U_EXMEMReg_ALU_in,
-            U_EXMEMReg_ALU_out,
-            U_GPR_WriteData
-        )),
-        .Equal(U_ConditionCheck_Equal)
     );
 
     Extender U_Extender(
@@ -290,23 +250,6 @@ module MIPS_R2000 (
         .Jump(U_Ctrl_Jump),
         .nBranch(U_Ctrl_nBranch),
         .ExtOp(U_Ctrl_ExtOp)
-    );
-
-    ForwardingUnit U_ForwardingUnit (
-        .IFIDRs(`RS(U_IFIDReg_Instr_out)),
-        .IFIDRt(`RT(U_IFIDReg_Instr_out)),
-        .IDEXRs(U_IDEXReg_Rs_out),
-        .IDEXRt(U_IDEXReg_Rt_out),
-        .IDEXWriteReg(U_EXMEMReg_Rd_in),
-        .EXMEMRd(U_EXMEMReg_Rd_out),
-        .MEMWBRd(U_MEMWBReg_Rd_out),
-        .IDEXRegWrite(U_IDEXReg_RegWrite_out),
-        .MEMWBRegWrite(U_MEMWBReg_RegWrite_out),
-        .EXMEMRegWrite(U_EXMEMReg_RegWrite_out),
-        .ForwardA(U_ForwardingUnit_ForwardA),
-        .ForwardB(U_ForwardingUnit_ForwardB),
-        .ForwardC(U_ForwardingUnit_ForwardC),
-        .ForwardD(U_ForwardingUnit_ForwardD)
     );
 
 endmodule
