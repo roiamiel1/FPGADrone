@@ -14,8 +14,6 @@ initial begin
 end
 
 always @(*) begin
-
-
     if (IDMemRead
     	&& (IDRt != 0)
         && (IDRt == IFRs
@@ -24,8 +22,6 @@ always @(*) begin
     end else begin
         Hazard <= Jump || BranchTaken;
     end
-
-
 end
 
 
