@@ -168,7 +168,7 @@ module MIPS_R2000 (
 
     ALU U_ALU(
         .DataIn1(U_IDEXReg_Reg1_out),
-        .DataIn2(U_Ctrl_ALUSrc ? U_IDEXReg_ExtImm_out : U_IDEXReg_Reg2_out),
+        .DataIn2(U_IDEXReg_ALUSrc_out ? U_IDEXReg_ExtImm_out : U_IDEXReg_Reg2_out),
         .ALUOp(U_IDEXReg_ALUOp_out),
         .shamt(U_IDEXReg_shamt_out),
         .ALURes(U_EXMEMReg_ALU_in),
