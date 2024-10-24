@@ -2,15 +2,16 @@ module PCU (
     input clk,
     input rst,
     input PCSrc,
-    input Jump,
-    input [31:0] BranchAddr,
-    input [31:0] JmpAddr,
-    output reg [31:0] PC
+    input [31:0] BranchOffset,
+    output reg [31:0] PC,
+    output [31:0] NextPC
 );
+    assign NextPC = PC + 4;
+
     always@(posedge clk, posedge rst) begin
         if (rst)
             PC <= 32'h0000_0000;
         else
-            PC <= Jump ? JmpAddr : (PCSrc ? BranchAddr : PC + 4);
+            PC <= PCSrc ? BranchOffset : NextPC;
     end
 endmodule
