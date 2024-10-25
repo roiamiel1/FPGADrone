@@ -144,14 +144,14 @@ module Control(
         end else if (OpCode == 6'h3) begin
             // jal case:
             Jump <= 1;
-            RegDst <= 0;
+            RegDst <= `REG_DST_RD;
             Branch <= 0;
             MemRead <= 0;
             MemWrite <= 0;
-            RegWrite <= 0;
-            ALUSrc <= 0;
+            RegWrite <= 1;
+            ALUSrc <= `ALU_SRC_REG;
             ExtOp <= 0;
-            ALUOp <= 0;
+            ALUOp <= `ALUOp_IN1;
             SpecialOP <= `SpecialOP_JAL;
         end else if (OpCode == 6'h0 && Funct == 6'h8) begin
             // jr case:
