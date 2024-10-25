@@ -507,7 +507,9 @@ class TestbanchBuilderSerializer(object):
         return normalize_tabs(f"""
         if ({MipsObjects.Regs.PC.value} == {trigger.pc * 4}) begin
             if ({trigger.pipe_stage_var_name} != {any_exec_stage_str}) begin
-                $display("Instruction already in pipeline");
+                $display("{("\\n" + "*" * 15 + "  Error  " + "*" * 15)}");
+                $display("Instruction {trigger.pipe_stage_var_name} already in pipeline");
+                $display("\\n");
                 $finish;
             end
             
