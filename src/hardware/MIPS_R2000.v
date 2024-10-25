@@ -43,6 +43,7 @@ module MIPS_R2000 (
     wire U_IDEXReg_RegDst_out;
     wire [4:0] U_IDEXReg_ALUOp_out;
     wire U_IDEXReg_ALUSrc_out;
+    wire [3:0] U_IDEXReg_SpecialOP_out;
     wire U_IDEXReg_Branch_out;
     wire U_IDEXReg_Jump_out;
     wire [25:0] U_IDEXReg_JumpAddress_out;
@@ -105,10 +106,11 @@ module MIPS_R2000 (
     // Branch and Jump assigns.
     assign U_PCU_PCSrc = (U_EXMEMReg_Branch_out && U_EXMEMReg_Zero_out) || U_EXMEMReg_Jump_out;
     assign HazardFlushRegs = U_PCU_PCSrc == 1'b1; // U_PCU_PCSrc == 1'b1 -> Jump or Branch.
-    assign BranchAddress = (U_IDEXReg_Branch_out ? 
-        (U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)) :
+
+    assign BranchAddress = (U_IDEXReg_SpecialOP_out == `SpecialOP_JR ? U_EXMEMReg_ALU_in : 
+        (U_IDEXReg_Branch_out ? (U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)) :
         // According to the DOC https://www.eecis.udel.edu/~davis/cpeg222/AssemblyTutorial/Chapter-17/ass17_5.html
-        (U_IDEXReg_Jump_out ? {U_IDEXReg_NextPC_out[31:28], U_IDEXReg_JumpAddress_out, 2'b0} : 32'b0)
+        (U_IDEXReg_Jump_out ? {U_IDEXReg_NextPC_out[31:28], U_IDEXReg_JumpAddress_out, 2'b0} : 32'b0))
     );
 
     // IDEXReg assigns.
@@ -184,6 +186,7 @@ module MIPS_R2000 (
         .RegDst_in(U_Ctrl_RegDst),
         .ALUOp_in(U_Ctrl_ALUOp),
         .ALUSrc_in(U_Ctrl_ALUSrc),
+        .SpecialOP_in(U_Ctrl_SpecialOP),
         .Branch_in(U_Ctrl_Branch),
         .Jump_in(U_Ctrl_Jump),
         .JumpAddress_in(`JUMP_ADDRESS(U_IFIDReg_Instr_out)),
@@ -201,6 +204,7 @@ module MIPS_R2000 (
         .RegDst_out(U_IDEXReg_RegDst_out),
         .ALUOp_out(U_IDEXReg_ALUOp_out),
         .ALUSrc_out(U_IDEXReg_ALUSrc_out),
+        .SpecialOP_out(U_IDEXReg_SpecialOP_out),
         .Branch_out(U_IDEXReg_Branch_out),
         .Jump_out(U_IDEXReg_Jump_out),
         .JumpAddress_out(U_IDEXReg_JumpAddress_out),

@@ -8,6 +8,7 @@ module IDEXReg (
     input RegDst_in,
     input [4:0] ALUOp_in,
     input ALUSrc_in,
+    input [3:0] SpecialOP_in,
 
     // MEM signal
     input Branch_in,
@@ -33,6 +34,7 @@ module IDEXReg (
     output RegDst_out,
     output [4:0] ALUOp_out,
     output ALUSrc_out,
+    input [3:0] SpecialOP_out,
 
     // MEM signal
     output Branch_out,
@@ -54,13 +56,14 @@ module IDEXReg (
     output [4:0] shamt_out
 );
 
-    reg [186:0] StageReg;
+    reg [190:0] StageReg;
 
     assign {
             NextPC_out[31:0],
             RegDst_out,
             ALUOp_out[4:0],
             ALUSrc_out,
+            SpecialOP_out,
             Branch_out,
             Jump_out,
             JumpAddress_out,
@@ -77,18 +80,19 @@ module IDEXReg (
         } = StageReg;
 
     initial begin
-        StageReg <= 187'b0;
+        StageReg <= 191'b0;
     end
 
     always @(posedge clk, posedge rst) begin
         if (rst || HazardFlush)
-            StageReg <= 187'b0;
+            StageReg <= 191'b0;
         else begin
             StageReg <= {
                 NextPC_in[31:0],
                 RegDst_in,
                 ALUOp_in[4:0],
                 ALUSrc_in,
+                SpecialOP_in,
                 Branch_in,
                 Jump_in,
                 JumpAddress_in,
