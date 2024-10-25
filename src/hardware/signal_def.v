@@ -15,6 +15,8 @@
     (instr[5:0])
 `define IMMEDIATE(instr) \
     (instr[15:0])
+`define JUMP_ADDRESS(instr) \
+    (instr[25:0])
 
 `define FOWARD_MUX_NO_FORWARD 2'b00
 `define FOWARD_MUX_EXMEM_FORWARD 2'b01
