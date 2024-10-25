@@ -4,83 +4,14 @@ tests/hardware/asm/MIPS_R2000_tb.out:     file format elf32-tradbigmips
 
 Disassembly of section .text:
 
-00000000 <beq_unsuccess-0x8c>:
+00000000 <hazard_beq_unsuccess-0xc>:
    0:	26100000 	addiu	s0,s0,0
-   4:	26310001 	addiu	s1,s1,1
-   8:	26520005 	addiu	s2,s2,5
-   c:	2673ffff 	addiu	s3,s3,-1
-  10:	2694fffe 	addiu	s4,s4,-2
-  14:	02112020 	add	a0,s0,s1
-  18:	02312020 	add	a0,s1,s1
-  1c:	02322020 	add	a0,s1,s2
-  20:	02742020 	add	a0,s3,s4
-  24:	02712020 	add	a0,s3,s1
-  28:	02722020 	add	a0,s3,s2
-  2c:	02342020 	add	a0,s1,s4
-  30:	22040005 	addi	a0,s0,5
-  34:	22242710 	addi	a0,s1,10000
-  38:	22642710 	addi	a0,s3,10000
-  3c:	2204ffff 	addi	a0,s0,-1
-  40:	2204fffe 	addi	a0,s0,-2
-  44:	2204d8f0 	addi	a0,s0,-10000
-  48:	02112021 	addu	a0,s0,s1
-  4c:	02312021 	addu	a0,s1,s1
-  50:	02322021 	addu	a0,s1,s2
-  54:	02742021 	addu	a0,s3,s4
-  58:	02712021 	addu	a0,s3,s1
-  5c:	02722021 	addu	a0,s3,s2
-  60:	02342021 	addu	a0,s1,s4
-  64:	02112024 	and	a0,s0,s1
-  68:	02312024 	and	a0,s1,s1
-  6c:	02322024 	and	a0,s1,s2
-  70:	02532024 	and	a0,s2,s3
-  74:	32240000 	andi	a0,s1,0x0
-  78:	32240001 	andi	a0,s1,0x1
-  7c:	32240005 	andi	a0,s1,0x5
-  80:	32640005 	andi	a0,s3,0x5
-  84:	12100002 	beq	s0,s0,90 <beq_success>
-  88:	00000000 	sll	zero,zero,0x0
+   4:	12100002 	beq	s0,s0,10 <hazard_beq_success>
+   8:	00000000 	sll	zero,zero,0x0
 
-0000008c <beq_unsuccess>:
-  8c:	02112024 	and	a0,s0,s1
+0000000c <hazard_beq_unsuccess>:
+   c:	275a0064 	addiu	k0,k0,100
 
-00000090 <beq_success>:
-  90:	02112024 	and	a0,s0,s1
-  94:	16110002 	bne	s0,s1,a0 <bne_success>
-  98:	00000000 	sll	zero,zero,0x0
-
-0000009c <bne_unsuccess>:
-  9c:	02112024 	and	a0,s0,s1
-
-000000a0 <bne_success>:
-  a0:	02312024 	and	a0,s1,s1
-  a4:	12110002 	beq	s0,s1,b0 <nbeq_success>
-  a8:	00000000 	sll	zero,zero,0x0
-
-000000ac <nbeq_unsuccess>:
-  ac:	02112024 	and	a0,s0,s1
-
-000000b0 <nbeq_success>:
-  b0:	02112024 	and	a0,s0,s1
-  b4:	16100002 	bne	s0,s0,c0 <nbne_success>
-  b8:	00000000 	sll	zero,zero,0x0
-
-000000bc <nbne_unsuccess>:
-  bc:	02112024 	and	a0,s0,s1
-
-000000c0 <nbne_success>:
-  c0:	02312024 	and	a0,s1,s1
-  c4:	02112020 	add	a0,s0,s1
-  c8:	00842820 	add	a1,a0,a0
-  cc:	00853020 	add	a2,a0,a1
-  d0:	00863820 	add	a3,a0,a2
-  d4:	00874020 	add	t0,a0,a3
-  d8:	12100002 	beq	s0,s0,e4 <hazard_beq_success>
-  dc:	00000000 	sll	zero,zero,0x0
-
-000000e0 <hazard_beq_unsuccess>:
-  e0:	275a0064 	addiu	k0,k0,100
-
-000000e4 <hazard_beq_success>:
-  e4:	277b012c 	addiu	k1,k1,300
+00000010 <hazard_beq_success>:
+  10:	277b012c 	addiu	k1,k1,300
 	...
