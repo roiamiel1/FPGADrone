@@ -1,12 +1,10 @@
 set_device GW1NR-LV9QN88PC6/I5
 add_file -type verilog src/hardware/ALU.v
-add_file -type verilog src/hardware/ConditionCheck.v
 add_file -type verilog src/hardware/Control.v
 add_file -type verilog src/hardware/EXMEMReg.v
 add_file -type verilog src/hardware/Extender.v
 add_file -type verilog src/hardware/ForwardingUnit.v
 add_file -type verilog src/hardware/GPR.v
-add_file -type verilog src/hardware/HazardUnit.v
 add_file -type verilog src/hardware/IDEXReg.v
 add_file -type verilog src/hardware/IFIDReg.v
 add_file -type verilog src/hardware/InstructionMemory.v
