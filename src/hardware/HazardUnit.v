@@ -3,5 +3,5 @@ module HazardUnit (
     input BranchTaken,
     output Hazard
 );
-    assign Hazard <= Jump || BranchTaken;
+    assign Hazard = Jump || BranchTaken;
 endmodule
