@@ -1,17 +1,22 @@
 module IDEXReg (
     input clk,
     input rst,
+    input HazardFlush,
+
     // EX signal
     input [31:0] NextPC_in,
     input RegDst_in,
     input [4:0] ALUOp_in,
     input ALUSrc_in,
+
     // MEM signal
     input Branch_in,
     input MemRead_in,
     input MemWrite_in,
+
     // WB signal
     input RegWrite_in,
+
     // data
     input [31:0] Reg1_in,
     input [31:0] Reg2_in,
@@ -20,17 +25,21 @@ module IDEXReg (
     input [4:0] Rt_in,
     input [4:0] Rd_in,
     input [4:0] shamt_in,
+
     // EX signal
     output [31:0] NextPC_out,
     output RegDst_out,
     output [4:0] ALUOp_out,
     output ALUSrc_out,
+
     // MEM signal
     output Branch_out,
     output MemRead_out,
     output MemWrite_out,
+
     // WB signal
     output RegWrite_out,
+
     // data
     output [31:0] Reg1_out,
     output [31:0] Reg2_out,
@@ -66,7 +75,7 @@ module IDEXReg (
     end
 
     always @(posedge clk, posedge rst) begin
-        if (rst)
+        if (rst || HazardFlush)
             StageReg <= 159'b0;
         else begin
             StageReg <= {

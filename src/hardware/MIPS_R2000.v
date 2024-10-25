@@ -86,10 +86,13 @@ module MIPS_R2000 (
     wire [31:0] ALURegInput1;
     wire [31:0] ALURegInput2;
 
+    // U_HazardUnit connections.
+    wire HazardFlushRegs;
+
     // Connections assigns.
     assign U_EXMEMReg_Rd_in = U_IDEXReg_RegDst_out ? U_IDEXReg_Rd_out : U_IDEXReg_Rt_out;
     assign U_GPR_WriteData = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
-    assign U_PCU_PCSrc = U_EXMEMReg_Branch_out & U_EXMEMReg_Zero_out;
+    assign U_PCU_PCSrc = U_EXMEMReg_Branch_out && U_EXMEMReg_Zero_out;
 
     // Assigns Forwaring Mux's
     assign ALURegInput1 = `ForwardingMux(
@@ -106,13 +109,19 @@ module MIPS_R2000 (
     );
 
     // Modules section.
-    PCU U_PCU (
+    PCU U_PCU(
         .clk(clk),
         .rst(rst),
         .PCSrc(U_PCU_PCSrc),
         .BranchOffset(U_EXMEMReg_BranchOffset_out),
         .PC(U_PCU_PC),
         .NextPC(U_PCU_NextPC)
+    );
+
+    HazardUnit U_HazardUnit(
+        .Jump(1'b0),
+        .BranchTaken(U_PCU_PCSrc == 1'b1),
+        .Hazard(HazardFlushRegs)
     );
 
     // TODO: read from data memory.
@@ -127,6 +136,7 @@ module MIPS_R2000 (
     IFIDReg U_IFIDReg (
         .clk(clk),
         .rst(rst),
+        .HazardFlush(HazardFlushRegs),
         .PC_in(U_PCU_NextPC),
         .Instr_in(U_InstructionMemory_IR),
         .PC_out(U_IFIDReg_PC_out),
@@ -154,6 +164,7 @@ module MIPS_R2000 (
     IDEXReg U_IDEXReg (
         .clk(clk),
         .rst(rst),
+        .HazardFlush(HazardFlushRegs),
         .RegDst_in(U_Ctrl_RegDst),
         .ALUOp_in(U_Ctrl_ALUOp),
         .ALUSrc_in(U_Ctrl_ALUSrc),
@@ -209,6 +220,7 @@ module MIPS_R2000 (
     EXMEMReg U_EXMEMReg (
         .clk(clk),
         .rst(rst),
+        .HazardFlush(HazardFlushRegs),
         .Branch_in(U_IDEXReg_Branch_out),
         .BranchOffset_in(U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)),
         .MemRead_in(U_IDEXReg_MemRead_out),
