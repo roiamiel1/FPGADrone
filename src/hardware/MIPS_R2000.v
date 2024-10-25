@@ -136,6 +136,7 @@ module MIPS_R2000 (
     IFIDReg U_IFIDReg(
         .clk(clk),
         .rst(rst),
+        .HazardFlush(HazardFlushRegs),
         .PC_in(U_PCU_NextPC),
         .Instr_in(U_InstructionMemory_IR),
         .PC_out(U_IFIDReg_PC_out),
