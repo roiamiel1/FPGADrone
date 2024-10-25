@@ -224,7 +224,7 @@ class TestbanchBuilder(object):
             printer.write_line("// Drop IFID/IDEX/EXMEM instructions.")
 
             for var_name in self._pipe_stage_vars_names:
-                printer.write_line(f"if ({var_name} >= `STAGE_AFTER_IF && {var_name} <= `STAGE_AFTER_EX)")
+                printer.write_line(f"if (`STAGE_AFTER_EX <= {var_name} && {var_name} <= `STAGE_BEFORE_PIPE)")
                 with printer.group(indent=4*1):
                     printer.write_line(f"{var_name} = `STAGE_NOT_IN_PIPE;");
         

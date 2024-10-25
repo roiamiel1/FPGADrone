@@ -61,7 +61,7 @@ test_instructions = [
     # Test `bne`:
     ("bne $s0, $s1, bne_success", "{after_ex(REGS.PC)} == {before(REGS.PC)} + 4*3"),
     ("bne_unsuccess: and $a0, $s0, $s1", FALSE_CONDITION),
-    ("bne_success: and $a0, $s0, $s1", TRUE_CONDITION),
+    ("bne_success: and $a0, $s1, $s1", TRUE_CONDITION),
 
 ]
 
