@@ -90,7 +90,15 @@ instructions = [
     ("j2: j j5", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
     ("j3: j j2", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
     ("j4: j j1", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
-    ("j5: addiu $gp, $zero, 10432", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.GP)} == 10432"),
+    ("j5: addiu $gp, $zero, 10432", "{after_mem(REGS.GP)} == 10432"),
+
+    # Test `jal` - branching:
+    ("jal j_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("jal_unsuccess: addiu $k0, 100", FALSE_CONDITION),
+    ("jal_success: addiu $k1, $zero, -12312", 
+        "{after_mem(REGS.K0)} == 0",
+        "{after_mem(REGS.K1)} == -12312", 
+        "{after_mem(REGS.RA)} == {before(REGS.PC)} + 4*2"),
 ]
 
 test_instructions = [
