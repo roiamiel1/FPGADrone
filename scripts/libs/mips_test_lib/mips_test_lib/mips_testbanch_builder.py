@@ -330,9 +330,9 @@ class TestbanchBuilder(object):
 
         with printer.group(indent=4*2):
             printer.write_line()
-            self._write_reset_pipe_stage_vars_on_hazard(printer)
             self._write_update_pipe_stage_vars(printer)
             self._write_pc_triggers(printer)
+            self._write_reset_pipe_stage_vars_on_hazard(printer)
             self._write_conds(printer)
         
         with printer.group(indent=4*1):

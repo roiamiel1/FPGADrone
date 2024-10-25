@@ -47,18 +47,41 @@ instructions = [
     ("andi $a0, $s1, 5", "{after_mem(REGS.A0)} == 1"),
     ("andi $a0, $s3, 5", "{after_mem(REGS.A0)} == 5"),
 
-    # Test `beq`:
-    ("beq $s0, $s0, beq_success", "{after_ex(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    # Test `beq` - branching:
+    ("beq $s0, $s0, beq_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
     ("beq_unsuccess: and $a0, $s0, $s1", FALSE_CONDITION),
     ("beq_success: and $a0, $s0, $s1", TRUE_CONDITION),
 
-    # Test `bne`:
-    ("bne $s0, $s1, bne_success", "{after_ex(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    # Test `bne` - branching:
+    ("bne $s0, $s1, bne_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
     ("bne_unsuccess: and $a0, $s0, $s1", FALSE_CONDITION),
     ("bne_success: and $a0, $s1, $s1", TRUE_CONDITION),
+
+    # Test `beq` - not branching:
+    ("beq $s0, $s1, nbeq_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*4"),
+    ("nbeq_unsuccess: and $a0, $s0, $s1", TRUE_CONDITION),
+    ("nbeq_success: and $a0, $s0, $s1", TRUE_CONDITION),
+
+    # Test `bne` - not branching:
+    ("bne $s0, $s0, nbne_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*4"),
+    ("nbne_unsuccess: and $a0, $s0, $s1", TRUE_CONDITION),
+    ("nbne_success: and $a0, $s1, $s1", TRUE_CONDITION),
+
+    # Test forwarding.
+    ("add $a0, $s0, $s1", TRUE_CONDITION),
+    ("add $a1, $a0, $a0", "{after_mem(REGS.A1)} == 2"),
+    ("add $a2, $a0, $a1", "{after_mem(REGS.A2)} == 3"),
+    ("add $a3, $a0, $a2", "{after_mem(REGS.A3)} == 4"),
+    ("add $t0, $a0, $a3", "{after_mem(REGS.T0)} == 5"),
+
+    # Test branch hazard.
+    ("beq $s0, $s0, hazard_beq_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("hazard_beq_unsuccess: addiu $k0, 100", FALSE_CONDITION),
+    ("hazard_beq_success: addiu $k1, 300", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 300"),
 ]
 
 test_instructions = [
+
 ]
 
 TestBuilder().attach_instructions(test_instructions or instructions).write(
