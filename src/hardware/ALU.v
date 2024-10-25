@@ -66,7 +66,10 @@ module ALU (
                 ALURes[15:0]  = 0;
                 ALURes[31:16] = DataIn2[15:0];
             end
-        endcase //ALUOp
+            `ALUOp_IN1: begin
+                ALURes = DataIn1;
+            end
+        endcase
 
         case (ALUOp)
             `ALUOp_BNE:
