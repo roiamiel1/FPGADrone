@@ -7,7 +7,7 @@ TRUE_CONDITION = "1 /* always true */"
 
 
 class TestBuilder():
-    _BRANCH_OPCODES = ["bne", "beq", "j", "jal"]
+    _BRANCH_OPCODES = ["bne", "beq", "j", "jal", "jr"]
 
     def __init__(self) -> None:
         self._builder = TestbanchBuilder()
