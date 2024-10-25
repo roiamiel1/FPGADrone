@@ -148,14 +148,14 @@ module MIPS_R2000 (
         .WriteData(U_GPR_WriteData),
         .RegWrite(U_MEMWBReg_RegWrite_out),
         .WriteRegister(U_MEMWBReg_Rd_out),
-        .ReadRegister1(RS(U_IFIDReg_Instr_out)),
-        .ReadRegister2(RT(U_IFIDReg_Instr_out)),
+        .ReadRegister1(`RS(U_IFIDReg_Instr_out)),
+        .ReadRegister2(`RT(U_IFIDReg_Instr_out)),
         .DataOut1(U_GPR_DataOut1),
         .DataOut2(U_GPR_DataOut2)
     );
 
     Extender U_OpcodeImmExtender(
-        .DataIn(IMMEDIATE(U_IFIDReg_Instr_out)), // Immidiate value from I-format opcode.
+        .DataIn(`IMMEDIATE(U_IFIDReg_Instr_out)), // Immidiate value from I-format opcode.
         .ExtOp(U_Ctrl_ExtOp),                    // Should the value should be extedned using 0 or MSB.
         .ExtOut(U_OpcodeImmExtender_Out)
     );
@@ -176,10 +176,10 @@ module MIPS_R2000 (
         .Reg1_in(U_GPR_DataOut1),
         .Reg2_in(U_GPR_DataOut2),
         .ExtImm_in(U_OpcodeImmExtender_Out),
-        .Rs_in(RS(U_IFIDReg_Instr_out)),
-        .Rt_in(RT(U_IFIDReg_Instr_out)),
-        .Rd_in(RD(U_IFIDReg_Instr_out)),
-        .shamt_in(SHAMT(U_IFIDReg_Instr_out)),
+        .Rs_in(`RS(U_IFIDReg_Instr_out)),
+        .Rt_in(`RT(U_IFIDReg_Instr_out)),
+        .Rd_in(`RD(U_IFIDReg_Instr_out)),
+        .shamt_in(`SHAMT(U_IFIDReg_Instr_out)),
         .RegDst_out(U_IDEXReg_RegDst_out),
         .ALUOp_out(U_IDEXReg_ALUOp_out),
         .ALUSrc_out(U_IDEXReg_ALUSrc_out),
@@ -268,8 +268,8 @@ module MIPS_R2000 (
     );
 
     Control U_Ctrl(
-        .OpCode(OP(U_IFIDReg_Instr_out)),
-        .Funct(FUNCT(U_IFIDReg_Instr_out)),
+        .OpCode(`OP(U_IFIDReg_Instr_out)),
+        .Funct(`FUNCT(U_IFIDReg_Instr_out)),
         .RegDst(U_Ctrl_RegDst),
         .ALUOp(U_Ctrl_ALUOp),
         .ALUSrc(U_Ctrl_ALUSrc),
