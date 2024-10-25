@@ -15,8 +15,11 @@ build-asm-test:
 	xxd -c 4 -p tests/hardware/asm/MIPS_R2000_tb.shellcode > tests/hardware/asm/MIPS_R2000_tb.hex
 
 build-mips:
-	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-gcc -mfp32 -march=R2000 -static -nostdlib src/software/main.c -o bin/software/main.out
-	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-gcc -S -mfp32 -march=R2000 -static -nostdlib src/software/main.c -o bin/software/main.asm
+	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-gcc -mfp32 -mips1 -static -nostdlib src/software/main.c -o bin/software/main.out
+	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-gcc -S -mfp32 -mips1 -static -nostdlib src/software/main.c -o bin/software/main.asm
+	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objcopy --dump-section .text=bin/software/main.shellcode bin/software/main.out
+	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objdump -d -M no-aliases bin/software/main.out > bin/software/main.shellcode.text
+
 
 build-shellcode:
 	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objcopy --dump-section .text=bin/software/main.shellcode bin/software/main.out
