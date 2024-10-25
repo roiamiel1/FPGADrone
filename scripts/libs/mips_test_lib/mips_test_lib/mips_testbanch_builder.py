@@ -218,7 +218,7 @@ class TestbanchBuilder(object):
 
     def _write_reset_pipe_stage_vars_on_hazard(self, printer: CodePrinter) -> None:
         printer.write_line("// ########### Reset Pipe Stage Vars On Hazard ###########")
-        printer.write_line("if (U_MIPS_R2000.U_HazardUnit.Hazard) begin")
+        printer.write_line("if (U_MIPS_R2000.HazardFlushRegs) begin")
 
         with printer.group(indent=4*1):
             printer.write_line("// Drop IFID/IDEX/EXMEM instructions.")
