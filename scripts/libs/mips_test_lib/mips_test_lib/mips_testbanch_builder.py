@@ -216,6 +216,21 @@ class TestbanchBuilder(object):
 
         return f"\"{str_prefix}{base_message}\"{variable_suffix}"
 
+    def _write_reset_pipe_stage_vars_on_hazard(self, printer: CodePrinter) -> None:
+        printer.write_line("// ########### Reset Pipe Stage Vars On Hazard ###########")
+        printer.write_line("if (U_MIPS_R2000.U_HazardUnit.Hazard) begin")
+
+        with printer.group(indent=4*1):
+            printer.write_line("// Drop IFID/IDEX/EXMEM instructions.")
+
+            for var_name in self._pipe_stage_vars_names:
+                printer.write_line(f"if ({var_name} >= `STAGE_AFTER_IF && {var_name} <= `STAGE_AFTER_EX)")
+                with printer.group(indent=4*1):
+                    printer.write_line(f"{var_name} = `STAGE_NOT_IN_PIPE;");
+        
+        printer.write_line("end")
+        printer.write_line()
+
     def _write_update_pipe_stage_vars(self, printer: CodePrinter) -> None:
         printer.write_line("// ########### Update Pipe Stage Vars ###########")
         printer.write_line((os.linesep * 2).join(
@@ -308,12 +323,14 @@ class TestbanchBuilder(object):
                 always@(posedge clk_debug) begin
                     cycles = cycles + 1;
                     if({MipsObjects.Regs.PC.value} > {(self._max_pc() + 1) * 16 + 4}) begin
+                        $display("\\n\\n***************  Done  ***************\\n\\n");
                         $finish;
                     end
             """))
 
         with printer.group(indent=4*2):
             printer.write_line()
+            self._write_reset_pipe_stage_vars_on_hazard(printer)
             self._write_update_pipe_stage_vars(printer)
             self._write_pc_triggers(printer)
             self._write_conds(printer)
