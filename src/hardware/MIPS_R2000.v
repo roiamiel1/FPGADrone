@@ -26,7 +26,8 @@ module MIPS_R2000 (
 
     // U_EXMEMReg connections.
     wire U_EXMEMReg_Branch_out;
-    wire [31:0] U_EXMEMReg_BranchOffset_out;
+    wire U_EXMEMReg_Jump_out;
+    wire [31:0] U_EXMEMReg_BranchAddress_out;
     wire U_EXMEMReg_MemRead_out;
     wire U_EXMEMReg_MemWrite_out;
     wire [31:0] U_EXMEMReg_Reg2_out;
@@ -42,6 +43,7 @@ module MIPS_R2000 (
     wire [4:0] U_IDEXReg_ALUOp_out;
     wire U_IDEXReg_ALUSrc_out;
     wire U_IDEXReg_Branch_out;
+    wire U_IDEXReg_Jump_out;
     wire [31:0] U_IDEXReg_NextPC_out;
     wire U_IDEXReg_MemRead_out;
     wire U_IDEXReg_MemWrite_out;
@@ -92,7 +94,10 @@ module MIPS_R2000 (
     // Connections assigns.
     assign U_EXMEMReg_Rd_in = U_IDEXReg_RegDst_out ? U_IDEXReg_Rd_out : U_IDEXReg_Rt_out;
     assign U_GPR_WriteData = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
-    assign U_PCU_PCSrc = U_EXMEMReg_Branch_out && U_EXMEMReg_Zero_out;
+
+    // Branch and Jump assigns.
+    assign U_PCU_PCSrc = (U_EXMEMReg_Branch_out && U_EXMEMReg_Zero_out) || U_EXMEMReg_Jump_out;
+    assign HazardFlushRegs = U_PCU_PCSrc == 1'b1;
 
     // Assigns Forwaring Mux's
     assign ALURegInput1 = `ForwardingMux(
@@ -113,15 +118,9 @@ module MIPS_R2000 (
         .clk(clk),
         .rst(rst),
         .PCSrc(U_PCU_PCSrc),
-        .BranchOffset(U_EXMEMReg_BranchOffset_out),
+        .BranchAddress(U_EXMEMReg_BranchAddress_out),
         .PC(U_PCU_PC),
         .NextPC(U_PCU_NextPC)
-    );
-
-    HazardUnit U_HazardUnit(
-        .Jump(1'b0),
-        .BranchTaken(U_PCU_PCSrc == 1'b1),
-        .Hazard(HazardFlushRegs)
     );
 
     // TODO: read from data memory.
@@ -169,6 +168,7 @@ module MIPS_R2000 (
         .ALUOp_in(U_Ctrl_ALUOp),
         .ALUSrc_in(U_Ctrl_ALUSrc),
         .Branch_in(U_Ctrl_Branch),
+        .Jump_in(U_Ctrl_Jump),
         .NextPC_in(U_IFIDReg_PC_out),
         .MemRead_in(U_Ctrl_MemRead),
         .MemWrite_in(U_Ctrl_MemWrite),
@@ -184,6 +184,7 @@ module MIPS_R2000 (
         .ALUOp_out(U_IDEXReg_ALUOp_out),
         .ALUSrc_out(U_IDEXReg_ALUSrc_out),
         .Branch_out(U_IDEXReg_Branch_out),
+        .Jump_out(U_IDEXReg_Jump_out),
         .NextPC_out(U_IDEXReg_NextPC_out),
         .MemRead_out(U_IDEXReg_MemRead_out),
         .MemWrite_out(U_IDEXReg_MemWrite_out),
@@ -222,7 +223,8 @@ module MIPS_R2000 (
         .rst(rst),
         .HazardFlush(HazardFlushRegs),
         .Branch_in(U_IDEXReg_Branch_out),
-        .BranchOffset_in(U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)),
+        .Jump_in(U_IDEXReg_Jump_out),
+        .BranchAddress_in(U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)),
         .MemRead_in(U_IDEXReg_MemRead_out),
         .MemWrite_in(U_IDEXReg_MemWrite_out),
         .Reg2_in(U_IDEXReg_Reg2_out),
@@ -230,7 +232,8 @@ module MIPS_R2000 (
         .Zero_in(U_ALU_Zero),
         .Rd_in(U_EXMEMReg_Rd_in),
         .Branch_out(U_EXMEMReg_Branch_out),
-        .BranchOffset_out(U_EXMEMReg_BranchOffset_out),
+        .Jump_out(U_EXMEMReg_Jump_out),
+        .BranchAddress_out(U_EXMEMReg_BranchAddress_out),
         .MemRead_out(U_EXMEMReg_MemRead_out),
         .MemWrite_out(U_EXMEMReg_MemWrite_out),
         .Reg2_out(U_EXMEMReg_Reg2_out),

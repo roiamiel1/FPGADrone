@@ -2,7 +2,7 @@ module PCU (
     input clk,
     input rst,
     input PCSrc,
-    input [31:0] BranchOffset,
+    input [31:0] BranchAddress,
     output reg [31:0] PC,
     output [31:0] NextPC
 );
@@ -12,6 +12,6 @@ module PCU (
         if (rst)
             PC <= 32'h0000_0000;
         else
-            PC <= PCSrc ? BranchOffset : NextPC;
+            PC <= PCSrc ? BranchAddress : NextPC;
     end
 endmodule
