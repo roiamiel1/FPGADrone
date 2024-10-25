@@ -1,8 +1,7 @@
 module IFIDReg (
     input clk,
     input rst,
-    input HazardFlush,
-
+    
     // data
     input[31:0] PC_in,
     input[31:0] Instr_in,
@@ -24,11 +23,11 @@ module IFIDReg (
     end
 
     always @(posedge rst, posedge clk) begin
-        if (rst || HazardFlush)
+        if (rst)
             StageReg <= 64'b0;
         else begin
             StageReg[63:0] <= {
-                PC_in   [31:0],
+                PC_in[31:0],
                 Instr_in[31:0]
             };
         end
