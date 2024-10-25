@@ -224,7 +224,7 @@ module MIPS_R2000 (
         .HazardFlush(HazardFlushRegs),
         .Branch_in(U_IDEXReg_Branch_out),
         .Jump_in(U_IDEXReg_Jump_out),
-        .BranchAddress_in(U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)),
+        .BranchAddress_in(U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)), // TODO: this is not the jump full address
         .MemRead_in(U_IDEXReg_MemRead_out),
         .MemWrite_in(U_IDEXReg_MemWrite_out),
         .Reg2_in(U_IDEXReg_Reg2_out),
