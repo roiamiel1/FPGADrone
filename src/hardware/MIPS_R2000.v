@@ -44,6 +44,7 @@ module MIPS_R2000 (
     wire U_IDEXReg_ALUSrc_out;
     wire U_IDEXReg_Branch_out;
     wire U_IDEXReg_Jump_out;
+    wire [25:0] U_IDEXReg_JumpAddress_out;
     wire [31:0] U_IDEXReg_NextPC_out;
     wire U_IDEXReg_MemRead_out;
     wire U_IDEXReg_MemWrite_out;
@@ -91,6 +92,9 @@ module MIPS_R2000 (
     // U_HazardUnit connections.
     wire HazardFlushRegs;
 
+    // BranchAddress connections.
+    wire [31:0] BranchAddress;
+
     // Connections assigns.
     assign U_EXMEMReg_Rd_in = U_IDEXReg_RegDst_out ? U_IDEXReg_Rd_out : U_IDEXReg_Rt_out;
     assign U_GPR_WriteData = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
@@ -98,6 +102,11 @@ module MIPS_R2000 (
     // Branch and Jump assigns.
     assign U_PCU_PCSrc = (U_EXMEMReg_Branch_out && U_EXMEMReg_Zero_out) || U_EXMEMReg_Jump_out;
     assign HazardFlushRegs = U_PCU_PCSrc == 1'b1;
+    assign BranchAddress = (U_IDEXReg_Branch_out ? 
+        (U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)) :
+        // According to the DOC https://www.eecis.udel.edu/~davis/cpeg222/AssemblyTutorial/Chapter-17/ass17_5.html
+        (U_IDEXReg_Jump_out ? {U_IDEXReg_NextPC_out[31:28], U_IDEXReg_JumpAddress_out, 2'b0} : 32'b0)
+    );
 
     // Assigns Forwaring Mux's
     assign ALURegInput1 = `ForwardingMux(
@@ -169,6 +178,7 @@ module MIPS_R2000 (
         .ALUSrc_in(U_Ctrl_ALUSrc),
         .Branch_in(U_Ctrl_Branch),
         .Jump_in(U_Ctrl_Jump),
+        .JumpAddress_in(`JUMP_ADDRESS(U_IFIDReg_Instr_out)),
         .NextPC_in(U_IFIDReg_PC_out),
         .MemRead_in(U_Ctrl_MemRead),
         .MemWrite_in(U_Ctrl_MemWrite),
@@ -185,6 +195,7 @@ module MIPS_R2000 (
         .ALUSrc_out(U_IDEXReg_ALUSrc_out),
         .Branch_out(U_IDEXReg_Branch_out),
         .Jump_out(U_IDEXReg_Jump_out),
+        .JumpAddress_out(U_IDEXReg_JumpAddress_out),
         .NextPC_out(U_IDEXReg_NextPC_out),
         .MemRead_out(U_IDEXReg_MemRead_out),
         .MemWrite_out(U_IDEXReg_MemWrite_out),
@@ -224,7 +235,7 @@ module MIPS_R2000 (
         .HazardFlush(HazardFlushRegs),
         .Branch_in(U_IDEXReg_Branch_out),
         .Jump_in(U_IDEXReg_Jump_out),
-        .BranchAddress_in(U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)), // TODO: this is not the jump full address
+        .BranchAddress_in(BranchAddress),
         .MemRead_in(U_IDEXReg_MemRead_out),
         .MemWrite_in(U_IDEXReg_MemWrite_out),
         .Reg2_in(U_IDEXReg_Reg2_out),
