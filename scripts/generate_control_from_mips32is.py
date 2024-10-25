@@ -20,7 +20,7 @@ while True:
         break
     
     opcode, fmt, ft, funct = (int(str(x), 16) if x else x for x in next_row[1:5])
-    jump, reg_dst, branch, mem_read, mem_write, reg_write, alu_src, ext_op, alu_op = next_row[5:14]
+    jump, reg_dst, branch, mem_read, mem_write, reg_write, alu_src, ext_op, alu_op, special_op = next_row[5:15]
 
     pairs = zip((opcode, fmt, ft, funct), instructions_parts, instructions_parts_bytes)
     logic_statments = ["{} == {}'h{}".format(key, nbyte, hex(value)[2:]) for (value, key, nbyte) in pairs if value is not None]
@@ -36,6 +36,7 @@ while True:
             ALUSrc <= {alu_src or 0};
             ExtOp <= {ext_op or 0};
             ALUOp <= {alu_op or 0};
+            SpecialOP <= {special_op or 0};
         end else """
 
 template = f"""// AUTO-GENERATED - DO NOT CHNAGE!
@@ -54,6 +55,7 @@ module Control(
     output reg ALUSrc,
     output reg ExtOp,
     output reg [4:0] ALUOp,
+    output reg [3:0] SpecialOP,
     output nBranch
 );
     assign nBranch = ~Branch;
@@ -68,6 +70,7 @@ module Control(
         ALUSrc <= 0;
         ExtOp <= 0;
         ALUOp <= 5'b0;
+        SpecialOP <= 4'b0;
     end
 
     always @(OpCode, Funct) begin
@@ -82,6 +85,7 @@ module Control(
             ALUSrc <= 0;
             ExtOp <= 0;
             ALUOp <= 5'b0;
+            SpecialOP <= 4'b0;
         end
     end
 endmodule
