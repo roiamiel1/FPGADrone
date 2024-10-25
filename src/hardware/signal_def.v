@@ -17,12 +17,12 @@
     (instr[15:0])
 
 `define FOWARD_MUX_NO_FORWARD 2'b00
-`define FOWARD_MUX_EXMEM_FORWARD 2'b00
-`define FOWARD_MUX_MEMWB_FORWARD 2'b00
+`define FOWARD_MUX_EXMEM_FORWARD 2'b01
+`define FOWARD_MUX_MEMWB_FORWARD 2'b10
 
 // Mux Macro, sel is either `ALUDataIn1Mux_out` or `ALUDataIn2Mux_out`
 `define ForwardingMux(sel, i0, i1, i2) \
-    (sel == `FOWARD_MUX_NO_FORWARD ? i0 : (sel == `FOWARD_MUX_EXMEM_FORWARD) ? i1 : i2)
+    (sel == `FOWARD_MUX_NO_FORWARD ? i0 : ((sel == `FOWARD_MUX_EXMEM_FORWARD) ? i1 : i2))
 
 `define ALU_SRC_REG 1'b0
 `define ALU_SRC_EXT 1'b1
