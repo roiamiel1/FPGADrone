@@ -6,8 +6,10 @@ instructions = [
     ("addiu $s0, 0",  "{after_mem(REGS.S0)} == 0"),
     ("addiu $s1, 1",  "{after_mem(REGS.S1)} == 1"),
     ("addiu $s2, 5",  "{after_mem(REGS.S2)} == 5"),
-    ("addiu $s3, -1", "{after_mem(REGS.S3)} == -1"),
-    ("addiu $s4, -2", "{after_mem(REGS.S4)} == -2"),
+
+    # Just add numbers for the test.
+    ("addi $s3, -1", "{after_mem(REGS.S3)} == -1"),
+    ("addi $s4, -2", "{after_mem(REGS.S4)} == -2"),
 
     # Test `add`:
     ("add $a0, $s0, $s1", "{after_mem(REGS.A0)} == 1"),
@@ -95,14 +97,31 @@ instructions = [
     # Test `jal` - branching:
     ("jal jal_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
     ("jal_unsuccess: addiu $k0, 100", FALSE_CONDITION),
-    ("jal_success: addiu $k1, $zero, -12312", 
+    ("jal_success: addi $k1, $zero, -12312", 
         "{after_mem(REGS.K0)} == 0",
         "{after_mem(REGS.K1)} == -12312", 
         "{after_mem(REGS.RA)} == {before(REGS.PC)} - 8 + 4*2"
     ),
+    
+    # Test `jr` - branching:
+    # Note! this test should come after `jal` test. 
+    # because after `jal` test, $RA register contains the current PC. 
+    # We use this data to calculate where to jump to.
+    ("addiu $t0, $ra, 20", TRUE_CONDITION), # We have 6 opcodes after jal to jr_success.
+    ("jr $t0", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("jr_unsuccess: addiu $k0, 100", FALSE_CONDITION),
+    ("jr_success: addiu $k1, $zero, 123", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 123"),
+
+    # Test addiu big int
+    # Immidiate is a signd 16 bits number, 2**16/2 = 32768. so 32767 is the biggest possitive number.
+    ("addi $fp, $zero, 32767", "{after_mem(REGS.FP)} == 32767"),
+    ("addi $fp, $zero, 32768", "{after_mem(REGS.FP)} != 32768"),
+    ("addiu $fp, $zero, 32767", "{after_mem(REGS.FP)} == 32767"),
+    ("addiu $fp, $zero, 32768", "{after_mem(REGS.FP)} == 32768"),
 ]
 
 test_instructions = [
+    
 ]
 
 TestBuilder().attach_instructions(test_instructions or instructions).write(
