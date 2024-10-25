@@ -30,9 +30,37 @@ class TestBuilder():
 
         return self
 
-    def _is_branch_inst(self, opcode):
+    def _inst_to_opcode(self, inst):
+        """
+        This is a supid function that get a given assembly line and return the opcode,
+        i.e.
+        "label: mov eax, ebx" -> mov
+        "mov eax, ebx" -> mov
+        "label: mov eax, ebx # this is a comment :" -> mov
+        """
+        _COMMENT_SIGN = "#"
+        _LABEL_SIGN = ":"
+
+        inst = inst.lower()
+
+        # Remove comment
+        if _COMMENT_SIGN in inst:
+            inst = inst.split(_COMMENT_SIGN)[0].strip()
+        
+        # Remove label
+        assert inst.count(_LABEL_SIGN) <= 1, f"Too many labels in {inst}"
+        if _LABEL_SIGN in inst:
+            inst = inst.split(_LABEL_SIGN)[1].strip()
+
+        inst_parts = list(filter(None, inst.split()))
+        assert len(inst_parts) >= 1, f"There is no opcode in {inst}"
+
+        return inst_parts[0]
+
+    def _is_branch_inst(self, inst):
+        opcode = self._inst_to_opcode(inst)
         for branch_opcode in TestBuilder._BRANCH_OPCODES:
-            if opcode.lower().strip().startswith(branch_opcode):
+            if opcode.startswith(branch_opcode):
                 return True
         return False
     

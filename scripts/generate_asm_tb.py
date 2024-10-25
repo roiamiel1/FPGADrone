@@ -48,21 +48,17 @@ instructions = [
     ("andi $a0, $s3, 5", "{after_mem(REGS.A0)} == 5"),
 
     # Test `beq`:
-    ("beq $s0, $s0, beq_success", "{after_id(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("beq $s0, $s0, beq_success", "{after_ex(REGS.PC)} == {before(REGS.PC)} + 4*3"),
     ("beq_unsuccess: and $a0, $s0, $s1", FALSE_CONDITION),
     ("beq_success: and $a0, $s0, $s1", TRUE_CONDITION),
-
-]
-
-test_instructions = [
-    ("addiu $s0, 0",  "{after(REGS.S0)} == 0"),
-    ("addiu $s1, 1",  "{after(REGS.S1)} == 1"),
 
     # Test `bne`:
     ("bne $s0, $s1, bne_success", "{after_ex(REGS.PC)} == {before(REGS.PC)} + 4*3"),
     ("bne_unsuccess: and $a0, $s0, $s1", FALSE_CONDITION),
     ("bne_success: and $a0, $s1, $s1", TRUE_CONDITION),
+]
 
+test_instructions = [
 ]
 
 TestBuilder().attach_instructions(test_instructions or instructions).write(
