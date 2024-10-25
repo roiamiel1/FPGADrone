@@ -119,10 +119,3 @@ tests/hardware/asm/MIPS_R2000_tb.hex
 tests/hardware/asm/MIPS_R2000_tb.out
 tests/hardware/asm/MIPS_R2000_tb.shellcode
 tests/hardware/asm/MIPS_R2000_tb.text
-
-git rm -f tests/hardware/MIPS_R2000_tb.v
-git rm -f tests/hardware/asm/MIPS_R2000_tb.asm
-git rm -f tests/hardware/asm/MIPS_R2000_tb.hex
-git rm -f tests/hardware/asm/MIPS_R2000_tb.out
-git rm -f tests/hardware/asm/MIPS_R2000_tb.shellcode
-git rm -f tests/hardware/asm/MIPS_R2000_tb.text
