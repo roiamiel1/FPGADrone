@@ -81,9 +81,16 @@ instructions = [
 
     # Test `j` - branching:
     ("j j_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
-    ("j_unsuccess: and $a0, $s0, $s1", FALSE_CONDITION),
-    ("j_success: and $a0, $s0, $s1", TRUE_CONDITION),
+    ("j_unsuccess: addiu $k0, 100", FALSE_CONDITION),
+    ("j_success: addiu $k1, $zero, 523", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 523"),
 
+    # Test `j` - complex branching:
+    ("j0: j j4", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("j1: j j3", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("j2: j j5", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("j3: j j2", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("j4: j j1", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("j5: addiu $gp, $zero, 10432", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.GP)} == 10432"),
 ]
 
 test_instructions = [
