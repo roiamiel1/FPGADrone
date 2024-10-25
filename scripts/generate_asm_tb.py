@@ -78,10 +78,16 @@ instructions = [
     ("beq $s0, $s0, hazard_beq_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
     ("hazard_beq_unsuccess: addiu $k0, 100", FALSE_CONDITION),
     ("hazard_beq_success: addiu $k1, 300", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 300"),
+
+    # Test `j` - branching:
+    ("j j_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("j_unsuccess: and $a0, $s0, $s1", FALSE_CONDITION),
+    ("j_success: and $a0, $s0, $s1", TRUE_CONDITION),
+
 ]
 
 test_instructions = [
-    
+
 ]
 
 TestBuilder().attach_instructions(test_instructions or instructions).write(
