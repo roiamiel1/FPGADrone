@@ -7,7 +7,7 @@ TRUE_CONDITION = "1 /* always true */"
 
 
 class TestBuilder():
-    _BRANCH_OPCODES = ["bne", "beq", "j"]
+    _BRANCH_OPCODES = ["bne", "beq", "j", "jal"]
 
     def __init__(self) -> None:
         self._builder = TestbanchBuilder()
@@ -60,7 +60,7 @@ class TestBuilder():
     def _is_branch_inst(self, inst):
         opcode = self._inst_to_opcode(inst)
         for branch_opcode in TestBuilder._BRANCH_OPCODES:
-            if opcode.startswith(branch_opcode):
+            if opcode == branch_opcode:
                 return True
         return False
     
