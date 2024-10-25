@@ -65,9 +65,11 @@ class TestBuilder():
         return False
     
     def write(self, output_path_tb, output_path_asm):
+        os.makedirs(os.path.dirname(output_path_tb), exist_ok=True)
         with open(output_path_tb, "w") as f:
             f.write(self._builder.build_tb())
-
+        
+        os.makedirs(os.path.dirname(output_path_asm), exist_ok=True)
         with open(output_path_asm, "w") as f:
             f.write(self._builder.build_asm())
         
