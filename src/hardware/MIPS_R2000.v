@@ -14,6 +14,7 @@ module MIPS_R2000 (
     wire U_Ctrl_MemWrite;
     wire U_Ctrl_RegWrite;
     wire U_Ctrl_Jump;
+    wire [3:0] U_Ctrl_SpecialOP;
     wire U_Ctrl_nBranch;
     wire U_Ctrl_ExtOp;
 
@@ -56,6 +57,8 @@ module MIPS_R2000 (
     wire [4:0] U_IDEXReg_Rt_out;
     wire [4:0] U_IDEXReg_Rd_out;
     wire [4:0] U_IDEXReg_shamt_out;
+    wire [31:0] U_IDEXReg_Reg1_in;
+    wire [4:0] U_IDEXReg_Rd_in;
 
     // U_GPR connections.
     wire [31:0] U_GPR_WriteData;
@@ -101,12 +104,17 @@ module MIPS_R2000 (
 
     // Branch and Jump assigns.
     assign U_PCU_PCSrc = (U_EXMEMReg_Branch_out && U_EXMEMReg_Zero_out) || U_EXMEMReg_Jump_out;
-    assign HazardFlushRegs = U_PCU_PCSrc == 1'b1;
+    assign HazardFlushRegs = U_PCU_PCSrc == 1'b1; // U_PCU_PCSrc == 1'b1 -> Jump or Branch.
     assign BranchAddress = (U_IDEXReg_Branch_out ? 
         (U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)) :
         // According to the DOC https://www.eecis.udel.edu/~davis/cpeg222/AssemblyTutorial/Chapter-17/ass17_5.html
         (U_IDEXReg_Jump_out ? {U_IDEXReg_NextPC_out[31:28], U_IDEXReg_JumpAddress_out, 2'b0} : 32'b0)
     );
+
+    // IDEXReg assigns.
+    // In case the SpecialOP is JAL -> R[31] = $RA = PC + 8;
+    assign U_IDEXReg_Reg1_in = (U_Ctrl_SpecialOP == `SpecialOP_JAL ? (U_IFIDReg_PC_out + 8) : U_GPR_DataOut1);
+    assign U_IDEXReg_Rd_in = (U_Ctrl_SpecialOP == `SpecialOP_JAL ? 31 : `RD(U_IFIDReg_Instr_out));
 
     // Assigns Forwaring Mux's
     assign ALURegInput1 = `ForwardingMux(
@@ -168,7 +176,7 @@ module MIPS_R2000 (
         .ExtOp(U_Ctrl_ExtOp),                    // Should the value should be extedned using 0 or MSB.
         .ExtOut(U_OpcodeImmExtender_Out)
     );
-
+    
     IDEXReg U_IDEXReg(
         .clk(clk),
         .rst(rst),
@@ -183,12 +191,12 @@ module MIPS_R2000 (
         .MemRead_in(U_Ctrl_MemRead),
         .MemWrite_in(U_Ctrl_MemWrite),
         .RegWrite_in(U_Ctrl_RegWrite),
-        .Reg1_in(U_GPR_DataOut1),
+        .Reg1_in(U_IDEXReg_Reg1_in),
         .Reg2_in(U_GPR_DataOut2),
         .ExtImm_in(U_OpcodeImmExtender_Out),
         .Rs_in(`RS(U_IFIDReg_Instr_out)),
         .Rt_in(`RT(U_IFIDReg_Instr_out)),
-        .Rd_in(`RD(U_IFIDReg_Instr_out)),
+        .Rd_in(U_IDEXReg_Rd_in),
         .shamt_in(`SHAMT(U_IFIDReg_Instr_out)),
         .RegDst_out(U_IDEXReg_RegDst_out),
         .ALUOp_out(U_IDEXReg_ALUOp_out),
@@ -289,6 +297,7 @@ module MIPS_R2000 (
         .MemWrite(U_Ctrl_MemWrite),
         .RegWrite(U_Ctrl_RegWrite),
         .Jump(U_Ctrl_Jump),
+        .SpecialOP(U_Ctrl_SpecialOP),
         .nBranch(U_Ctrl_nBranch),
         .ExtOp(U_Ctrl_ExtOp)
     );
