@@ -39,7 +39,7 @@ module EXMEMReg (
     output [31:0] ALU_out,
     output [4:0] Rd_out
 );
-    reg[107:0] StageReg;
+    reg[106:0] StageReg;
 
     assign {
         Branch_out,
@@ -55,12 +55,12 @@ module EXMEMReg (
     } = StageReg;
 
     initial begin
-        StageReg <= 108'b0;
+        StageReg <= 107'b0;
     end
 
     always @(posedge clk, posedge rst) begin
         if (rst || HazardFlush)
-            StageReg <= 108'b0;
+            StageReg <= 107'b0;
         else begin
             StageReg <= {
                 Branch_in,
