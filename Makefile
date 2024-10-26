@@ -20,7 +20,6 @@ build-mips:
 	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objcopy --dump-section .text=bin/software/main.shellcode bin/software/main.out
 	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objdump -d -M no-aliases bin/software/main.out > bin/software/main.shellcode.text
 
-
 build-shellcode:
 	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objcopy --dump-section .text=bin/software/main.shellcode bin/software/main.out
 	xxd -c 4 -p bin/software/main.shellcode > bin/software/main.hex
