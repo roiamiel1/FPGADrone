@@ -7,21 +7,6 @@
             "label": "build",
             "type": "shell",
             "command": "make build"
-        },
-        {
-            "label": "build docker",
-            "type": "shell",
-            "command": "make docker"
-        },
-        {
-            "label": "load",
-            "type": "shell",
-            "command": "make load"
-        },
-        {
-            "label": "run",
-            "type": "shell",
-            "command": "make run"
         }
     ]
 }
