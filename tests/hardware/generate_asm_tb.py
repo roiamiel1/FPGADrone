@@ -118,6 +118,9 @@ instructions = [
     ("addi $fp, $zero, 32768", "{after_mem(REGS.FP)} != 32768"),
     ("addiu $fp, $zero, 32767", "{after_mem(REGS.FP)} == 32767"),
     ("addiu $fp, $zero, 32768", "{after_mem(REGS.FP)} == 32768"),
+
+    # Test `sb`
+    ()
 ]
 
 test_instructions = [

@@ -168,15 +168,15 @@ module Control(
         end else if (OpCode == 6'h24) begin
             // lbu case:
             Jump <= 0;
-            RegDst <= 0;
+            RegDst <= `REG_DST_RT;
             Branch <= 0;
-            MemRead <= 0;
+            MemRead <= 1;
             MemWrite <= 0;
-            RegWrite <= 0;
-            ALUSrc <= 0;
-            ExtOp <= 0;
-            ALUOp <= 0;
-            SpecialOP <= 0;
+            RegWrite <= 1;
+            ALUSrc <= `ALU_SRC_EXT;
+            ExtOp <= `EXT_SIGNED;
+            ALUOp <= `ALUOp_ADD;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h25) begin
             // lhu case:
             Jump <= 0;
@@ -339,11 +339,11 @@ module Control(
             RegDst <= 0;
             Branch <= 0;
             MemRead <= 0;
-            MemWrite <= 0;
+            MemWrite <= 1;
             RegWrite <= 0;
-            ALUSrc <= 0;
-            ExtOp <= 0;
-            ALUOp <= 0;
+            ALUSrc <= `ALU_SRC_EXT;
+            ExtOp <= `EXT_SIGNED;
+            ALUOp <= `ALUOp_ADD;
             SpecialOP <= 0;
         end else if (OpCode == 6'h38) begin
             // sc case:
@@ -375,12 +375,12 @@ module Control(
             RegDst <= 0;
             Branch <= 0;
             MemRead <= 0;
-            MemWrite <= 0;
+            MemWrite <= 1;
             RegWrite <= 0;
-            ALUSrc <= 0;
-            ExtOp <= 0;
-            ALUOp <= 0;
-            SpecialOP <= 0;
+            ALUSrc <= `ALU_SRC_EXT;
+            ExtOp <= `EXT_SIGNED;
+            ALUOp <= `ALUOp_ADD;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h0 && Funct == 6'h22) begin
             // sub case:
             Jump <= 0;
