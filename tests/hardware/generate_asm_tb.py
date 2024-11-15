@@ -119,12 +119,13 @@ instructions = [
     ("addiu $fp, $zero, 32767", "{after_mem(REGS.FP)} == 32767"),
     ("addiu $fp, $zero, 32768", "{after_mem(REGS.FP)} == 32768"),
 
-    # Test `sb`
-    ()
+    # Test `sw`
+    ("sw $s2, 0($zero)", )
 ]
 
 test_instructions = [
-    
+    ("addiu $s2, 5",  "{after_mem(REGS.S2)} == 5"),
+    ("sw $s2, 12($zero)", "{after_mem(MEM.WORD(12))} == 5"),
 ]
 
 TestBuilder().attach_instructions(test_instructions or instructions).write(
