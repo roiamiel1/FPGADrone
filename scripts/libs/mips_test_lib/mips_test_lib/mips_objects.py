@@ -98,7 +98,8 @@ class MipsTestCondition(object):
     @classmethod
     def _eval_operand_locals(cls) -> Dict[str, Any]:
         local = {
-            "REGS": MipsObjects.Regs
+            "REGS": MipsObjects.Regs,
+            "MEM": MipsObjects.Mem,
         }
 
         for exec_stage in OpcodeExecutionStage:
@@ -135,9 +136,34 @@ class DirectValueMeta(EnumMeta):
         if isinstance(value, cls):
             value = value.value
         return value
-
-
+        
 class MipsObjects(Enum, metaclass=DirectValueMeta):
+    class Mem():
+        @staticmethod
+        def WORD(addr):
+            return MipsObject(
+                f"mem_{addr}_word", 
+                f"U_MIPS_R2000.U_DataMemory.memory[{addr}]", 
+                32
+            )
+
+        @staticmethod
+        def HALFWORD(addr):
+            return MipsObject(
+                f"mem_{addr}_halfword", 
+                f"U_MIPS_R2000.U_DataMemory.memory[{addr}][15:0]", 
+                16
+            )
+        
+        @staticmethod
+        def BYTE(addr):
+            return MipsObject(
+                f"mem_{addr}_byte", 
+                f"U_MIPS_R2000.U_DataMemory.memory[{addr}][7:0]", 
+                8
+            )
+        
+
     class Regs(Enum, metaclass=DirectValueMeta):
         PC = MipsObject("PC", "U_MIPS_R2000.U_PCU.PC", 32)
         ZERO = MipsObject("ZERO", "U_MIPS_R2000.U_GPR.gprRegisters[0]", 32)
