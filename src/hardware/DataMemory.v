@@ -9,10 +9,10 @@ module DataMemory(
 
     always @(posedge clk) begin
         if (write_enable) begin
-            memory[32'hFFFFFFFF - address] <= data_in;
+            memory[address] <= data_in;
         end
     end
 
-    assign data_out = memory[32'hFFFFFFFF - address];
+    assign data_out = memory[address];
 
 endmodule
