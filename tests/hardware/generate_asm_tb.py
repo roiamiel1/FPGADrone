@@ -206,10 +206,59 @@ instructions = [
 
     # Test `lui`
     ("lui $a0, 100",  "{after_mem(REGS.A0)} == 6553600"),
+
+        # initial state
+    ("addi $s0, $zero, 123",  "{after_mem(REGS.S0)} == 123"),
+    ("addi $s1, $zero, 321",  "{after_mem(REGS.S1)} == 321"),
+    ("addi $s2, $zero, 534",  "{after_mem(REGS.S2)} == 534"),
+    ("addi $s3, $zero, 534",  "{after_mem(REGS.S3)} == 534"),
+    ("addi $s4, $zero, -322",  "{after_mem(REGS.S4)} == -322"),
+
+    # Test `nor`
+    ("nor $a0, $s0, $s1",  "{after_mem(REGS.A0)} == -380"),
+
+    # Test `or`
+    ("or $a0, $s0, $s1",  "{after_mem(REGS.A0)} == 379"),
+
+    # Test `ori`
+    ("ori $a0, $s0, 12345",  "{after_mem(REGS.A0)} == 12411"),
+
+    # Test `slt`
+    ("slt $a0, $s0, $s1",  "{after_mem(REGS.A0)} == 1"),
+    ("slt $a0, $s1, $s0",  "{after_mem(REGS.A0)} == 0"),
+    ("slt $a0, $s2, $s3",  "{after_mem(REGS.A0)} == 0"),
+
+    # Test `slti`
+    ("slti $a0, $s0, 123",  "{after_mem(REGS.A0)} == 0"),
+    ("slti $a0, $s0, 122",  "{after_mem(REGS.A0)} == 0"),
+    ("slti $a0, $s0, 124",  "{after_mem(REGS.A0)} == 1"),
+    
+    # Test `sltiu`
+    ("sltiu $a0, $s0, 123",  "{after_mem(REGS.A0)} == 0"),
+    ("sltiu $a0, $s0, 122",  "{after_mem(REGS.A0)} == 0"),
+    ("sltiu $a0, $s0, 124",  "{after_mem(REGS.A0)} == 1"),
+
+    # Test `sltu`
+    ("sltu $a0, $s0, $s1",  "{after_mem(REGS.A0)} == 1"),
+    ("sltu $a0, $s1, $s0",  "{after_mem(REGS.A0)} == 0"),
+    ("sltu $a0, $s2, $s3",  "{after_mem(REGS.A0)} == 0"),
+
+    # Test `sll`
+    ("sll $a0, $s0, 3",  "{after_mem(REGS.A0)} == 984"),
+
+    # Test `srl`
+    ("srl $a0, $s0, 2",  "{after_mem(REGS.A0)} == 30"),
+
+    # Test `sub`
+    ("sub $a0, $s0, $s1",  "{after_mem(REGS.A0)} == -198"),
+    ("sub $a0, $s1, $s0",  "{after_mem(REGS.A0)} == 198"),
+
+    # Test `subu`
+    ("subu $a0, $s0, $s1",  "{after_mem(REGS.A0)} == -198"),
+    ("subu $a0, $s1, $s0",  "{after_mem(REGS.A0)} == 198"),
 ]
 
 test_instructions = [
-    
 ]
 
 TestBuilder().attach_instructions(test_instructions or instructions).write(
