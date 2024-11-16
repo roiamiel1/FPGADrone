@@ -189,18 +189,6 @@ module Control(
             ExtOp <= `EXT_SIGNED;
             ALUOp <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_DM_HW;
-        end else if (OpCode == 6'h30) begin
-            // ll case:
-            Jump <= 0;
-            RegDst <= `REG_DST_RT;
-            Branch <= 0;
-            MemRead <= 1;
-            MemWrite <= 0;
-            RegWrite <= 1;
-            ALUSrc <= `ALU_SRC_EXT;
-            ExtOp <= `EXT_SIGNED;
-            ALUOp <= `ALUOp_ADD;
-            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'hf) begin
             // lui case:
             Jump <= 0;
@@ -345,18 +333,6 @@ module Control(
             ExtOp <= `EXT_SIGNED;
             ALUOp <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_DM_BYTE;
-        end else if (OpCode == 6'h38) begin
-            // sc case:
-            Jump <= 0;
-            RegDst <= 0;
-            Branch <= 0;
-            MemRead <= 0;
-            MemWrite <= 1;
-            RegWrite <= 0;
-            ALUSrc <= `ALU_SRC_EXT;
-            ExtOp <= `EXT_SIGNED;
-            ALUOp <= `ALUOp_ADD;
-            SpecialOP <= 0;
         end else if (OpCode == 6'h29) begin
             // sh case:
             Jump <= 0;
