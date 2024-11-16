@@ -65,3 +65,9 @@
 `define ALUOp_SLT   5'b01111    // ALURes = 1 if A<B else 0;
 `define ALUOp_LUI   5'b10001    // ALURes = 1 if A<B else 0;
 `define ALUOp_IN1   5'b10010    // ALURes = A;
+
+
+// DataMemoryMode
+`define DataMemoryMode_WORD     2'b00
+`define DataMemoryMode_HALFWORD 2'b01
+`define DataMemoryMode_BYTE     2'b10
