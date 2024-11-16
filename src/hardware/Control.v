@@ -196,7 +196,7 @@ module Control(
             Branch <= 0;
             MemRead <= 0;
             MemWrite <= 0;
-            RegWrite <= 0;
+            RegWrite <= 1;
             ALUSrc <= `ALU_SRC_EXT;
             ExtOp <= `EXT_ZERO;
             ALUOp <= `ALUOp_LUI;

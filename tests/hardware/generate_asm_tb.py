@@ -203,9 +203,13 @@ instructions = [
     ("lw $a1, 37($zero)", "{after_mem(REGS.A1)} == -1"),
     ("lbu $a1, 37($zero)", "{after_mem(REGS.A1)} == 255"),
     ("lhu $a1, 37($zero)", "{after_mem(REGS.A1)} == 65535"),
+
+    # Test `lui`
+    ("lui $a0, 100",  "{after_mem(REGS.A0)} == 6553600"),
 ]
 
 test_instructions = [
+    
 ]
 
 TestBuilder().attach_instructions(test_instructions or instructions).write(
