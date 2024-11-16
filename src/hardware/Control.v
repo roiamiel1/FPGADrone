@@ -224,7 +224,7 @@ module Control(
             ALUSrc <= `ALU_SRC_REG;
             ExtOp <= `EXT_SIGNED;
             ALUOp <= `ALUOp_NOR;
-            SpecialOP <= 0;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h0 && Funct == 6'h25) begin
             // or case:
             Jump <= 0;
@@ -236,7 +236,7 @@ module Control(
             ALUSrc <= `ALU_SRC_REG;
             ExtOp <= `EXT_SIGNED;
             ALUOp <= `ALUOp_OR;
-            SpecialOP <= 0;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'hd) begin
             // ori case:
             Jump <= 0;
@@ -248,55 +248,55 @@ module Control(
             ALUSrc <= `ALU_SRC_EXT;
             ExtOp <= `EXT_ZERO;
             ALUOp <= `ALUOp_OR;
-            SpecialOP <= 0;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h0 && Funct == 6'h2a) begin
             // slt case:
             Jump <= 0;
-            RegDst <= 0;
+            RegDst <= `REG_DST_RD;
             Branch <= 0;
             MemRead <= 0;
             MemWrite <= 0;
-            RegWrite <= 0;
-            ALUSrc <= 0;
-            ExtOp <= 0;
-            ALUOp <= 0;
-            SpecialOP <= 0;
+            RegWrite <= 1;
+            ALUSrc <= `ALU_SRC_REG;
+            ExtOp <= `EXT_SIGNED;
+            ALUOp <= `ALUOp_SLT;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'ha) begin
             // slti case:
             Jump <= 0;
-            RegDst <= 0;
+            RegDst <= `REG_DST_RT;
             Branch <= 0;
             MemRead <= 0;
             MemWrite <= 0;
-            RegWrite <= 0;
-            ALUSrc <= 0;
-            ExtOp <= 0;
-            ALUOp <= 0;
-            SpecialOP <= 0;
+            RegWrite <= 1;
+            ALUSrc <= `ALU_SRC_EXT;
+            ExtOp <= `EXT_SIGNED;
+            ALUOp <= `ALUOp_SLT;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'hb) begin
             // sltiu case:
             Jump <= 0;
-            RegDst <= 0;
+            RegDst <= `REG_DST_RT;
             Branch <= 0;
             MemRead <= 0;
             MemWrite <= 0;
-            RegWrite <= 0;
-            ALUSrc <= 0;
-            ExtOp <= 0;
-            ALUOp <= 0;
-            SpecialOP <= 0;
+            RegWrite <= 1;
+            ALUSrc <= `ALU_SRC_EXT;
+            ExtOp <= `EXT_ZERO;
+            ALUOp <= `ALUOp_SLT;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h0 && Funct == 6'h2b) begin
             // sltu case:
             Jump <= 0;
-            RegDst <= 0;
+            RegDst <= `REG_DST_RD;
             Branch <= 0;
             MemRead <= 0;
             MemWrite <= 0;
-            RegWrite <= 0;
-            ALUSrc <= 0;
-            ExtOp <= 0;
-            ALUOp <= 0;
-            SpecialOP <= 0;
+            RegWrite <= 1;
+            ALUSrc <= `ALU_SRC_REG;
+            ExtOp <= `EXT_ZERO;
+            ALUOp <= `ALUOp_SLT;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h0 && Funct == 6'h0) begin
             // sll case:
             Jump <= 0;
@@ -308,7 +308,7 @@ module Control(
             ALUSrc <= `ALU_SRC_REG;
             ExtOp <= `EXT_SIGNED;
             ALUOp <= `ALUOp_SLL;
-            SpecialOP <= 0;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h0 && Funct == 6'h2) begin
             // srl case:
             Jump <= 0;
@@ -320,7 +320,7 @@ module Control(
             ALUSrc <= `ALU_SRC_REG;
             ExtOp <= `EXT_SIGNED;
             ALUOp <= `ALUOp_SRL;
-            SpecialOP <= 0;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h28) begin
             // sb case:
             Jump <= 0;
@@ -368,7 +368,7 @@ module Control(
             ALUSrc <= `ALU_SRC_REG;
             ExtOp <= `EXT_SIGNED;
             ALUOp <= `ALUOp_SUB;
-            SpecialOP <= 0;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h0 && Funct == 6'h23) begin
             // subu case:
             Jump <= 0;
@@ -380,7 +380,7 @@ module Control(
             ALUSrc <= `ALU_SRC_REG;
             ExtOp <= `EXT_SIGNED;
             ALUOp <= `ALUOp_SUB;
-            SpecialOP <= 0;
+            SpecialOP <= `SpecialOP_NONE;
         end else begin
             // default case:
             Jump <= 0;
