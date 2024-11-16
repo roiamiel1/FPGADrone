@@ -186,10 +186,26 @@ instructions = [
     ("addi $a0, $zero, 145",  "{after_mem(REGS.A0)} == 145"),
     ("sw $a0, 34($zero)", "{after_mem(MEM.WORD(34))} == 145"),
     ("lw $a1, 34($zero)", "{after_mem(REGS.A1)} == 145"),
+
+    # Test `lbu`
+    ("addi $a0, $zero, 146",  "{after_mem(REGS.A0)} == 146"),
+    ("sw $a0, 35($zero)", "{after_mem(MEM.WORD(35))} == 146"),
+    ("lbu $a1, 35($zero)", "{after_mem(REGS.A1)} == 146"),
+
+    # Test `lhu`
+    ("addi $a1, $zero, 147",  "{after_mem(REGS.A1)} == 147"),
+    ("sw $a1, 36($zero)", "{after_mem(MEM.WORD(36))} == 147"),
+    ("lhu $a2, 36($zero)", "{after_mem(REGS.A2)} == 147"),
+
+    # Test load opcodes bytes size cutting
+    ("addi $a0, $zero, -1",  "{after_mem(REGS.A0)} == -1"),
+    ("sw $a0, 37($zero)", "{after_mem(MEM.WORD(37))} == -1"),
+    ("lw $a1, 37($zero)", "{after_mem(REGS.A1)} == -1"),
+    ("lbu $a1, 37($zero)", "{after_mem(REGS.A1)} == 255"),
+    ("lhu $a1, 37($zero)", "{after_mem(REGS.A1)} == 65535"),
 ]
 
 test_instructions = [
-
 ]
 
 TestBuilder().attach_instructions(test_instructions or instructions).write(
