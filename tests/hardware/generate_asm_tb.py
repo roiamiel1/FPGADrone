@@ -119,13 +119,47 @@ instructions = [
     ("addiu $fp, $zero, 32767", "{after_mem(REGS.FP)} == 32767"),
     ("addiu $fp, $zero, 32768", "{after_mem(REGS.FP)} == 32768"),
 
-    # Test `sw`
-    ("sw $s2, 0($zero)", )
+    # Test `sw` - with 1 step write value forward
+    ("addiu $a0, $zero, 5",  "{after_mem(REGS.A0)} == 5"),
+    ("sw $a0, 12($zero)", "{after_mem(MEM.WORD(12))} == 5"),
+
+    # Test `sw` - with 2 step write value forward
+    ("addiu $a0, $zero, 6",  "{after_mem(REGS.A0)} == 6"),
+    ("nop",),
+    ("sw $a0, 12($zero)", "{after_mem(MEM.WORD(12))} == 6"),
+
+    # Test `sw` - with 3 step write value forward
+    ("addiu $a0, $zero, 7",  "{after_mem(REGS.A0)} == 7"),
+    ("nop",),
+    ("nop",),
+    ("sw $a0, 12($zero)", "{after_mem(MEM.WORD(12))} == 7"),
+
+    # Test `sw` - with 4 step write value forward
+    ("addiu $a0, $zero, 8",  "{after_mem(REGS.A0)} == 8"),
+    ("nop",),
+    ("nop",),
+    ("nop",),
+    ("sw $a0, 12($zero)", "{after_mem(MEM.WORD(12))} == 8"),
+
+    # Test `sw` - with address forward
+    ("addiu $a0, $zero, 11",  "{after_mem(REGS.A0)} == 11"),
+    ("addiu $a1, $zero, 10",  "{after_mem(REGS.A1)} == 10"),
+    ("sw $a0, 10($a1)", "{after_mem(MEM.WORD(20))} == 11"),
+
+    # Test `sw` - with address and value forward
+    ("addiu $a2, $zero, 20",  "{after_mem(REGS.A2)} == 20"),
+    ("sw $a2, 10($a2)", "{after_mem(MEM.WORD(30))} == 20"),
+
+    # Test `sw` - with negative address offset
+    ("addiu $a2, $zero, 30",  "{after_mem(REGS.A2)} == 30"),
+    ("sw $a2, -10($a2)", "{after_mem(MEM.WORD(20))} == 30"),
+
+    # Test `sw` - with full word value
+    ("addi $a0, $zero, -2",  "{after_mem(REGS.A0)} == -2"),
+    ("sw $a0, 12($zero)", "{after_mem(MEM.WORD(12))} == -2"),
 ]
 
 test_instructions = [
-    ("addiu $s2, 5",  "{after_mem(REGS.S2)} == 5"),
-    ("sw $s2, 12($zero)", "{after_mem(MEM.WORD(12))} == 5"),
 ]
 
 TestBuilder().attach_instructions(test_instructions or instructions).write(
