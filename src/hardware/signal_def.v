@@ -28,9 +28,11 @@
     (sel == `FOWARD_MUX_NO_FORWARD ? i0 : ((sel == `FOWARD_MUX_EXMEM_FORWARD) ? i1 : i2))
 
 // Special Operations Options
-`define SpecialOP_NONE 4'b0000
-`define SpecialOP_JAL  4'b0001
-`define SpecialOP_JR   4'b0010
+`define SpecialOP_NONE      4'b0000
+`define SpecialOP_JAL       4'b0001
+`define SpecialOP_JR        4'b0010
+`define SpecialOP_DM_BYTE   4'b0011
+`define SpecialOP_DM_HW     4'b0100
 
 // ALU Source
 `define ALU_SRC_REG 1'b0
