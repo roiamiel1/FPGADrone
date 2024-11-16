@@ -10,6 +10,7 @@ module EXMEMReg (
     input MemRead_in,
     input MemWrite_in,
     input [31:0] Reg2_in,
+    input [3:0] SpecialOP_in,
 
     // WB signal
     input RegWrite_in,
@@ -28,6 +29,7 @@ module EXMEMReg (
     output MemRead_out,
     output MemWrite_out,
     output [31:0] Reg2_out,
+    output [3:0] SpecialOP_out,
 
     // WB signal
     output RegWrite_out,
@@ -39,7 +41,7 @@ module EXMEMReg (
     output [31:0] ALU_out,
     output [4:0] Rd_out
 );
-    reg[106:0] StageReg;
+    reg[110:0] StageReg;
 
     assign {
         Branch_out,
@@ -48,6 +50,7 @@ module EXMEMReg (
         MemRead_out,
         MemWrite_out,
         Reg2_out,
+        SpecialOP_out,
         RegWrite_out,
         Zero_out,
         ALU_out[31:0],
@@ -55,7 +58,7 @@ module EXMEMReg (
     } = StageReg;
 
     initial begin
-        StageReg <= 107'b0;
+        StageReg <= 111'b0;
     end
 
     always @(posedge clk, posedge rst) begin
@@ -69,6 +72,7 @@ module EXMEMReg (
                 MemRead_in,
                 MemWrite_in,
                 Reg2_in,
+                SpecialOP_in,
                 RegWrite_in,
                 Zero_in,
                 ALU_in[31:0],

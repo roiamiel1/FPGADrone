@@ -32,6 +32,7 @@ module MIPS_R2000 (
     wire U_EXMEMReg_MemRead_out;
     wire U_EXMEMReg_MemWrite_out;
     wire [31:0] U_EXMEMReg_Reg2_out;
+    wire [3:0] U_EXMEMReg_SpecialOP_out;
     wire U_EXMEMReg_RegWrite_out;
     wire U_EXMEMReg_Zero_out;
     wire [31:0] U_EXMEMReg_ALU_in;
@@ -251,6 +252,7 @@ module MIPS_R2000 (
         .MemRead_in(U_IDEXReg_MemRead_out),
         .MemWrite_in(U_IDEXReg_MemWrite_out),
         .Reg2_in(ALURegInput2),
+        .SpecialOP_in(U_IDEXReg_SpecialOP_out),
         .RegWrite_in(U_IDEXReg_RegWrite_out),
         .Zero_in(U_ALU_Zero),
         .Rd_in(U_EXMEMReg_Rd_in),
@@ -260,6 +262,7 @@ module MIPS_R2000 (
         .MemRead_out(U_EXMEMReg_MemRead_out),
         .MemWrite_out(U_EXMEMReg_MemWrite_out),
         .Reg2_out(U_EXMEMReg_Reg2_out),
+        .SpecialOP_out(U_EXMEMReg_SpecialOP_out),
         .RegWrite_out(U_EXMEMReg_RegWrite_out),
         .Zero_out(U_EXMEMReg_Zero_out),
         .ALU_in(U_EXMEMReg_ALU_in),
@@ -272,7 +275,11 @@ module MIPS_R2000 (
         .data_out(U_DataMemory_DataOut),
         .data_in(U_EXMEMReg_Reg2_out),
         .write_enable(U_EXMEMReg_MemWrite_out),
-        .address(U_EXMEMReg_ALU_out)
+        .address(U_EXMEMReg_ALU_out),
+        .mode(U_EXMEMReg_SpecialOP_out == `SpecialOP_DM_BYTE ? `DataMemoryMode_BYTE : (
+            U_EXMEMReg_SpecialOP_out == `SpecialOP_DM_HW ? `DataMemoryMode_HALFWORD :
+            `DataMemoryMode_WORD
+        ))
     );
 
     MEMWBReg U_MEMWBReg (
