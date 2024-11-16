@@ -181,9 +181,15 @@ instructions = [
     ("addi $a0, $zero, 0",  "{after_mem(REGS.A0)} == 0"),
     ("sb $a0, 33($zero)", "{after_mem(MEM.WORD(33))} == 4294967040"),
     ("sh $a0, 33($zero)", "{after_mem(MEM.WORD(33))} == 4294901760"),
+
+    # Test `lw`
+    ("addi $a0, $zero, 145",  "{after_mem(REGS.A0)} == 145"),
+    ("sw $a0, 34($zero)", "{after_mem(MEM.WORD(34))} == 145"),
+    ("lw $a1, 34($zero)", "{after_mem(REGS.A1)} == 145"),
 ]
 
 test_instructions = [
+
 ]
 
 TestBuilder().attach_instructions(test_instructions or instructions).write(
