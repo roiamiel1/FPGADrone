@@ -157,6 +157,30 @@ instructions = [
     # Test `sw` - with full word value
     ("addi $a0, $zero, -2",  "{after_mem(REGS.A0)} == -2"),
     ("sw $a0, 12($zero)", "{after_mem(MEM.WORD(12))} == -2"),
+
+        # Test `sb` - with 1 byte value
+    ("addi $a0, $zero, 211",  "{after_mem(REGS.A0)} == 211"),
+    ("sb $a0, 3($zero)", "{after_mem(MEM.WORD(3))} == 211"),
+
+    # Test `sb` - with 2 byte value (will cut it to one byte)
+    ("addi $a0, $zero, 355",  "{after_mem(REGS.A0)} == 355"),
+    ("sb $a0, 4($zero)", "{after_mem(MEM.WORD(4))} == 99"),
+
+    # Test `sh` - with 2 byte value
+    ("addi $a0, $zero, 355",  "{after_mem(REGS.A0)} == 355"),
+    ("sh $a0, 6($zero)", "{after_mem(MEM.WORD(6))} == 355"),
+
+    # Test `sh` - with 3 byte value
+    ("addiu $a0, $zero, 65535",  "{after_mem(REGS.A0)} == 65535"),
+    ("addiu $a0, $a0, 123",  "{after_mem(REGS.A0)} == 65658"),
+    ("sh $a0, 6($zero)", "{after_mem(MEM.WORD(6))} == 122"),
+
+    #  Test over load store commands
+    ("addi $a0, $zero, -1",  "{after_mem(REGS.A0)} == -1"),
+    ("sw $a0, 33($zero)", "{after_mem(MEM.WORD(33))} == -1"),
+    ("addi $a0, $zero, 0",  "{after_mem(REGS.A0)} == 0"),
+    ("sb $a0, 33($zero)", "{after_mem(MEM.WORD(33))} == 4294967040"),
+    ("sh $a0, 33($zero)", "{after_mem(MEM.WORD(33))} == 4294901760"),
 ]
 
 test_instructions = [
