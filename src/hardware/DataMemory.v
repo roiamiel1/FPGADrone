@@ -18,11 +18,11 @@ module DataMemory(
                 end
 
                 `DataMemoryMode_HALFWORD: begin
-                    memory[address] <= {memory[address][31:15], data_in[15:0]};
+                    memory[address] <= {memory[address][31:16], data_in[15:0]};
                 end
 
                 `DataMemoryMode_BYTE: begin
-                    memory[address] <= {memory[address][31:7], data_in[7:0]};
+                    memory[address] <= {memory[address][31:8], data_in[7:0]};
                 end
             endcase
         end
