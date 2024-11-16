@@ -7,7 +7,7 @@ TRUE_CONDITION = "1 /* always true */"
 
 
 class TestBuilder():
-    _BRANCH_OPCODES = ["bne", "beq", "j", "jal", "jr"]
+    _NOP_PADDED_OPCODES = ["bne", "beq", "j", "jal", "jr", "lbu", "lhu", "lw"]
 
     def __init__(self) -> None:
         self._builder = TestbanchBuilder()
@@ -20,10 +20,10 @@ class TestBuilder():
                 map(MipsTestCondition, inst[1:])
             )
 
-            # This is a patch, the builtin GNU assembler add a NOP after branch opcodes.
+            # This is a patch, the builtin GNU assembler add a NOP after some opcodes (branch or load).
             # The nop is needed beacuse of the branch pipeline.
             # TODO: in the future, use our own assembler to be able to control it. 
-            if self._is_branch_inst(inst[0]):
+            if self._is_nop_padded_inst(inst[0]):
                 self._pc += 1    
 
             self._pc += 1
@@ -57,12 +57,8 @@ class TestBuilder():
 
         return inst_parts[0]
 
-    def _is_branch_inst(self, inst):
-        opcode = self._inst_to_opcode(inst)
-        for branch_opcode in TestBuilder._BRANCH_OPCODES:
-            if opcode == branch_opcode:
-                return True
-        return False
+    def _is_nop_padded_inst(self, inst):
+        return self._inst_to_opcode(inst) in TestBuilder._NOP_PADDED_OPCODES
     
     def write(self, output_path_tb, output_path_asm):
         os.makedirs(os.path.dirname(output_path_tb), exist_ok=True)
