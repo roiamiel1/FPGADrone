@@ -250,7 +250,7 @@ module MIPS_R2000 (
         .BranchAddress_in(BranchAddress),
         .MemRead_in(U_IDEXReg_MemRead_out),
         .MemWrite_in(U_IDEXReg_MemWrite_out),
-        .Reg2_in(U_IDEXReg_Reg2_out),
+        .Reg2_in(ALURegInput2),
         .RegWrite_in(U_IDEXReg_RegWrite_out),
         .Zero_in(U_ALU_Zero),
         .Rd_in(U_EXMEMReg_Rd_in),
