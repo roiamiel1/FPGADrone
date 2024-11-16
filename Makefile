@@ -44,6 +44,9 @@ run:
 	make build
 	make load
 
+generate_control:
+	python3 scripts/generate_control_from_mips32is.py
+
 clean_simulate:
 	rm -f tests/hardware/MIPS_R2000_tb.v
 	rm -f tests/hardware/asm/MIPS_R2000_tb.asm
