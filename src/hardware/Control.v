@@ -192,15 +192,15 @@ module Control(
         end else if (OpCode == 6'hf) begin
             // lui case:
             Jump <= 0;
-            RegDst <= 0;
+            RegDst <= `REG_DST_RT;
             Branch <= 0;
             MemRead <= 0;
             MemWrite <= 0;
             RegWrite <= 0;
-            ALUSrc <= 0;
-            ExtOp <= 0;
-            ALUOp <= 0;
-            SpecialOP <= 0;
+            ALUSrc <= `ALU_SRC_EXT;
+            ExtOp <= `EXT_ZERO;
+            ALUOp <= `ALUOp_LUI;
+            SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h23) begin
             // lw case:
             Jump <= 0;
