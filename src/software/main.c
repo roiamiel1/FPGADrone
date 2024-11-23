@@ -11,17 +11,19 @@
     *P_UART_START = 0;
 
 void main() {
-    UART_PUTC('H');
-    UART_PUTC('e');
-    UART_PUTC('l');
-    UART_PUTC('l');
-    UART_PUTC('o');
-    UART_PUTC(' ');
-    UART_PUTC('W');
-    UART_PUTC('o');
-    UART_PUTC('r');
-    UART_PUTC('l');
-    UART_PUTC('d');
-    UART_PUTC('!');
+    while (1) {
+        UART_PUTC('H');
+        UART_PUTC('e');
+        UART_PUTC('l');
+        UART_PUTC('l');
+        UART_PUTC('o');
+        UART_PUTC(' ');
+        UART_PUTC('W');
+        UART_PUTC('o');
+        UART_PUTC('r');
+        UART_PUTC('l');
+        UART_PUTC('d');
+        UART_PUTC('!');
+    }
     return;
 }
