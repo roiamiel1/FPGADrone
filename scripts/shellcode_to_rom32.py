@@ -30,22 +30,27 @@ template = f"""
 // AUTO-GENERATED - DO NOT CHNAGE!
 `ifndef DEBUG
 module InstructionMemory (
-    input [{ADDRESS_BITS - 1}:0] IMAdress,
-    output wire [{MEM_CELL_BITS - 1}:0] IR
+    input wire clk,
+    input wire [{ADDRESS_BITS - 1}:0] IMAdress,
+    output reg [{MEM_CELL_BITS - 1}:0] IR
 );
 
-    assign IR = {DATA_BLOCK}
-         {MEM_CELL_BITS}'h00000000;
+    always @(negedge clk) begin
+        IR <= {DATA_BLOCK}         {MEM_CELL_BITS}'h00000000;
+    end
 
 endmodule
 `else
 module InstructionMemory(
-    input [31:0] IMAdress,
-    output wire [31:0] IR
+    input wire clk,
+    input wire [31:0] IMAdress,
+    output reg [31:0] IR
 );
     reg [31:0] IMem [1023:0];
 
-    assign IR <= IMem[IMAdress];
+    always @(negedge clk) begin
+        IR <= IMem[IMAdress];
+    end
     
 endmodule
 `endif
