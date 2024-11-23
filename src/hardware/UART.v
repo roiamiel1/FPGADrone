@@ -5,9 +5,6 @@
 `define DATA_BITS   3'b100
 `define STOP_BIT    3'b101
 
-`define CLOCK_RATE 27000000 // board internal clock (def == 27MHz)
-`define BAUD_RATE  9600
-
 /*
  * 8-bit UART Transmitter.
  * Able to transmit 8 bits of serial data, one start bit, one stop bit.
@@ -24,30 +21,11 @@ module Uart8Transmitter(
     output reg        done,  // end on transaction
     output reg        busy   // transaction is in process
 );
-    parameter MAX_RATE_TX = `CLOCK_RATE / (2 * `BAUD_RATE);
-    parameter TX_CNT_WIDTH = $clog2(MAX_RATE_TX);
-
     reg [2:0] state  = `RESET;
     reg [7:0] data   = 8'b0; // to store a copy of input data
     reg [2:0] bitIdx = 3'b0; // for 8-bit data
 
-    reg txClk;
-    reg [TX_CNT_WIDTH - 1:0] txCounter = 0;
-
-    initial begin
-        txClk = 1'b0;
-    end
-
     always @(posedge clk) begin
-        if (txCounter == MAX_RATE_TX) begin
-            txCounter <= 0;
-            txClk <= ~txClk;
-        end else begin
-            txCounter <= txCounter + 1'b1;
-        end
-    end
-
-    always @(posedge txClk) begin
         case (state)
             default: begin
                 state   <= `IDLE;

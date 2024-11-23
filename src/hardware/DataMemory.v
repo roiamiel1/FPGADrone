@@ -7,6 +7,7 @@
 
 module DataMemory(
     input wire clk,
+    input wire uartClk,
     input wire [31:0] address,
     input wire [31:0] data_in, 
     input wire write_enable,
@@ -22,7 +23,7 @@ module DataMemory(
     wire UART_Busy;
 
     Uart8Transmitter U_Uart(
-        .clk(clk),
+        .clk(uartClk),
         .en(1'b1),
         .start(UART_Start),
         .in(UART_In),

@@ -22,6 +22,7 @@ main:
 	addiu	$sp,$sp,-8
 	sw	$fp,4($sp)
 	move	$fp,$sp
+	nop
 $L2:
 	li	$2,1003			# 0x3eb
 	lb	$2,0($2)
@@ -286,11 +287,7 @@ $L25:
 
 	li	$2,1001			# 0x3e9
 	sb	$0,0($2)
-	nop
-	move	$sp,$fp
-	lw	$fp,4($sp)
-	addiu	$sp,$sp,8
-	jr	$31
+	b	$L2
 	nop
 
 	.set	macro

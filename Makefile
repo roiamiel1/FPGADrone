@@ -25,8 +25,11 @@ build-shellcode:
 	docker run --rm -it -w /project -v ./:/project mips_compiler mips-linux-gnu-objcopy --dump-section .text=bin/software/main.shellcode bin/software/main.out
 	xxd -c 4 -p bin/software/main.shellcode > bin/software/main.hex
 
-load:
-	openFPGALoader -b tangnano9k -m impl/pnr/project.fs
+write-mem:
+	openFPGALoader -b tangnano20k -m impl/pnr/drone.fs
+
+write-flash:
+	openFPGALoader -b tangnano20k -f impl/pnr/drone.fs
 
 docker-cpu:
 	docker build -t gowin_builder ./cpu
