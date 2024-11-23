@@ -3,7 +3,8 @@
 
 module MIPS_R2000 (
     input clk,
-    input rst
+    input rst,
+    output uart_tx_out
 );
     // U_Ctrl connections.
     wire U_Ctrl_RegDst;
@@ -100,6 +101,13 @@ module MIPS_R2000 (
     // BranchAddress connections.
     wire [31:0] BranchAddress;
 
+    // Sign Extender connections.
+    wire [15:0] ExtenderDataIn;
+
+    // Sign Extender assigns.
+    assign ExtenderDataIn = `IMMEDIATE(U_IFIDReg_Instr_out);
+    assign U_OpcodeImmExtender_Out = {U_Ctrl_ExtOp ? {16{ExtenderDataIn[15]}} : 16'b0, ExtenderDataIn[15:0]};
+
     // Connections assigns.
     assign U_EXMEMReg_Rd_in = U_IDEXReg_RegDst_out ? U_IDEXReg_Rd_out : U_IDEXReg_Rt_out;
     assign U_GPR_WriteData = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
@@ -132,7 +140,7 @@ module MIPS_R2000 (
         U_EXMEMReg_ALU_out,     // Forward from EX/MEM
         U_MEMWBReg_ALU_out      // Forward from MEM/WB
     );
-
+    
     // Modules section.
     PCU U_PCU(
         .clk(clk),
@@ -145,6 +153,7 @@ module MIPS_R2000 (
 
     // TODO: read from data memory.
     InstructionMemory U_InstructionMemory(
+        .clk(clk),
         // The `>> 2` is a hack cause InstructionMemory works with regualr indexes, 
         // i.e. 0, 1, 2, 3, etc... and not 4 multiplies.
         // In the future we will read the instructions from the data memory, till then let's keep it that way.
@@ -174,12 +183,6 @@ module MIPS_R2000 (
         .DataOut2(U_GPR_DataOut2)
     );
 
-    Extender U_OpcodeImmExtender(
-        .DataIn(`IMMEDIATE(U_IFIDReg_Instr_out)), // Immidiate value from I-format opcode.
-        .ExtOp(U_Ctrl_ExtOp),                    // Should the value should be extedned using 0 or MSB.
-        .ExtOut(U_OpcodeImmExtender_Out)
-    );
-    
     IDEXReg U_IDEXReg(
         .clk(clk),
         .rst(rst),
@@ -234,6 +237,7 @@ module MIPS_R2000 (
     );
 
     ALU U_ALU(
+        .clk(clk),
         .DataIn1(ALURegInput1),
         .DataIn2(U_IDEXReg_ALUSrc_out ? U_IDEXReg_ExtImm_out : ALURegInput2),
         .ALUOp(U_IDEXReg_ALUOp_out),
@@ -279,7 +283,8 @@ module MIPS_R2000 (
         .mode(U_EXMEMReg_SpecialOP_out == `SpecialOP_DM_BYTE ? `DataMemoryMode_BYTE : (
             U_EXMEMReg_SpecialOP_out == `SpecialOP_DM_HW ? `DataMemoryMode_HALFWORD :
             `DataMemoryMode_WORD
-        ))
+        )),
+        .uart_tx_out(uart_tx_out)
     );
 
     MEMWBReg U_MEMWBReg (
@@ -298,6 +303,7 @@ module MIPS_R2000 (
     );
 
     Control U_Ctrl(
+        .clk(clk),
         .OpCode(`OP(U_IFIDReg_Instr_out)),
         .Funct(`FUNCT(U_IFIDReg_Instr_out)),
         .RegDst(U_Ctrl_RegDst),

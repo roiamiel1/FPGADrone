@@ -19,7 +19,7 @@ module EXMEMReg (
     input Zero_in,
 
     // data
-    input [31:0] ALU_in,
+    input wire [31:0] ALU_in,
     input [4:0] Rd_in,
 
     // MEM signal
