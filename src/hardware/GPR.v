@@ -1,14 +1,14 @@
 
 module GPR (
-    input clk,
-    input rst,
-    input RegWrite,
-    input [4:0] ReadRegister1,
-    input [4:0] ReadRegister2,
-    input [4:0] WriteRegister,
-    input [31:0] WriteData,
-    output [31:0] DataOut1,
-    output [31:0] DataOut2
+    input wire clk,
+    input wire rst,
+    input wire RegWrite,
+    input wire [4:0] ReadRegister1,
+    input wire [4:0] ReadRegister2,
+    input wire [4:0] WriteRegister,
+    input wire [31:0] WriteData,
+    output wire [31:0] DataOut1,
+    output wire [31:0] DataOut2
 );
     integer i;
     reg [31:0] gprRegisters [31:0];

@@ -3,8 +3,9 @@
 `include "signal_def.v"
 
 module Control(
-    input [5:0] OpCode,
-    input [5:0] Funct,
+    input wire clk,
+    input wire [5:0] OpCode,
+    input wire [5:0] Funct,
     output reg Jump,
     output reg RegDst,
     output reg Branch,
@@ -15,7 +16,7 @@ module Control(
     output reg ExtOp,
     output reg [4:0] ALUOp,
     output reg [3:0] SpecialOP,
-    output nBranch
+    output wire nBranch
 );
     assign nBranch = ~Branch;
 
@@ -32,7 +33,7 @@ module Control(
         SpecialOP <= 4'b0;
     end
 
-    always @(OpCode, Funct) begin
+    always @(negedge clk) begin
         if (OpCode == 6'h0 && Funct == 6'h20) begin
             // add case:
             Jump <= 0;

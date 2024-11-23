@@ -9,7 +9,6 @@
         <File path="src/hardware/Control.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/DataMemory.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/EXMEMReg.v" type="file.verilog" enable="1"/>
-        <File path="src/hardware/Extender.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/ForwardingUnit.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/GPR.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/IDEXReg.v" type="file.verilog" enable="1"/>
@@ -18,6 +17,7 @@
         <File path="src/hardware/MEMWBReg.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/MIPS_R2000.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/PCU.v" type="file.verilog" enable="1"/>
+        <File path="src/hardware/UART.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/instruction_def.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/signal_def.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/drone.cst" type="file.cst" enable="1"/>

@@ -27,16 +27,16 @@ while True:
     logic_statment = " && ".join(logic_statments)
     DATA_BLOCK += f"""if ({logic_statment}) begin
             // {cmd} case:
-            Jump <= {jump or 0};
-            RegDst <= {reg_dst or 0};
-            Branch <= {branch or 0};
-            MemRead <= {mem_read or 0};
-            MemWrite <= {mem_write or 0};
-            RegWrite <= {reg_write or 0};
-            ALUSrc <= {alu_src or 0};
-            ExtOp <= {ext_op or 0};
-            ALUOp <= {alu_op or 0};
-            SpecialOP <= {special_op or 0};
+            Jump      <= {jump       or "1'b0"};
+            RegDst    <= {reg_dst    or "1'b0"};
+            Branch    <= {branch     or "1'b0"};
+            MemRead   <= {mem_read   or "1'b0"};
+            MemWrite  <= {mem_write  or "1'b0"};
+            RegWrite  <= {reg_write  or "1'b0"};
+            ALUSrc    <= {alu_src    or "1'b0"};
+            ExtOp     <= {ext_op     or "1'b0"};
+            ALUOp     <= {alu_op     or "5'b0"};
+            SpecialOP <= {special_op or "4'b0"};
         end else """
 
 template = f"""// AUTO-GENERATED - DO NOT CHNAGE!
@@ -44,8 +44,9 @@ template = f"""// AUTO-GENERATED - DO NOT CHNAGE!
 `include "signal_def.v"
 
 module Control(
-    input [5:0] OpCode,
-    input [5:0] Funct,
+    input wire clk,
+    input wire [5:0] OpCode,
+    input wire [5:0] Funct,
     output reg Jump,
     output reg RegDst,
     output reg Branch,
@@ -56,35 +57,35 @@ module Control(
     output reg ExtOp,
     output reg [4:0] ALUOp,
     output reg [3:0] SpecialOP,
-    output nBranch
+    output wire nBranch
 );
     assign nBranch = ~Branch;
 
     initial begin
-        Jump <= 0;
-        RegDst <= 0;
-        Branch <= 0;
-        MemRead <= 0;
-        MemWrite <= 0;
-        RegWrite <= 0;
-        ALUSrc <= 0;
-        ExtOp <= 0;
-        ALUOp <= 5'b0;
+        Jump      <= 1'b0;
+        RegDst    <= 1'b0;
+        Branch    <= 1'b0;
+        MemRead   <= 1'b0;
+        MemWrite  <= 1'b0;
+        RegWrite  <= 1'b0;
+        ALUSrc    <= 1'b0;
+        ExtOp     <= 1'b0;
+        ALUOp     <= 5'b0;
         SpecialOP <= 4'b0;
     end
 
-    always @(OpCode, Funct) begin
+    always @(negedge clk) begin
         {DATA_BLOCK}begin
             // default case:
-            Jump <= 0;
-            RegDst <= 0;
-            Branch <= 0;
-            MemRead <= 0;
-            MemWrite <= 0;
-            RegWrite <= 0;
-            ALUSrc <= 0;
-            ExtOp <= 0;
-            ALUOp <= 5'b0;
+            Jump      <= 1'b0;
+            RegDst    <= 1'b0;
+            Branch    <= 1'b0;
+            MemRead   <= 1'b0;
+            MemWrite  <= 1'b0;
+            RegWrite  <= 1'b0;
+            ALUSrc    <= 1'b0;
+            ExtOp     <= 1'b0;
+            ALUOp     <= 5'b0;
             SpecialOP <= 4'b0;
         end
     end
