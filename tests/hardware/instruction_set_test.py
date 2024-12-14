@@ -1,7 +1,4 @@
-from mips_test_lib.test_builder import TestBuilder, FALSE_CONDITION, TRUE_CONDITION
-
-
-instructions = [
+[
     # Test `addiu``:
     ("addiu $s0, 0",  "{after_mem(REGS.S0)} == 0"),
     ("addiu $s1, 1",  "{after_mem(REGS.S1)} == 1"),
@@ -51,26 +48,26 @@ instructions = [
 
     # Test `beq` - branching:
     ("beq $s0, $s0, beq_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
-    ("beq_unsuccess: and $a0, $s0, $s1", FALSE_CONDITION),
-    ("beq_success: and $a0, $s0, $s1", TRUE_CONDITION),
+    ("beq_unsuccess: and $a0, $s0, $s1", FALSE),
+    ("beq_success: and $a0, $s0, $s1", TRUE),
 
     # Test `bne` - branching:
     ("bne $s0, $s1, bne_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
-    ("bne_unsuccess: and $a0, $s0, $s1", FALSE_CONDITION),
-    ("bne_success: and $a0, $s1, $s1", TRUE_CONDITION),
+    ("bne_unsuccess: and $a0, $s0, $s1", FALSE),
+    ("bne_success: and $a0, $s1, $s1", TRUE),
 
     # Test `beq` - not branching:
     ("beq $s0, $s1, nbeq_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*4"),
-    ("nbeq_unsuccess: and $a0, $s0, $s1", TRUE_CONDITION),
-    ("nbeq_success: and $a0, $s0, $s1", TRUE_CONDITION),
+    ("nbeq_unsuccess: and $a0, $s0, $s1", TRUE),
+    ("nbeq_success: and $a0, $s0, $s1", TRUE),
 
     # Test `bne` - not branching:
     ("bne $s0, $s0, nbne_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*4"),
-    ("nbne_unsuccess: and $a0, $s0, $s1", TRUE_CONDITION),
-    ("nbne_success: and $a0, $s1, $s1", TRUE_CONDITION),
+    ("nbne_unsuccess: and $a0, $s0, $s1", TRUE),
+    ("nbne_success: and $a0, $s1, $s1", TRUE),
 
     # Test forwarding.
-    ("add $a0, $s0, $s1", TRUE_CONDITION),
+    ("add $a0, $s0, $s1", TRUE),
     ("add $a1, $a0, $a0", "{after_mem(REGS.A1)} == 2"),
     ("add $a2, $a0, $a1", "{after_mem(REGS.A2)} == 3"),
     ("add $a3, $a0, $a2", "{after_mem(REGS.A3)} == 4"),
@@ -78,12 +75,12 @@ instructions = [
 
     # Test branch hazard.
     ("beq $s0, $s0, hazard_beq_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
-    ("hazard_beq_unsuccess: addiu $k0, 100", FALSE_CONDITION),
+    ("hazard_beq_unsuccess: addiu $k0, 100", FALSE),
     ("hazard_beq_success: addiu $k1, 300", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 300"),
 
     # Test `j` - branching:
     ("j j_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
-    ("j_unsuccess: addiu $k0, 100", FALSE_CONDITION),
+    ("j_unsuccess: addiu $k0, 100", FALSE),
     ("j_success: addiu $k1, $zero, 523", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 523"),
 
     # Test `j` - complex branching:
@@ -96,7 +93,7 @@ instructions = [
 
     # Test `jal` - branching:
     ("jal jal_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
-    ("jal_unsuccess: addiu $k0, 100", FALSE_CONDITION),
+    ("jal_unsuccess: addiu $k0, 100", FALSE),
     ("jal_success: addi $k1, $zero, -12312", 
         "{after_mem(REGS.K0)} == 0",
         "{after_mem(REGS.K1)} == -12312", 
@@ -107,9 +104,9 @@ instructions = [
     # Note! this test should come after `jal` test. 
     # because after `jal` test, $RA register contains the current PC. 
     # We use this data to calculate where to jump to.
-    ("addiu $t0, $ra, 20", TRUE_CONDITION), # We have 6 opcodes after jal to jr_success.
+    ("addiu $t0, $ra, 20", TRUE), # We have 6 opcodes after jal to jr_success.
     ("jr $t0", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
-    ("jr_unsuccess: addiu $k0, 100", FALSE_CONDITION),
+    ("jr_unsuccess: addiu $k0, 100", FALSE),
     ("jr_success: addiu $k1, $zero, 123", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 123"),
 
     # Test addiu big int
@@ -257,11 +254,3 @@ instructions = [
     ("subu $a0, $s0, $s1",  "{after_mem(REGS.A0)} == -198"),
     ("subu $a0, $s1, $s0",  "{after_mem(REGS.A0)} == 198"),
 ]
-
-test_instructions = [
-]
-
-TestBuilder().attach_instructions(test_instructions or instructions).write(
-    output_path_tb="tests/hardware/MIPS_R2000_tb.v",
-    output_path_asm="tests/hardware/asm/MIPS_R2000_tb.asm"
-)
