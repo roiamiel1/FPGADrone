@@ -1,4 +1,6 @@
 set_device GW2AR-LV18QN88C8/I7
+set_option -output_base_name drone
+set_option -top_module MIPS_R2000
 add_file -type verilog src/hardware/ALU.v
 add_file -type verilog src/hardware/Control.v
 add_file -type verilog src/hardware/EXMEMReg.v
@@ -15,5 +17,4 @@ add_file -type verilog src/hardware/signal_def.v
 add_file -type verilog src/hardware/DataMemory.v
 add_file -type verilog src/hardware/UART.v
 add_file -type cst src/hardware/drone.cst
-set_option -top_module MIPS_R2000
 run all
