@@ -6,6 +6,8 @@
 # $ git config --global mergetool.keepBackup false
 *.orig
 
+bin
+bin/*
 .idea/*
 .idea
 
