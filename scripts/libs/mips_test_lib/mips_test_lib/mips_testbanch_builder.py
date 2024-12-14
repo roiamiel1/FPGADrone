@@ -27,8 +27,10 @@ class InternalBuilderCondition(NamedTuple):
 
 
 class TestbanchBuilder(object):
-    def __init__(self) -> None:
+    def __init__(self, hex_path, output_folder_path) -> None:
         super().__init__()
+        self._test_hex_path = hex_path
+        self._test_output_folder_path = output_folder_path
         self.clear()
 
     def clear(self):
@@ -290,10 +292,10 @@ class TestbanchBuilder(object):
 
         with printer.group(indent=4*2):
             self._write_init_pipe_stage_vars(printer)
-            printer.write_line(normalize_tabs("""
-                $dumpfile("MIPS_R2000_tb.vcd");
+            printer.write_line(normalize_tabs(f"""
+                $dumpfile("{os.path.join(self._test_output_folder_path, "test.vcd")}");
                 $dumpvars;
-                $readmemh("../../tests/hardware/asm/MIPS_R2000_tb.hex", U_MIPS_R2000.U_InstructionMemory.IMem);
+                $readmemh("{self._test_hex_path}", U_MIPS_R2000.U_InstructionMemory.IMem);
 
                 U_MIPS_R2000.U_IFIDReg.StageReg = 0;
                 U_MIPS_R2000.U_IDEXReg.StageReg = 0;
