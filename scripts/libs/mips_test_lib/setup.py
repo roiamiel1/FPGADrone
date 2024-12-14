@@ -13,6 +13,5 @@ setup(
     license='MIT',
     description='MIPS cpu test lib for verilog.',
     install_requires=[
-        'mipsy3==3.0.0',
     ],
 )

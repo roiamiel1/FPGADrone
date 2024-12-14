@@ -9,8 +9,8 @@ TRUE_CONDITION = "1 /* always true */"
 class TestBuilder():
     _NOP_PADDED_OPCODES = ["bne", "beq", "j", "jal", "jr", "lbu", "lhu", "lw"]
 
-    def __init__(self) -> None:
-        self._builder = TestbanchBuilder()
+    def __init__(self, hex_path, output_folder_path) -> None:
+        self._builder = TestbanchBuilder(hex_path=hex_path, output_folder_path=output_folder_path)
         self._pc = 0
     
     def attach_instructions(self, insts):
