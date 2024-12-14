@@ -8,6 +8,8 @@
 
 bin
 bin/*
+build
+build/*
 .idea/*
 .idea
 
@@ -74,7 +76,6 @@ Temporary Items
 .ionide
 
 # Verilog
-impl/
 gowin_ide_linux.tar.gz
 
 TODO
