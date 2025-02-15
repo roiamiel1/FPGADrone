@@ -99,22 +99,8 @@ hw-gen-rom32:
 	$(PYTHON) scripts/shellcode_to_rom32.py
 
 hw-run-test:
-# Build tb.v and test.asm 
-	$(PYTHON) ./scripts/generate_test.py	\
-		--insts=$(INSTS) 					\
-		--tb=$(BUILD_PATH)/tb.v 			\
-		--asm=$(BUILD_PATH)/test.asm		\
-		--hex=$(BUILD_PATH)/test.hex		\
-		--test-out-path=$(BUILD_PATH)
-
-# Compile output test.asm to test.hex
-	$(MIPS_AS) -o $(BUILD_PATH)/test.out $(BUILD_PATH)/test.asm
-	$(MIPS_OBJCOPY) --dump-section .text=$(BUILD_PATH)/test.shellcode $(BUILD_PATH)/test.out
-	$(MIPS_OBJDUMP) -d -M no-aliases $(BUILD_PATH)/test.out > $(BUILD_PATH)/test.text
-	$(XXD) -c 4 -p $(BUILD_PATH)/test.shellcode > $(BUILD_PATH)/test.hex
-
 # Run the test
-	cd $(SRC_HW_PATH); $(IVERILOG) -DDEBUG=1 -g2001 -Wall -o $(SRC_HW_PATH_BACKWARDS)/$(BUILD_PATH)/test.vvp $(HW_SRCS) $(SRC_HW_PATH_BACKWARDS)/$(BUILD_PATH)/tb.v
+	cd $(SRC_HW_PATH); $(IVERILOG) -DDEBUG=1 -g2001 -Wall -o $(SRC_HW_PATH_BACKWARDS)/$(BUILD_PATH)/test.vvp $(HW_SRCS) $(SRC_HW_PATH_BACKWARDS)/$(TEST_PATH)/tb.v
 	$(VVP) $(BUILD_PATH)/test.vvp | tee $(BUILD_PATH)/test.log
 
 # Run gtkwave
@@ -123,9 +109,38 @@ hw-run-test:
     endif
 
 hw-test-instruction-set:
-	make hw-run-test 								  			\
-		INSTS=$(TESTS_HW_PATH)/instruction_set_test.py 			\
-		BUILD_PATH=$(BUILD_HW_TEST_PATH)/instruction_set_test		
+	$(eval BUILD_PATH := $(BUILD_HW_TEST_PATH)/instruction_set_test)
+	$(eval TEST_PATH := $(TESTS_HW_PATH)/instruction_set_test)
+	mkdir -p $(BUILD_PATH)
+
+# Build tb.v and test.asm 
+	$(PYTHON) ./scripts/generate_test.py										\
+		--insts=$(TESTS_HW_PATH)/instruction_set_test/instruction_set_test.py 	\
+		--tb=$(BUILD_PATH)/tb.v 												\
+		--asm=$(BUILD_PATH)/test.asm											\
+		--hex=$(BUILD_PATH)/test.hex											\
+		--test-out-path=$(BUILD_PATH)
+
+	# Compile output test.asm to test.hex
+	$(MIPS_AS) -o $(BUILD_PATH)/test.out $(BUILD_PATH)/test.asm
+	$(MIPS_OBJCOPY) --dump-section .text=$(BUILD_PATH)/test.shellcode $(BUILD_PATH)/test.out
+	$(MIPS_OBJDUMP) -d -M no-aliases $(BUILD_PATH)/test.out > $(BUILD_PATH)/test.text
+	$(XXD) -c 4 -p $(BUILD_PATH)/test.shellcode > $(BUILD_PATH)/test.hex
+
+	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(BUILD_PATH)
+		
+hw-test-uart:
+	$(eval BUILD_PATH := $(BUILD_HW_TEST_PATH)/uart_test)
+	$(eval TEST_PATH := $(TESTS_HW_PATH)/uart_test)
+	mkdir -p $(BUILD_PATH)
+
+# Compile test.c to test.hex
+	$(MIPS_GCC) -o $(BUILD_PATH)/test.out ./tests/hardware/uart_test/test.c
+	$(MIPS_OBJCOPY) --dump-section .text=$(BUILD_PATH)/test.shellcode $(BUILD_PATH)/test.out
+	$(MIPS_OBJDUMP) -d -M no-aliases $(BUILD_PATH)/test.out > $(BUILD_PATH)/test.text
+	$(XXD) -c 4 -p $(BUILD_PATH)/test.shellcode > $(BUILD_PATH)/test.hex
+
+	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(TEST_PATH)
 
 lint:
 	verilator -g2001 -Wall --lint-only $(SRCS) $(HARDWARE_TESTBENCH).v
