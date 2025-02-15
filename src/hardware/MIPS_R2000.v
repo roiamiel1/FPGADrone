@@ -1,7 +1,7 @@
 `include "signal_def.v"
 `include "instruction_def.v"
 
-`define CLOCK_RATE      27000000 // board internal clock (def == 27MHz)
+`define CLOCK_RATE      100000 // board internal clock (def == 100KHz)
 `define UART_BAUD_RATE  9600
 
 module MIPS_R2000 (
@@ -9,8 +9,8 @@ module MIPS_R2000 (
     input rst,
     output uart_tx_out
 );
-    parameter UART_MAX_RATE_TX = `CLOCK_RATE / (2 * `UART_BAUD_RATE);
-    parameter UART_TX_CNT_WIDTH = $clog2(UART_MAX_RATE_TX);
+    parameter UART_MAX_RATE_TX = 5; // `CLOCK_RATE / (2 * `UART_BAUD_RATE);
+    parameter UART_TX_CNT_WIDTH = 4; // $clog2(UART_MAX_RATE_TX);
 
     // U_Ctrl connections.
     wire U_Ctrl_RegDst;
@@ -70,7 +70,7 @@ module MIPS_R2000 (
     wire [4:0] U_IDEXReg_Rd_in;
 
     // U_GPR connections.
-    wire [31:0] U_GPR_WriteData;
+    wire [31:0] U_MEMWBReg_WriteBackValue;
     wire [31:0] U_GPR_DataOut1;
     wire [31:0] U_GPR_DataOut2;
 
@@ -124,7 +124,7 @@ module MIPS_R2000 (
 
     // Connections assigns.
     assign U_EXMEMReg_Rd_in = U_IDEXReg_RegDst_out ? U_IDEXReg_Rd_out : U_IDEXReg_Rt_out;
-    assign U_GPR_WriteData = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
+    assign U_MEMWBReg_WriteBackValue = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
 
     // Branch and Jump assigns.
     assign U_PCU_PCSrc = (U_EXMEMReg_Branch_out && U_EXMEMReg_Zero_out) || U_EXMEMReg_Jump_out;
@@ -143,16 +143,16 @@ module MIPS_R2000 (
 
     // Assigns Forwaring Mux's
     assign ALURegInput1 = `ForwardingMux(
-        ALUDataIn1Mux,          // Selector
-        U_IDEXReg_Reg1_out,     // No forwarding
-        U_EXMEMReg_ALU_out,     // Forward from EX/MEM
-        U_MEMWBReg_ALU_out      // Forward from MEM/WB
+        ALUDataIn1Mux,              // Selector
+        U_IDEXReg_Reg1_out,         // No forwarding
+        U_EXMEMReg_ALU_out,         // Forward from EX/MEM
+        U_MEMWBReg_WriteBackValue   // Forward from MEM/WB
     );
     assign ALURegInput2 = `ForwardingMux(
-        ALUDataIn2Mux,          // Selector
-        U_IDEXReg_Reg2_out,     // No forwarding
-        U_EXMEMReg_ALU_out,     // Forward from EX/MEM
-        U_MEMWBReg_ALU_out      // Forward from MEM/WB
+        ALUDataIn2Mux,              // Selector
+        U_IDEXReg_Reg2_out,         // No forwarding
+        U_EXMEMReg_ALU_out,         // Forward from EX/MEM
+        U_MEMWBReg_WriteBackValue   // Forward from MEM/WB
     );
     
     // Modules section.
@@ -188,7 +188,7 @@ module MIPS_R2000 (
     GPR U_GPR(
         .clk(clk),
         .rst(rst),
-        .WriteData(U_GPR_WriteData),
+        .WriteData(U_MEMWBReg_WriteBackValue),
         .RegWrite(U_MEMWBReg_RegWrite_out),
         .WriteRegister(U_MEMWBReg_Rd_out),
         .ReadRegister1(`RS(U_IFIDReg_Instr_out)),
