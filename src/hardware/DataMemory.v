@@ -34,42 +34,33 @@ module DataMemory(
 
     always @(posedge clk) begin
         if (write_enable) begin
-            case (mode)
-                `DataMemoryMode_WORD: begin
-                    memory[address] <= data_in;
-                end
-
-                `DataMemoryMode_HALFWORD: begin
-                    memory[address] <= {memory[address][31:16], data_in[15:0]};
-                end
-
-                `DataMemoryMode_BYTE: begin
-                    case (address)
-                        `P_UART_CHAR: UART_In <= data_in[7:0];
-                        `P_UART_START: UART_Start <= data_in[0];
-                        default: memory[address] <= {memory[address][31:8], data_in[7:0]};
+            case (address)
+                `P_UART_DONE: begin end // Write unallowd.
+                `P_UART_BUSY: begin end // Write unallowd.
+                `P_UART_CHAR: UART_In <= data_in[7:0];
+                `P_UART_START: UART_Start <= data_in[0];
+                default: begin
+                    case (mode)
+                        `DataMemoryMode_WORD: memory[address] <= data_in;
+                        `DataMemoryMode_HALFWORD: memory[address] <= {memory[address][31:16], data_in[15:0]};
+                        `DataMemoryMode_BYTE: memory[address] <= {memory[address][31:8], data_in[7:0]};
                     endcase
                 end
             endcase
         end else begin  // Read
-            case (mode)
-                `DataMemoryMode_WORD: begin
-                    data_out <= memory[address];
-                end
-
-                `DataMemoryMode_HALFWORD: begin
-                    data_out <= {16'b0, memory[address][15:0]};
-                end
-
-                `DataMemoryMode_BYTE: begin
-                    case (address)
-                        `P_UART_DONE: data_out <= UART_Done;
-                        `P_UART_BUSY: data_out <= UART_Busy;
-                        default: data_out <= {24'b0, memory[address][7:0]};
+            case (address)
+                `P_UART_DONE: data_out <= {31'b0, UART_Done};
+                `P_UART_BUSY: data_out <= {31'b0, UART_Busy};
+                `P_UART_CHAR: data_out <= 31'b0;  // Read unallowd.
+                `P_UART_START: data_out <= 31'b0; // Read unallowd.
+                default: begin
+                    case (mode)
+                        `DataMemoryMode_WORD: data_out <= memory[address];
+                        `DataMemoryMode_HALFWORD: data_out <= {16'b0, memory[address][15:0]};
+                        `DataMemoryMode_BYTE: data_out <= {24'b0, memory[address][7:0]};
                     endcase
                 end
             endcase
         end
     end
-     
 endmodule

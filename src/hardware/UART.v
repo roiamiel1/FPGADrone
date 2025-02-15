@@ -25,10 +25,29 @@ module Uart8Transmitter(
     reg [7:0] data   = 8'b0; // to store a copy of input data
     reg [2:0] bitIdx = 3'b0; // for 8-bit data
 
+    initial begin
+        state   <= `RESET;
+        out     <= 1'b0;
+        done    <= 1'b0;
+        busy    <= 1'b0;
+        bitIdx  <= 3'b0;
+        data    <= 8'b0;
+    end
+
+
     always @(posedge clk) begin
         case (state)
             default: begin
                 state   <= `IDLE;
+            end
+            
+            `RESET: begin
+                state   <= `IDLE;
+                out     <= 1'b0;
+                done    <= 1'b0;
+                busy    <= 1'b0;
+                bitIdx  <= 3'b0;
+                data    <= 8'b0;
             end
 
             `IDLE: begin
