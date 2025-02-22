@@ -192,7 +192,13 @@
     # Test `lb`
     ("addi $a0, $zero, -123",  "{after_mem(REGS.A0)} == -123"),
     ("sw $a0, 39($zero)", "{after_mem(MEM.WORD(39))} == -123"),
-    ("lb $a1, 39($zero)", "{after_mem(REGS.A1)} == -123"),
+    ("lw $a1, 39($zero)", "{after_mem(REGS.A1)} == -123"),
+
+    # Test `lb` with forwarding
+    ("addi $a2, $zero, 12",  "{after_mem(REGS.A2)} == 12"),
+    ("sw $a2, 34($zero)", "{after_mem(MEM.WORD(34))} == 12"),
+    ("lw $v0, 34($zero)", "{after_mem(REGS.V0)} == 12"),
+    ("addi $a1, $v0, 6",  "{after_mem(REGS.A1)} == 18"),
 
     # Test `lhu`
     ("addi $a1, $zero, 147",  "{after_mem(REGS.A1)} == 147"),
