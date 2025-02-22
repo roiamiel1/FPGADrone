@@ -113,7 +113,7 @@ hw-test-instruction-set:
 	$(eval TEST_PATH := $(TESTS_HW_PATH)/instruction_set_test)
 	mkdir -p $(BUILD_PATH)
 
-# Build tb.v and test.asm 
+	# Build tb.v and test.asm 
 	$(PYTHON) ./scripts/generate_test.py										\
 		--insts=$(TESTS_HW_PATH)/instruction_set_test/instruction_set_test.py 	\
 		--tb=$(BUILD_PATH)/tb.v 												\
