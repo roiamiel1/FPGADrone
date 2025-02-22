@@ -20,7 +20,7 @@ module EXMEMReg (
 
     // data
     input wire [31:0] ALU_in,
-    input [4:0] Rd_in,
+    input [4:0] WriteBackRegAddr_in,
 
     // MEM signal
     output Branch_out,
@@ -39,7 +39,7 @@ module EXMEMReg (
     
     // data
     output [31:0] ALU_out,
-    output [4:0] Rd_out
+    output [4:0] WriteBackRegAddr_out
 );
     reg[110:0] StageReg;
 
@@ -54,7 +54,7 @@ module EXMEMReg (
         RegWrite_out,
         Zero_out,
         ALU_out[31:0],
-        Rd_out[4:0]
+        WriteBackRegAddr_out[4:0]
     } = StageReg;
 
     initial begin
@@ -76,7 +76,7 @@ module EXMEMReg (
                 RegWrite_in,
                 Zero_in,
                 ALU_in[31:0],
-                Rd_in[4:0]
+                WriteBackRegAddr_in[4:0]
             };
         end
     end

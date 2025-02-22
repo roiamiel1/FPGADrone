@@ -9,8 +9,8 @@ module MIPS_R2000 (
     input rst,
     output uart_tx_out
 );
-    parameter UART_MAX_RATE_TX = 5; // `CLOCK_RATE / (2 * `UART_BAUD_RATE);
-    parameter UART_TX_CNT_WIDTH = 4; // $clog2(UART_MAX_RATE_TX);
+    parameter UART_MAX_RATE_TX = `CLOCK_RATE / (2 * `UART_BAUD_RATE);
+    parameter UART_TX_CNT_WIDTH = $clog2(UART_MAX_RATE_TX);
 
     // U_Ctrl connections.
     wire U_Ctrl_RegDst;
@@ -30,7 +30,7 @@ module MIPS_R2000 (
     wire U_MEMWBReg_MemRead_out;
     wire [31:0] U_MEMWBReg_Mem_out;
     wire [31:0] U_MEMWBReg_ALU_out;
-    wire [4:0] U_MEMWBReg_Rd_out;
+    wire [4:0] U_MEMWBReg_WriteBackRegAddr_out;
 
     // U_EXMEMReg connections.
     wire U_EXMEMReg_Branch_out;
@@ -44,8 +44,8 @@ module MIPS_R2000 (
     wire U_EXMEMReg_Zero_out;
     wire [31:0] U_EXMEMReg_ALU_in;
     wire [31:0] U_EXMEMReg_ALU_out;
-    wire [4:0] U_EXMEMReg_Rd_out;
-    wire [4:0] U_EXMEMReg_Rd_in;
+    wire [4:0] U_EXMEMReg_WriteBackRegAddr_out;
+    wire [4:0] U_EXMEMReg_WriteBackRegAddr_in;
 
     // U_IDEXReg connections.
     wire U_IDEXReg_RegDst_out;
@@ -123,7 +123,7 @@ module MIPS_R2000 (
     assign U_OpcodeImmExtender_Out = {U_Ctrl_ExtOp ? {16{ExtenderDataIn[15]}} : 16'b0, ExtenderDataIn[15:0]};
 
     // Connections assigns.
-    assign U_EXMEMReg_Rd_in = U_IDEXReg_RegDst_out ? U_IDEXReg_Rd_out : U_IDEXReg_Rt_out;
+    assign U_EXMEMReg_WriteBackRegAddr_in = (U_IDEXReg_RegDst_out == `REG_DST_RD) ? U_IDEXReg_Rd_out : U_IDEXReg_Rt_out;
     assign U_MEMWBReg_WriteBackValue = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
 
     // Branch and Jump assigns.
@@ -138,8 +138,8 @@ module MIPS_R2000 (
 
     // IDEXReg assigns.
     // In case the SpecialOP is JAL -> R[31] = $RA = PC + 8;
-    assign U_IDEXReg_Reg1_in = (U_Ctrl_SpecialOP == `SpecialOP_JAL ? (U_IFIDReg_PC_out + 8) : U_GPR_DataOut1);
-    assign U_IDEXReg_Rd_in = (U_Ctrl_SpecialOP == `SpecialOP_JAL ? 31 : `RD(U_IFIDReg_Instr_out));
+    assign U_IDEXReg_Reg1_in = ((U_Ctrl_SpecialOP == `SpecialOP_JAL) ? (U_IFIDReg_PC_out + 8) : U_GPR_DataOut1);
+    assign U_IDEXReg_Rd_in = ((U_Ctrl_SpecialOP == `SpecialOP_JAL) ? 31 : (`RD(U_IFIDReg_Instr_out)));
 
     // Assigns Forwaring Mux's
     assign ALURegInput1 = `ForwardingMux(
@@ -190,7 +190,7 @@ module MIPS_R2000 (
         .rst(rst),
         .WriteData(U_MEMWBReg_WriteBackValue),
         .RegWrite(U_MEMWBReg_RegWrite_out),
-        .WriteRegister(U_MEMWBReg_Rd_out),
+        .WriteRegister(U_MEMWBReg_WriteBackRegAddr_out),
         .ReadRegister1(`RS(U_IFIDReg_Instr_out)),
         .ReadRegister2(`RT(U_IFIDReg_Instr_out)),
         .DataOut1(U_GPR_DataOut1),
@@ -244,8 +244,8 @@ module MIPS_R2000 (
         .ALUDataIn2RegAddr_in(U_IDEXReg_Rt_out),
         .EXMEM_WriteBackReg(U_EXMEMReg_RegWrite_out),
         .MEMWB_WriteBackReg(U_MEMWBReg_RegWrite_out),
-        .EXMEM_WriteBackRegAddr(U_EXMEMReg_Rd_out),
-        .MEMWB_WriteBackRegAddr(U_MEMWBReg_Rd_out),
+        .EXMEM_WriteBackRegAddr(U_EXMEMReg_WriteBackRegAddr_out),
+        .MEMWB_WriteBackRegAddr(U_MEMWBReg_WriteBackRegAddr_out),
         .ALUDataIn1Mux_out(ALUDataIn1Mux),
         .ALUDataIn2Mux_out(ALUDataIn2Mux)
     );
@@ -273,7 +273,7 @@ module MIPS_R2000 (
         .SpecialOP_in(U_IDEXReg_SpecialOP_out),
         .RegWrite_in(U_IDEXReg_RegWrite_out),
         .Zero_in(U_ALU_Zero),
-        .Rd_in(U_EXMEMReg_Rd_in),
+        .WriteBackRegAddr_in(U_EXMEMReg_WriteBackRegAddr_in),
         .Branch_out(U_EXMEMReg_Branch_out),
         .Jump_out(U_EXMEMReg_Jump_out),
         .BranchAddress_out(U_EXMEMReg_BranchAddress_out),
@@ -285,7 +285,7 @@ module MIPS_R2000 (
         .Zero_out(U_EXMEMReg_Zero_out),
         .ALU_in(U_EXMEMReg_ALU_in),
         .ALU_out(U_EXMEMReg_ALU_out),
-        .Rd_out(U_EXMEMReg_Rd_out)
+        .WriteBackRegAddr_out(U_EXMEMReg_WriteBackRegAddr_out)
     );
 
     DataMemory U_DataMemory(
@@ -309,12 +309,12 @@ module MIPS_R2000 (
         .MemRead_in(U_EXMEMReg_MemRead_out),
         .Mem_in(U_DataMemory_DataOut),
         .ALU_in(U_EXMEMReg_ALU_out),
-        .Rd_in(U_EXMEMReg_Rd_out),
+        .WriteBackRegAddr_in(U_EXMEMReg_WriteBackRegAddr_out),
         .RegWrite_out(U_MEMWBReg_RegWrite_out),
         .MemRead_out(U_MEMWBReg_MemRead_out),
         .Mem_out(U_MEMWBReg_Mem_out),
         .ALU_out(U_MEMWBReg_ALU_out),
-        .Rd_out(U_MEMWBReg_Rd_out)
+        .WriteBackRegAddr_out(U_MEMWBReg_WriteBackRegAddr_out)
     );
 
     Control U_Ctrl(
