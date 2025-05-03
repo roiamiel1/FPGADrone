@@ -6,6 +6,7 @@ HW_BOARD_NAME := tangnano20k
 # ------------------------- Paths ------------------------- #
 SRC_PATH := ./src
 BUILD_PATH := ./build
+IMPL_PATH := ./impl
 TESTS_PATH := ./tests
 
 SRC_SW_PATH := $(SRC_PATH)/software
@@ -146,5 +147,5 @@ lint:
 	verilator -g2001 -Wall --lint-only $(SRCS) $(HARDWARE_TESTBENCH).v
 
 clean:
-	$(RM_ALL) $(BUILD_PATH)
+	$(RM_ALL) $(BUILD_PATH) $(IMPL_PATH)
 
