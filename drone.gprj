@@ -21,5 +21,6 @@
         <File path="src/hardware/instruction_def.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/signal_def.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/drone.cst" type="file.cst" enable="1"/>
+        <File path="src/drone.sdc" type="file.sdc" enable="1"/>
     </FileList>
 </Project>

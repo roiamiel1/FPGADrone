@@ -19,10 +19,12 @@ module ALU(
                 ALURes <= DataIn1 - DataIn2;
             `ALUOp_MUL:
                 ALURes <= DataIn1 * DataIn2;
+            `ifdef DEBUG
             // TODO: Division in the ALU create a very log logic path combaining with ForwardingUnit.
             // TODO: In the future we should create a faster divider.
-            // `ALUOp_DIV:
-            //     ALURes <= DataIn1 / DataIn2;
+            `ALUOp_DIV:
+                ALURes <= DataIn1 / DataIn2;
+            `endif
             `ALUOp_SLL:
                 ALURes <= DataIn2 << shamt;
             `ALUOp_SRL:
