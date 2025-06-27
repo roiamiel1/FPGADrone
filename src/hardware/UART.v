@@ -84,7 +84,9 @@ module Uart8Transmitter(
                 out     <= 1'b1;
                 done    <= 1'b1;
                 data    <= 8'b0;
-                state   <= `IDLE;
+                if (!start) begin
+                    state <= `IDLE;
+                end
             end
         endcase
     end
