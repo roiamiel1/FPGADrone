@@ -1,12 +1,17 @@
 `include "signal_def.v"
 `include "instruction_def.v"
 
+`define CLOCK_RATE      27_000_000 // board internal clock (27Mhz)
+`define UART_BAUD_RATE  9_600
+
 module MIPS_R2000 (
     input clk,
-    input uart_clk,
     input rst,
     output uart_tx_out
 );
+    parameter UART_MAX_RATE_TX = `CLOCK_RATE / (2 * `UART_BAUD_RATE);
+    parameter UART_TX_CNT_WIDTH = $clog2(UART_MAX_RATE_TX);
+
     // U_Ctrl connections.
     wire U_Ctrl_RegDst;
     wire [4:0] U_Ctrl_ALUOp;
@@ -105,6 +110,14 @@ module MIPS_R2000 (
     // Sign Extender connections.
     wire [15:0] ExtenderDataIn;
 
+    // Uart connections.
+    reg uartTxClk;
+    reg [UART_TX_CNT_WIDTH:0] uartTxCounter = 0;
+
+    initial begin
+        uartTxClk = 1'b0;
+    end
+    
     // Sign Extender assigns.
     assign ExtenderDataIn = `IMMEDIATE(U_IFIDReg_Instr_out);
     assign U_OpcodeImmExtender_Out = {U_Ctrl_ExtOp ? {16{ExtenderDataIn[15]}} : 16'b0, ExtenderDataIn[15:0]};
@@ -277,7 +290,7 @@ module MIPS_R2000 (
 
     DataMemory U_DataMemory(
         .clk(clk),
-        .uartClk(uart_clk),
+        .uartClk(uartTxClk),
         .data_out(U_DataMemory_DataOut),
         .data_in(U_EXMEMReg_Reg2_out),
         .write_enable(U_EXMEMReg_MemWrite_out),
@@ -320,5 +333,14 @@ module MIPS_R2000 (
         .nBranch(U_Ctrl_nBranch),
         .ExtOp(U_Ctrl_ExtOp)
     );
+
+    always @(posedge clk) begin
+        if (uartTxCounter == UART_MAX_RATE_TX) begin
+            uartTxCounter <= 0;
+            uartTxClk <= ~uartTxClk;
+        end else begin
+            uartTxCounter <= uartTxCounter + 1'b1;
+        end
+    end
 
 endmodule
