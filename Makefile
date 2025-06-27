@@ -29,6 +29,7 @@ HW_SRCS := $(shell find $(SRC_HW_PATH) -type f -name \*.v -exec basename {} \;)
 # SW Paths
 SW_BINARY_PATH := $(BUILD_SW_PATH)/build.out
 SW_SHELLCODE_PATH := $(BUILD_SW_PATH)/build.shellcode
+SW_HEX_PATH := $(BUILD_SW_PATH)/build.hex
 SW_SHELLCODE_TEXT_PATH := $(SW_SHELLCODE_PATH).text
 SW_READELF_TEXT_PATH := $(BUILD_SW_PATH)/build.readelf.text
 
@@ -72,7 +73,7 @@ sw-build:
 	$(MIPS_OBJCOPY) --dump-section .text=$(SW_SHELLCODE_PATH) $(SW_BINARY_PATH)
 	$(MIPS_OBJDUMP) -d -M no-aliases $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
 	$(MIPS_READELF) --all $(SW_BINARY_PATH) > $(SW_READELF_TEXT_PATH)
-	$(XXD) -c 4 -p bin/software/main.shellcode > bin/software/main.hex
+	$(XXD) -c 4 -p $(SW_SHELLCODE_PATH) > $(SW_HEX_PATH)
 
 sw-build-asm:
 	$(MIPS_AS) -o $(SW_BINARY_PATH) $(SW_SRCS_ASM)
