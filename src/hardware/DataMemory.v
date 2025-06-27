@@ -35,8 +35,8 @@ module DataMemory(
     always @(negedge clk) begin
         if (!write_enable) begin
             case (address)
-                `P_UART_DONE: data_out <= {31'b0, UART_Done};
-                `P_UART_BUSY: data_out <= {31'b0, UART_Busy};
+                `P_UART_DONE: data_out <= {30'b0, UART_Done};
+                `P_UART_BUSY: data_out <= {30'b0, UART_Busy};
                 `P_UART_CHAR: data_out <= 31'b0;  // Read unallowd.
                 `P_UART_START: data_out <= 31'b0; // Read unallowd.
                 default: begin
