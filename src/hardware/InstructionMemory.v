@@ -108,7 +108,7 @@ module InstructionMemory (
          (IMAdress == 32'h00000061) ? 32'h1440fffc :
          (IMAdress == 32'h00000062) ? 32'h00000000 :
          (IMAdress == 32'h00000063) ? 32'h240203e8 :
-         (IMAdress == 32'h00000064) ? 32'h24030020 :
+         (IMAdress == 32'h00000064) ? 32'h24030021 :
          (IMAdress == 32'h00000065) ? 32'ha0430000 :
          (IMAdress == 32'h00000066) ? 32'h240203e9 :
          (IMAdress == 32'h00000067) ? 32'h24030001 :
@@ -126,7 +126,7 @@ module InstructionMemory (
          (IMAdress == 32'h00000073) ? 32'h1440fffc :
          (IMAdress == 32'h00000074) ? 32'h00000000 :
          (IMAdress == 32'h00000075) ? 32'h240203e8 :
-         (IMAdress == 32'h00000076) ? 32'h24030057 :
+         (IMAdress == 32'h00000076) ? 32'h24030020 :
          (IMAdress == 32'h00000077) ? 32'ha0430000 :
          (IMAdress == 32'h00000078) ? 32'h240203e9 :
          (IMAdress == 32'h00000079) ? 32'h24030001 :
@@ -138,100 +138,8 @@ module InstructionMemory (
          (IMAdress == 32'h0000007f) ? 32'h00000000 :
          (IMAdress == 32'h00000080) ? 32'h240203e9 :
          (IMAdress == 32'h00000081) ? 32'ha0400000 :
-         (IMAdress == 32'h00000082) ? 32'h240203eb :
-         (IMAdress == 32'h00000083) ? 32'h80420000 :
-         (IMAdress == 32'h00000084) ? 32'h00000000 :
-         (IMAdress == 32'h00000085) ? 32'h1440fffc :
-         (IMAdress == 32'h00000086) ? 32'h00000000 :
-         (IMAdress == 32'h00000087) ? 32'h240203e8 :
-         (IMAdress == 32'h00000088) ? 32'h2403006f :
-         (IMAdress == 32'h00000089) ? 32'ha0430000 :
-         (IMAdress == 32'h0000008a) ? 32'h240203e9 :
-         (IMAdress == 32'h0000008b) ? 32'h24030001 :
-         (IMAdress == 32'h0000008c) ? 32'ha0430000 :
-         (IMAdress == 32'h0000008d) ? 32'h240203ea :
-         (IMAdress == 32'h0000008e) ? 32'h80420000 :
-         (IMAdress == 32'h0000008f) ? 32'h00000000 :
-         (IMAdress == 32'h00000090) ? 32'h1040fffc :
-         (IMAdress == 32'h00000091) ? 32'h00000000 :
-         (IMAdress == 32'h00000092) ? 32'h240203e9 :
-         (IMAdress == 32'h00000093) ? 32'ha0400000 :
-         (IMAdress == 32'h00000094) ? 32'h240203eb :
-         (IMAdress == 32'h00000095) ? 32'h80420000 :
-         (IMAdress == 32'h00000096) ? 32'h00000000 :
-         (IMAdress == 32'h00000097) ? 32'h1440fffc :
-         (IMAdress == 32'h00000098) ? 32'h00000000 :
-         (IMAdress == 32'h00000099) ? 32'h240203e8 :
-         (IMAdress == 32'h0000009a) ? 32'h24030072 :
-         (IMAdress == 32'h0000009b) ? 32'ha0430000 :
-         (IMAdress == 32'h0000009c) ? 32'h240203e9 :
-         (IMAdress == 32'h0000009d) ? 32'h24030001 :
-         (IMAdress == 32'h0000009e) ? 32'ha0430000 :
-         (IMAdress == 32'h0000009f) ? 32'h240203ea :
-         (IMAdress == 32'h000000a0) ? 32'h80420000 :
-         (IMAdress == 32'h000000a1) ? 32'h00000000 :
-         (IMAdress == 32'h000000a2) ? 32'h1040fffc :
-         (IMAdress == 32'h000000a3) ? 32'h00000000 :
-         (IMAdress == 32'h000000a4) ? 32'h240203e9 :
-         (IMAdress == 32'h000000a5) ? 32'ha0400000 :
-         (IMAdress == 32'h000000a6) ? 32'h240203eb :
-         (IMAdress == 32'h000000a7) ? 32'h80420000 :
-         (IMAdress == 32'h000000a8) ? 32'h00000000 :
-         (IMAdress == 32'h000000a9) ? 32'h1440fffc :
-         (IMAdress == 32'h000000aa) ? 32'h00000000 :
-         (IMAdress == 32'h000000ab) ? 32'h240203e8 :
-         (IMAdress == 32'h000000ac) ? 32'h2403006c :
-         (IMAdress == 32'h000000ad) ? 32'ha0430000 :
-         (IMAdress == 32'h000000ae) ? 32'h240203e9 :
-         (IMAdress == 32'h000000af) ? 32'h24030001 :
-         (IMAdress == 32'h000000b0) ? 32'ha0430000 :
-         (IMAdress == 32'h000000b1) ? 32'h240203ea :
-         (IMAdress == 32'h000000b2) ? 32'h80420000 :
-         (IMAdress == 32'h000000b3) ? 32'h00000000 :
-         (IMAdress == 32'h000000b4) ? 32'h1040fffc :
-         (IMAdress == 32'h000000b5) ? 32'h00000000 :
-         (IMAdress == 32'h000000b6) ? 32'h240203e9 :
-         (IMAdress == 32'h000000b7) ? 32'ha0400000 :
-         (IMAdress == 32'h000000b8) ? 32'h240203eb :
-         (IMAdress == 32'h000000b9) ? 32'h80420000 :
-         (IMAdress == 32'h000000ba) ? 32'h00000000 :
-         (IMAdress == 32'h000000bb) ? 32'h1440fffc :
-         (IMAdress == 32'h000000bc) ? 32'h00000000 :
-         (IMAdress == 32'h000000bd) ? 32'h240203e8 :
-         (IMAdress == 32'h000000be) ? 32'h24030064 :
-         (IMAdress == 32'h000000bf) ? 32'ha0430000 :
-         (IMAdress == 32'h000000c0) ? 32'h240203e9 :
-         (IMAdress == 32'h000000c1) ? 32'h24030001 :
-         (IMAdress == 32'h000000c2) ? 32'ha0430000 :
-         (IMAdress == 32'h000000c3) ? 32'h240203ea :
-         (IMAdress == 32'h000000c4) ? 32'h80420000 :
-         (IMAdress == 32'h000000c5) ? 32'h00000000 :
-         (IMAdress == 32'h000000c6) ? 32'h1040fffc :
-         (IMAdress == 32'h000000c7) ? 32'h00000000 :
-         (IMAdress == 32'h000000c8) ? 32'h240203e9 :
-         (IMAdress == 32'h000000c9) ? 32'ha0400000 :
-         (IMAdress == 32'h000000ca) ? 32'h240203eb :
-         (IMAdress == 32'h000000cb) ? 32'h80420000 :
-         (IMAdress == 32'h000000cc) ? 32'h00000000 :
-         (IMAdress == 32'h000000cd) ? 32'h1440fffc :
-         (IMAdress == 32'h000000ce) ? 32'h00000000 :
-         (IMAdress == 32'h000000cf) ? 32'h240203e8 :
-         (IMAdress == 32'h000000d0) ? 32'h24030021 :
-         (IMAdress == 32'h000000d1) ? 32'ha0430000 :
-         (IMAdress == 32'h000000d2) ? 32'h240203e9 :
-         (IMAdress == 32'h000000d3) ? 32'h24030001 :
-         (IMAdress == 32'h000000d4) ? 32'ha0430000 :
-         (IMAdress == 32'h000000d5) ? 32'h240203ea :
-         (IMAdress == 32'h000000d6) ? 32'h80420000 :
-         (IMAdress == 32'h000000d7) ? 32'h00000000 :
-         (IMAdress == 32'h000000d8) ? 32'h1040fffc :
-         (IMAdress == 32'h000000d9) ? 32'h00000000 :
-         (IMAdress == 32'h000000da) ? 32'h240203e9 :
-         (IMAdress == 32'h000000db) ? 32'ha0400000 :
-         (IMAdress == 32'h000000dc) ? 32'h1000ff27 :
-         (IMAdress == 32'h000000dd) ? 32'h00000000 :
-         (IMAdress == 32'h000000de) ? 32'h00000000 :
-         (IMAdress == 32'h000000df) ? 32'h00000000 :
+         (IMAdress == 32'h00000082) ? 32'h1000ff81 :
+         (IMAdress == 32'h00000083) ? 32'h00000000 :
          32'h00000000;
     end
 
