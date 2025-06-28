@@ -5,16 +5,16 @@ module DataMemory(
     input wire rst,
     input wire write_enable,
     input wire [1:0] mode,
-    input wire [11:0] address,
+    input wire [13:0] address,
     input wire [31:0] data_in, 
     output reg [31:0] data_out
 );
     reg [3:0] internal_write_enable;
-    reg [11:0] internal_address;
+    reg [13:0] internal_address;
     reg [31:0] internal_data_in;
     wire [31:0] internal_data_out;
 
-    Gowin_SP_4096_8 MemBlock0(
+    Gowin_SP_16384_8 MemBlock0(
         .clk(clk),
         .reset(rst),
         .dout(internal_data_out[7:0]),
@@ -25,7 +25,7 @@ module DataMemory(
         .ce(1'b1)
     );
     
-    Gowin_SP_4096_8 MemBlock1(
+    Gowin_SP_16384_8 MemBlock1(
         .clk(clk),
         .reset(rst),
         .dout(internal_data_out[15:8]),
@@ -36,7 +36,7 @@ module DataMemory(
         .ce(1'b1)
     );
 
-    Gowin_SP_4096_8 MemBlock2(
+    Gowin_SP_16384_8 MemBlock2(
         .clk(clk),
         .reset(rst),
         .dout(internal_data_out[23:16]),
@@ -47,7 +47,7 @@ module DataMemory(
         .ce(1'b1)
     );
 
-    Gowin_SP_4096_8 MemBlock3(
+    Gowin_SP_16384_8 MemBlock3(
         .clk(clk),
         .reset(rst),
         .dout(internal_data_out[31:24]),

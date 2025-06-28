@@ -72,7 +72,7 @@ module DataMemoryInterface(
         .rst(rst),
         .write_enable(DataMemoryWriteEnable),
         .mode(mode),
-        .address(address[11:0]),
+        .address(address[13:0]),
         .data_in(data_in),
         .data_out(MemoryDataOut)
     );
