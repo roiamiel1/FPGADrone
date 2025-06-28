@@ -19,6 +19,7 @@
         <File path="src/hardware/PCU.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/SDCard.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/UART.v" type="file.verilog" enable="1"/>
+        <File path="src/hardware/gowin_sp_4096_8/gowin_sp_4096_8.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/instruction_def.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/signal_def.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/drone.cst" type="file.cst" enable="1"/>
