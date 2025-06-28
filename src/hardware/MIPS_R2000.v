@@ -290,7 +290,7 @@ module MIPS_R2000 (
         .WriteBackRegAddr_out(U_EXMEMReg_WriteBackRegAddr_out)
     );
 
-    DataMemory U_DataMemory(
+    DataMemoryInterface U_DataMemory(
         .clk(clk),
         .rst(rst),
         .uartClk(uartTxClk),

@@ -8,6 +8,7 @@
         <File path="src/hardware/ALU.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/Control.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/DataMemory.v" type="file.verilog" enable="1"/>
+        <File path="src/hardware/DataMemoryInterface.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/EXMEMReg.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/ForwardingUnit.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/GPR.v" type="file.verilog" enable="1"/>
