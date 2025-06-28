@@ -1,168 +1,91 @@
 `include "signal_def.v"
 
-`define P_UART_CHAR  32'd1000
-`define P_UART_START 32'd1001
-`define P_UART_DONE  32'd1002
-`define P_UART_BUSY  32'd1003
-
-// states of SDReader state machine
-`define RESET               3'b001
-`define IDLE                3'b010
-`define START_READ_SECTOR   3'b011
-`define READ_SECTOR         3'b100
-`define STOP_READ_SECTOR    3'b101
-
-`define SECTORS_TO_READ 2'd1
-
 module DataMemory(
     input wire clk,
     input wire rst,
-    input wire uartClk,
-    input wire [31:0] address,
-    input wire [31:0] data_in, 
     input wire write_enable,
     input wire [1:0] mode,
-    output wire uart_tx_out,
-    output reg [31:0] data_out,
-    output sdclk,
-    inout sdcmd,
-    input sddat0
+    input wire [11:0] address,
+    input wire [31:0] data_in, 
+    output reg [31:0] data_out
 );
-    reg [31:0] memory [0:600];
-    
-    reg UART_Start = 0;
-    reg [7:0] UART_In = 8'b0;
-    wire UART_Done;
-    wire UART_Busy;
+    reg [3:0] internal_write_enable;
+    reg [11:0] internal_address;
+    reg [31:0] internal_data_in;
+    wire [31:0] internal_data_out;
 
-    reg [2:0] state = `RESET;
-    reg [2:0] SD_ReadedSectors;
-    reg SD_Rstart;
-    reg [31:0] SD_RSector;
-    wire SD_RBusy;
-    wire SD_RDone;
-    wire SD_Outen;
-    wire [8:0] SD_OutAddr;
-    wire [7:0] SD_OutByte;
-
-    initial begin
-        state   <= `RESET;
-        SD_ReadedSectors <= 2'b0;
-        SD_Rstart <= 1'b0;
-        SD_RSector <= 32'b0;
-    end
-
-    SDRreader U_SD_READER(
-        .rstn(!rst),
+    Gowin_SP_4096_8 MemBlock0(
         .clk(clk),
-        .sdclk(sdclk),
-        .sdcmd(sdcmd),
-        .sddat0(sddat0),
-        .card_stat(),
-        .card_type(),
-        // user read sector command interface (sync with clk)
-        .rstart(SD_Rstart),
-        .rsector(SD_RSector),
-        .rbusy(SD_RBusy),
-        .rdone(SD_RDone),
-        // sector data output interface (sync with clk)
-        .outen(SD_Outen),
-        .outaddr(SD_OutAddr),
-        .outbyte(SD_OutByte)
+        .reset(rst),
+        .dout(internal_data_out[7:0]),
+        .wre(internal_write_enable[0]),
+        .ad(internal_address),
+        .din(internal_data_in[7:0]),
+        .oce(1'b1),
+        .ce(1'b1)
+    );
+    
+    Gowin_SP_4096_8 MemBlock1(
+        .clk(clk),
+        .reset(rst),
+        .dout(internal_data_out[15:8]),
+        .wre(internal_write_enable[1]),
+        .ad(internal_address),
+        .din(internal_data_in[15:8]),
+        .oce(1'b1),
+        .ce(1'b1)
     );
 
-    Uart8Transmitter U_Uart(
-        .clk(uartClk),
-        .en(1'b1),
-        .start(UART_Start),
-        .in(UART_In),
-        .out(uart_tx_out),
-        .done(UART_Done),
-        .busy(UART_Busy)
+    Gowin_SP_4096_8 MemBlock2(
+        .clk(clk),
+        .reset(rst),
+        .dout(internal_data_out[23:16]),
+        .wre(internal_write_enable[2]),
+        .ad(internal_address),
+        .din(internal_data_in[23:16]),
+        .oce(1'b1),
+        .ce(1'b1)
     );
+
+    Gowin_SP_4096_8 MemBlock3(
+        .clk(clk),
+        .reset(rst),
+        .dout(internal_data_out[31:24]),
+        .wre(internal_write_enable[3]),
+        .ad(internal_address),
+        .din(internal_data_in[31:24]),
+        .oce(1'b1),
+        .ce(1'b1)
+    );
+
+    always @(posedge clk) begin
+        internal_address = address;
+
+        if (write_enable) begin
+            case (mode)
+                `DataMemoryMode_WORD:     internal_write_enable = 4'b1111;
+                `DataMemoryMode_HALFWORD: internal_write_enable = 4'b0011;
+                `DataMemoryMode_BYTE:     internal_write_enable = 4'b0001;
+            endcase
+            case (mode)
+                `DataMemoryMode_WORD:     internal_data_in = data_in;
+                `DataMemoryMode_HALFWORD: internal_data_in = {16'b0, data_in[15:0]};
+                `DataMemoryMode_BYTE:     internal_data_in = {24'b0, data_in[7:0]};
+            endcase
+        end else begin
+            internal_write_enable = 4'b0;
+            internal_data_in = 32'b0;
+        end
+    end
 
     always @(negedge clk) begin
         if (!write_enable) begin
-            case (address)
-                `P_UART_DONE: data_out <= {30'b0, UART_Done};
-                `P_UART_BUSY: data_out <= {30'b0, UART_Busy};
-                `P_UART_CHAR: data_out <= 31'b0;  // Read unallowd.
-                `P_UART_START: data_out <= 31'b0; // Read unallowd.
-                default: begin
-                    case (mode)
-                        `DataMemoryMode_WORD: data_out <= memory[address];
-                        `DataMemoryMode_HALFWORD: data_out <= {16'b0, memory[address][15:0]};
-                        `DataMemoryMode_BYTE: data_out <= {24'b0, memory[address][7:0]};
-                    endcase
-                end
+            case (mode)
+                `DataMemoryMode_WORD:     data_out = internal_data_out;
+                `DataMemoryMode_HALFWORD: data_out = {16'b0, internal_data_out[15:0]};
+                `DataMemoryMode_BYTE:     data_out <= {24'b0, internal_data_out[7:0]};
             endcase
         end
     end
 
-    always @(posedge clk) begin
-        if (write_enable) begin
-            case (address)
-                `P_UART_DONE: begin end // Write unallowd.
-                `P_UART_BUSY: begin end // Write unallowd.
-                `P_UART_CHAR: UART_In <= data_in[7:0];
-                `P_UART_START: UART_Start <= data_in[0];
-                default: begin
-                    case (mode)
-                        `DataMemoryMode_WORD: memory[address] <= data_in;
-                        `DataMemoryMode_HALFWORD: memory[address] <= {memory[address][31:16], data_in[15:0]};
-                        `DataMemoryMode_BYTE: memory[address] <= {memory[address][31:8], data_in[7:0]};
-                    endcase
-                end
-            endcase
-        end
-    end
-
-    always @(posedge clk) begin
-        case (state)
-            default: begin
-                state <= `IDLE;
-            end
-            
-            `RESET: begin
-                state   <= `IDLE;
-                SD_Rstart <= 1'b0;
-                SD_RSector <= 32'b0;
-            end
-
-            `IDLE: begin
-                if (SD_ReadedSectors < `SECTORS_TO_READ) begin
-                    state <= `START_READ_SECTOR;
-                end
-            end
-
-            `START_READ_SECTOR: begin
-                state <= `READ_SECTOR;
-                SD_RSector <= {29'b0, SD_ReadedSectors};
-                SD_Rstart <= 1'b1;
-            end
-
-            `READ_SECTOR: begin
-                if (SD_Outen) begin
-                    memory[(SD_ReadedSectors * 128) + (SD_OutAddr >> 2)] <= (
-                        memory[(SD_ReadedSectors * 128) + (SD_OutAddr >> 2)] | (
-                            ((SD_OutAddr & 2'b11) == 2'b00 ? {SD_OutByte, 24'b0} :
-                            ((SD_OutAddr & 2'b11) == 2'b01 ? {8'b0, SD_OutByte, 16'b0} :
-                            ((SD_OutAddr & 2'b11) == 2'b10 ? {16'b0, SD_OutByte, 8'b0} :
-                            {24'b0, SD_OutByte})))
-                        )
-                    );
-
-                    if (SD_OutAddr == 9'd511) begin
-                        SD_Rstart <= 1'b0;
-                        state <= `STOP_READ_SECTOR;
-                    end
-                end
-            end
-
-            `STOP_READ_SECTOR: begin
-                state <= `IDLE;
-                SD_ReadedSectors <= SD_ReadedSectors + 1'b1;
-            end
-        endcase
-    end
 endmodule
