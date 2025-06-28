@@ -12,13 +12,10 @@
 
 void main() {
     while (1) {
-        UART_PUTC('H');
-        UART_PUTC('e');
-        UART_PUTC('l');
-        UART_PUTC('l');
-        UART_PUTC('o');
-        UART_PUTC('!');
-        UART_PUTC(' ');
+        UART_PUTC(*((char*) 0));
+        UART_PUTC(*((char*) 1));
+        UART_PUTC(*((char*) 2));
+        UART_PUTC(*((char*) 3));
     }
     return;
 }

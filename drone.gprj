@@ -17,6 +17,7 @@
         <File path="src/hardware/MEMWBReg.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/MIPS_R2000.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/PCU.v" type="file.verilog" enable="1"/>
+        <File path="src/hardware/SDCard.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/UART.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/instruction_def.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/signal_def.v" type="file.verilog" enable="1"/>

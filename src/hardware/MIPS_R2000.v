@@ -7,7 +7,10 @@
 module MIPS_R2000 (
     input clk,
     input rst,
-    output uart_tx_out
+    output uart_tx_out,
+    output sdclk,
+    inout sdcmd,
+    input sddat0
 );
     parameter UART_MAX_RATE_TX = `CLOCK_RATE / (2 * `UART_BAUD_RATE);
     parameter UART_TX_CNT_WIDTH = $clog2(UART_MAX_RATE_TX);
@@ -155,7 +158,6 @@ module MIPS_R2000 (
         U_MEMWBReg_WriteBackValue   // Forward from MEM/WB
     );
     
-    // Modules section.
     PCU U_PCU(
         .clk(clk),
         .rst(rst),
@@ -290,6 +292,7 @@ module MIPS_R2000 (
 
     DataMemory U_DataMemory(
         .clk(clk),
+        .rst(rst),
         .uartClk(uartTxClk),
         .data_out(U_DataMemory_DataOut),
         .data_in(U_EXMEMReg_Reg2_out),
@@ -299,7 +302,10 @@ module MIPS_R2000 (
             U_EXMEMReg_SpecialOP_out == `SpecialOP_DM_HW ? `DataMemoryMode_HALFWORD :
             `DataMemoryMode_WORD
         )),
-        .uart_tx_out(uart_tx_out)
+        .uart_tx_out(uart_tx_out),
+        .sdclk(sdclk),
+        .sdcmd(sdcmd),
+        .sddat0(sddat0)
     );
 
     MEMWBReg U_MEMWBReg (

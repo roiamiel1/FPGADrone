@@ -5,10 +5,16 @@
 //Part Number: GW2AR-LV18QN88C8/I7
 //Device: GW2AR-18
 //Device Version: C
-//Created Time: Sat 06 28 00:06:26 2025
+//Created Time: Sat 06 28 01:27:55 2025
 
+IO_LOC "sdclk" 83;
+IO_PORT "sdclk" PULL_MODE=UP DRIVE=8 BANK_VCCIO=1.8;
 IO_LOC "uart_tx_out" 73;
 IO_PORT "uart_tx_out" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "sdcmd" 82;
+IO_PORT "sdcmd" PULL_MODE=UP DRIVE=8 BANK_VCCIO=1.8;
+IO_LOC "sddat0" 84;
+IO_PORT "sddat0" PULL_MODE=UP BANK_VCCIO=1.8;
 IO_LOC "rst" 88;
 IO_PORT "rst" PULL_MODE=UP BANK_VCCIO=1.8;
 IO_LOC "clk" 4;
