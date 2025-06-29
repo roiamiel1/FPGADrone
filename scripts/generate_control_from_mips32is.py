@@ -45,6 +45,7 @@ template = f"""// AUTO-GENERATED - DO NOT CHNAGE!
 
 module Control(
     input wire clk,
+    input wire rst,
     input wire [5:0] OpCode,
     input wire [5:0] Funct,
     output reg Jump,
@@ -74,8 +75,19 @@ module Control(
         SpecialOP <= 4'b0;
     end
 
-    always @(negedge clk) begin
-        {DATA_BLOCK}begin
+    always @(negedge clk, posedge rst) begin
+        if (rst) begin
+            Jump      <= 1'b0;
+            RegDst    <= 1'b0;
+            Branch    <= 1'b0;
+            MemRead   <= 1'b0;
+            MemWrite  <= 1'b0;
+            RegWrite  <= 1'b0;
+            ALUSrc    <= 1'b0;
+            ExtOp     <= 1'b0;
+            ALUOp     <= 5'b0;
+            SpecialOP <= 4'b0;
+        end else {DATA_BLOCK}begin
             // default case:
             Jump      <= 1'b0;
             RegDst    <= 1'b0;

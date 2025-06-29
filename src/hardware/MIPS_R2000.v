@@ -170,6 +170,8 @@ module MIPS_R2000 (
     // TODO: read from data memory.
     InstructionMemory U_InstructionMemory(
         .clk(clk),
+        .rst(rst),
+        .en(MemoryReady),
         // The `>> 2` is a hack cause InstructionMemory works with regualr indexes, 
         // i.e. 0, 1, 2, 3, etc... and not 4 multiplies.
         // In the future we will read the instructions from the data memory, till then let's keep it that way.
@@ -325,6 +327,7 @@ module MIPS_R2000 (
 
     Control U_Ctrl(
         .clk(clk),
+        .rst(rst),
         .OpCode(`OP(U_IFIDReg_Instr_out)),
         .Funct(`FUNCT(U_IFIDReg_Instr_out)),
         .RegDst(U_Ctrl_RegDst),
@@ -340,8 +343,11 @@ module MIPS_R2000 (
         .ExtOp(U_Ctrl_ExtOp)
     );
 
-    always @(posedge clk) begin
-        if (uartTxCounter == UART_MAX_RATE_TX) begin
+    always @(posedge clk, posedge rst) begin
+        if (rst) begin
+            uartTxClk <= 1'b0;
+            uartTxCounter <= 0;
+        end else if (uartTxCounter == UART_MAX_RATE_TX) begin
             uartTxCounter <= 0;
             uartTxClk <= ~uartTxClk;
         end else begin
