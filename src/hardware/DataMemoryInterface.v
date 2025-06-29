@@ -23,9 +23,10 @@ module DataMemoryInterface(
     input wire [31:0] address,
     input wire [31:0] data_in, 
     output wire [31:0] data_out,
+    output reg ready,
 
     // UART interface
-    input wire uartClk,
+    input wire uart_clk,
     output wire uart_tx_out,
 
     // SD card interface
@@ -67,6 +68,8 @@ module DataMemoryInterface(
         SD_ReadSectorIndex <= 2'b0;
         SD_Start <= 1'b0;
         SD_WordBuffer <= 32'b0;
+
+        ready <= 1'b0;
     end 
 
     // Assigns
@@ -90,8 +93,9 @@ module DataMemoryInterface(
     assign MemoryDataIn = !SD_OutAddrLast ? data_in : SD_WordBuffer;
 
     Uart8Transmitter U_Uart(
-        .clk(uartClk),
-        .en(1'b1),
+        .clk(uart_clk),
+        .rst(rst),
+        .en(ready),
         .start(UART_Start),
         .in(UART_In),
         .out(uart_tx_out),
@@ -139,50 +143,61 @@ module DataMemoryInterface(
         end
     end
 
-    always @(posedge clk) begin
-        case (SD_State)
-            `S_SD_RESET: begin
-                SD_State <= `S_SD_IDLE;
-                SD_Start <= 1'b0;
-                SD_ReadSectorIndex <= 32'b0;
-            end
-            `S_SD_IDLE: begin
-                if (SD_ReadSectorIndex < `SECTORS_TO_READ) begin
-                    // In case there are more sectors to read, read next sector
-                    SD_State <= `S_SD_START_READ_SECTOR;
+    always @(posedge clk, posedge rst) begin
+        if (rst) begin
+            SD_State <= `S_SD_RESET;
+            SD_Start <= 1'b0;
+            SD_ReadSectorIndex <= 32'b0;
+            SD_WordBuffer <= 32'b0;
+            ready <= 1'b0;
+        end else begin
+            case (SD_State)
+                `S_SD_RESET: begin
+                    SD_State <= `S_SD_IDLE;
+                    SD_Start <= 1'b0;
+                    SD_ReadSectorIndex <= 32'b0;
+                    ready <= 1'b0;
                 end
-            end
-            `S_SD_START_READ_SECTOR: begin
-                SD_State <= `S_SD_READ_SECTOR;
-                SD_Start <= 1'b1;
-            end
-            `S_SD_READ_SECTOR: begin
-                if (SD_OutEn) begin
-                    case (SD_OutAddrModulo4)
-                        2'b00: SD_WordBuffer <= SD_WordBuffer | SD_OutByte;
-                        2'b01: SD_WordBuffer <= SD_WordBuffer | {SD_OutByte, 8'b0};
-                        2'b10: SD_WordBuffer <= SD_WordBuffer | {SD_OutByte, 16'b0};
-                        2'b11: SD_WordBuffer <= SD_WordBuffer | {SD_OutByte, 24'b0};
-                    endcase
-
-                    if (SD_OutAddrLast) begin
-                        // Write SD_WordBuffer to 
-                        SD_WordBuffer <= 32'b0; // Reset buffer for next word
-                    end
-
-                    if (SD_OutAddr == `SD_LAST_SECTOR) begin
-                        SD_Start <= 1'b0;
-                        SD_State <= `S_SD_STOP_READ_SECTOR;
+                `S_SD_IDLE: begin
+                    if (SD_ReadSectorIndex < `SECTORS_TO_READ) begin
+                        // In case there are more sectors to read, read next sector
+                        SD_State <= `S_SD_START_READ_SECTOR;
+                    end else begin
+                        ready <= 1'b1;
                     end
                 end
-            end
-            `S_SD_STOP_READ_SECTOR: begin
-                SD_State <= `S_SD_IDLE;
-                SD_ReadSectorIndex <= SD_ReadSectorIndex + 1'b1;
-            end
-            default: begin
-                SD_State <= `S_SD_IDLE;
-            end
-        endcase
+                `S_SD_START_READ_SECTOR: begin
+                    SD_State <= `S_SD_READ_SECTOR;
+                    SD_Start <= 1'b1;
+                end
+                `S_SD_READ_SECTOR: begin
+                    if (SD_OutEn) begin
+                        case (SD_OutAddrModulo4)
+                            2'b00: SD_WordBuffer <= SD_WordBuffer | SD_OutByte;
+                            2'b01: SD_WordBuffer <= SD_WordBuffer | {SD_OutByte, 8'b0};
+                            2'b10: SD_WordBuffer <= SD_WordBuffer | {SD_OutByte, 16'b0};
+                            2'b11: SD_WordBuffer <= SD_WordBuffer | {SD_OutByte, 24'b0};
+                        endcase
+
+                        if (SD_OutAddrLast) begin
+                            // Write SD_WordBuffer to 
+                            SD_WordBuffer <= 32'b0; // Reset buffer for next word
+                        end
+
+                        if (SD_OutAddr == `SD_LAST_SECTOR) begin
+                            SD_Start <= 1'b0;
+                            SD_State <= `S_SD_STOP_READ_SECTOR;
+                        end
+                    end
+                end
+                `S_SD_STOP_READ_SECTOR: begin
+                    SD_State <= `S_SD_IDLE;
+                    SD_ReadSectorIndex <= SD_ReadSectorIndex + 1'b1;
+                end
+                default: begin
+                    SD_State <= `S_SD_IDLE;
+                end
+            endcase
+        end
     end
 endmodule

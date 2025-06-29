@@ -97,6 +97,7 @@ module MIPS_R2000 (
 
     // U_DataMemory connections.
     wire [31:0] U_DataMemory_DataOut;
+    wire MemoryReady;
 
     // U_ForwardingUnit connections.
     wire [2:0] ALUDataIn1Mux;
@@ -119,6 +120,7 @@ module MIPS_R2000 (
 
     initial begin
         uartTxClk = 1'b0;
+        uartTxCounter = 0;
     end
     
     // Sign Extender assigns.
@@ -161,6 +163,7 @@ module MIPS_R2000 (
     PCU U_PCU(
         .clk(clk),
         .rst(rst),
+        .en(MemoryReady),
         .PCSrc(U_PCU_PCSrc),
         .BranchAddress(U_EXMEMReg_BranchAddress_out),
         .PC(U_PCU_PC),
@@ -295,7 +298,8 @@ module MIPS_R2000 (
     DataMemoryInterface U_DataMemory(
         .clk(clk),
         .rst(rst),
-        .uartClk(uartTxClk),
+        .ready(MemoryReady),
+        .uart_clk(uartTxClk),
         .data_out(U_DataMemory_DataOut),
         .data_in(U_EXMEMReg_Reg2_out),
         .write_enable(U_EXMEMReg_MemWrite_out),
