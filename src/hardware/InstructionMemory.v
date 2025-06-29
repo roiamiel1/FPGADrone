@@ -3,12 +3,20 @@
 `ifndef DEBUG
 module InstructionMemory (
     input wire clk,
+    input wire rst,
+    input wire en,
     input wire [31:0] IMAdress,
     output reg [31:0] IR
 );
+    initial begin
+        IR <= 32'b0;
+    end
 
-    always @(negedge clk) begin
-        IR <= (IMAdress == 32'h00000000) ? 32'h27bdfff8 :
+    always @(negedge clk, posedge rst) begin
+        if (rst || !en) begin
+            IR <= 32'b0;
+        end else begin
+            IR <= (IMAdress == 32'h00000000) ? 32'h27bdfff8 :
          (IMAdress == 32'h00000001) ? 32'hafbe0004 :
          (IMAdress == 32'h00000002) ? 32'h03a0f025 :
          (IMAdress == 32'h00000003) ? 32'h00001825 :
@@ -157,19 +165,30 @@ module InstructionMemory (
          (IMAdress == 32'h00000092) ? 32'h1000ff70 :
          (IMAdress == 32'h00000093) ? 32'h00000000 :
          32'h00000000;
+        end
     end
 
 endmodule
 `else
 module InstructionMemory(
     input wire clk,
+    input wire rst,
+    input wire en,
     input wire [31:0] IMAdress,
     output reg [31:0] IR
 );
     reg [31:0] IMem [1023:0];
 
-    always @(negedge clk) begin
-        IR <= IMem[IMAdress];
+    initial begin
+        IR <= 32'b0;
+    end
+    
+    always @(negedge clk, posedge rst) begin
+        if (en && !rst) begin
+            IR <= IMem[IMAdress];
+        end else begin
+            IR <= 32'b0;
+        end
     end
     
 endmodule
