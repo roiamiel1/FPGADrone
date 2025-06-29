@@ -17,7 +17,7 @@ add_file -type verilog src/hardware/signal_def.v
 add_file -type verilog src/hardware/DataMemory.v
 add_file -type verilog src/hardware/UART.v
 add_file -type verilog src/hardware/SDCard.v
-add_file -type verilog src/hardware/gowin_sp_16384_8/gowin_sp_16384_8.v
+add_file -type verilog src/hardware/gowin_dpb_16384_8/gowin_dpb_16384_8.v
 add_file -type cst src/hardware/drone.cst
 add_file -type sdc src/drone.sdc
 run all

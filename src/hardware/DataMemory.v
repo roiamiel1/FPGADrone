@@ -14,48 +14,88 @@ module DataMemory(
     reg [31:0] internal_data_in;
     wire [31:0] internal_data_out;
 
-    Gowin_SP_16384_8 MemBlock0(
-        .clk(clk),
-        .reset(rst),
-        .dout(internal_data_out[7:0]),
-        .wre(internal_write_enable[0]),
-        .ad(internal_address),
-        .din(internal_data_in[7:0]),
-        .oce(1'b1),
-        .ce(1'b1)
+    Gowin_DPB_16384_8 MemBlock0(
+        // Port A
+        .clka(clk),
+        .reseta(rst),
+        .ocea(1'b1),
+        .cea(1'b1),
+        .ada(internal_address),
+        .wrea(internal_write_enable[0]),
+        .douta(internal_data_out[7:0]),
+        .dina(internal_data_in[7:0]),
+        // Port B
+        .clkb(clk),
+        .resetb(rst),
+        .oceb(1'b1),
+        .ceb(1'b1),
+        .adb(14'b0),
+        .wreb(1'b0),
+        .doutb(),
+        .dinb(8'b0)
     );
     
-    Gowin_SP_16384_8 MemBlock1(
-        .clk(clk),
-        .reset(rst),
-        .dout(internal_data_out[15:8]),
-        .wre(internal_write_enable[1]),
-        .ad(internal_address),
-        .din(internal_data_in[15:8]),
-        .oce(1'b1),
-        .ce(1'b1)
+    Gowin_DPB_16384_8 MemBlock1(
+        // Port A
+        .clka(clk),
+        .reseta(rst),
+        .ocea(1'b1),
+        .cea(1'b1),
+        .ada(internal_address),
+        .wrea(internal_write_enable[1]),
+        .douta(internal_data_out[15:8]),
+        .dina(internal_data_in[15:8]),
+        // Port B
+        .clkb(clk),
+        .resetb(rst),
+        .oceb(1'b1),
+        .ceb(1'b1),
+        .adb(14'b0),
+        .wreb(1'b0),
+        .doutb(),
+        .dinb(8'b0)
     );
 
-    Gowin_SP_16384_8 MemBlock2(
-        .clk(clk),
-        .reset(rst),
-        .dout(internal_data_out[23:16]),
-        .wre(internal_write_enable[2]),
-        .ad(internal_address),
-        .din(internal_data_in[23:16]),
-        .oce(1'b1),
-        .ce(1'b1)
+    Gowin_DPB_16384_8 MemBlock2(
+        // Port A
+        .clka(clk),
+        .reseta(rst),
+        .ocea(1'b1),
+        .cea(1'b1),
+        .ada(internal_address),
+        .wrea(internal_write_enable[2]),
+        .douta(internal_data_out[23:16]),
+        .dina(internal_data_in[23:16]),
+        // Port B
+        .clkb(clk),
+        .resetb(rst),
+        .oceb(1'b1),
+        .ceb(1'b1),
+        .adb(14'b0),
+        .wreb(1'b0),
+        .doutb(),
+        .dinb(8'b0)
     );
 
-    Gowin_SP_16384_8 MemBlock3(
-        .clk(clk),
-        .reset(rst),
-        .dout(internal_data_out[31:24]),
-        .wre(internal_write_enable[3]),
-        .ad(internal_address),
-        .din(internal_data_in[31:24]),
-        .oce(1'b1),
-        .ce(1'b1)
+    Gowin_DPB_16384_8 MemBlock3(
+        // Port A
+        .clka(clk),
+        .reseta(rst),
+        .ocea(1'b1),
+        .cea(1'b1),
+        .ada(internal_address),
+        .wrea(internal_write_enable[3]),
+        .douta(internal_data_out[31:24]),
+        .dina(internal_data_in[31:24]),
+        // Port B
+        .clkb(clk),
+        .resetb(rst),
+        .oceb(1'b1),
+        .ceb(1'b1),
+        .adb(14'b0),
+        .wreb(1'b0),
+        .doutb(),
+        .dinb(8'b0)
     );
 
     always @(posedge clk) begin
