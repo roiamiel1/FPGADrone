@@ -28,6 +28,7 @@ HW_SRCS := $(shell find $(SRC_HW_PATH) -type f -name \*.v -exec basename {} \;)
 
 # SW Paths
 SW_BINARY_PATH := $(BUILD_SW_PATH)/build.out
+SW_IMAGE_PATH := $(BUILD_SW_PATH)/image.out
 SW_SHELLCODE_PATH := $(BUILD_SW_PATH)/build.shellcode
 SW_HEX_PATH := $(BUILD_SW_PATH)/build.hex
 SW_SHELLCODE_TEXT_PATH := $(SW_SHELLCODE_PATH).text
@@ -49,9 +50,9 @@ PYTHON := $(shell which python3 || which python)
 OPEN_FPGA_LOADER := $(shell which openFPGALoader) -b $(HW_BOARD_NAME)
 IVERILOG = $(shell which iverilog)
 
-RUN_IN_DOCKER = $(DOCKER) run --rm -it -w /$(PROJECT_NAME) -v ./:/$(PROJECT_NAME)
+RUN_IN_DOCKER = $(DOCKER) run --rm -it -w /$(PROJECT_NAME) -v ./:/$(PROJECT_NAME):delegated
 MIPS_COMPILER_RUN = $(RUN_IN_DOCKER) mips_compiler
-GOWIN_BUILDER_RUN = $(RUN_IN_DOCKER) -v $(HW_IMPL_PATH):/$(PROJECT_NAME)/impl gowin_builder
+GOWIN_BUILDER_RUN = $(RUN_IN_DOCKER) -v $(HW_IMPL_PATH):/$(PROJECT_NAME)/impl:delegated gowin_builder
 MIPS_AS = $(MIPS_COMPILER_RUN) mips-linux-gnu-as -mips1 -march=r2000 -O0
 MIPS_OBJCOPY = $(MIPS_COMPILER_RUN) mips-linux-gnu-objcopy
 MIPS_OBJDUMP = $(MIPS_COMPILER_RUN) mips-linux-gnu-objdump
@@ -80,8 +81,19 @@ sw-build-asm:
 	make sw-build
 
 sw-build-c:
+	mkdir -p $(BUILD_SW_PATH)
 	$(MIPS_GCC) -o $(SW_BINARY_PATH) $(SW_SRCS_C)
 	make sw-build
+
+sw-burn:
+	dd if=$(SW_SHELLCODE_PATH) of=/dev/disk2 oflag=sync
+
+sw-build-and-burn : sw-build-c
+	make sw-burn
+
+elf:
+	$(MIPS_GCC) -o $(SW_BINARY_PATH) $(SW_SRCS_C)
+	$(PYTHON) scripts/offline_elf_loader.py $(SW_BINARY_PATH) $(SW_IMAGE_PATH)
 
 # ------------------------- Hardware ------------------------- #
 
