@@ -15,6 +15,7 @@ add_file -type verilog src/hardware/PCU.v
 add_file -type verilog src/hardware/instruction_def.v
 add_file -type verilog src/hardware/signal_def.v
 add_file -type verilog src/hardware/DataMemory.v
+add_file -type verilog src/hardware/DataMemoryInterface.v
 add_file -type verilog src/hardware/UART.v
 add_file -type verilog src/hardware/SDCard.v
 add_file -type verilog src/hardware/gowin_dpb_16384_8/gowin_dpb_16384_8.v
