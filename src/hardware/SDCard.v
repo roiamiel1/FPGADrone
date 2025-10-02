@@ -152,7 +152,11 @@ module SDRreader # (
                                         // when clk =  50~100MHz , set CLK_DIV = 3'd3,
                                         // when clk = 100~200MHz , set CLK_DIV = 3'd4,
                                         // ......
+`ifndef DEBUG
     parameter       SIMULATE = 0
+`else
+    parameter       SIMULATE = 1
+`endif
 ) (
     // rstn active-low, 1:working, 0:reset
     input  wire         rstn,

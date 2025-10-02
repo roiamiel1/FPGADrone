@@ -24,7 +24,7 @@ BUILD_HW_TEST_PATH := $(BUILD_HW_PATH)/tests
 # Src files
 SW_SRCS_C := $(shell find $(SRC_SW_PATH) -type f -name *.c)
 SW_SRCS_ASM := $(shell find $(SRC_SW_PATH) -type f -name *.asm)
-HW_SRCS := $(shell find $(SRC_HW_PATH) -type f -name \*.v -exec basename {} \;)
+HW_SRCS := $(shell find $(SRC_HW_PATH) -type f -name "*.v" | sed "s|^$(SRC_HW_PATH)/||")
 
 # SW Paths
 SW_BINARY_PATH := $(BUILD_SW_PATH)/build.out
@@ -118,7 +118,7 @@ hw-gen-rom32:
 
 hw-run-test:
 # Run the test
-	cd $(SRC_HW_PATH); $(IVERILOG) -DDEBUG=1 -g2001 -Wall -o $(SRC_HW_PATH_BACKWARDS)/$(BUILD_PATH)/test.vvp $(HW_SRCS) $(SRC_HW_PATH_BACKWARDS)/$(TEST_PATH)/tb.v
+	cd $(SRC_HW_PATH); $(IVERILOG) -DDEBUG=1 -g2001 -Wall -o $(SRC_HW_PATH_BACKWARDS)/$(BUILD_PATH)/test.vvp $(HW_SRCS) $(shell cd $(SRC_HW_PATH); find $(SRC_HW_PATH_BACKWARDS)/$(TEST_PATH) -type f -name "*.v") 
 	$(VVP) $(BUILD_PATH)/test.vvp | tee $(BUILD_PATH)/test.log
 
 # Run gtkwave
@@ -157,6 +157,14 @@ hw-test-uart:
 	$(MIPS_OBJCOPY) --dump-section .text=$(BUILD_PATH)/test.shellcode $(BUILD_PATH)/test.out
 	$(MIPS_OBJDUMP) -d -M no-aliases $(BUILD_PATH)/test.out > $(BUILD_PATH)/test.text
 	$(XXD) -c 4 -p $(BUILD_PATH)/test.shellcode > $(BUILD_PATH)/test.hex
+
+	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(TEST_PATH)
+
+hw-run-startup-test:
+	$(eval BUILD_PATH := $(BUILD_HW_TEST_PATH)/startup_test)
+	$(eval TEST_PATH := $(TESTS_HW_PATH)/startup_test)
+
+	mkdir -p $(BUILD_PATH)
 
 	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(TEST_PATH)
 

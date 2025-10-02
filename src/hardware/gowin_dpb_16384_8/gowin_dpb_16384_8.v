@@ -6,6 +6,7 @@
 //Device: GW2AR-18
 //Device Version: C
 //Created Time: Sun Jun 29 23:28:15 2025
+`ifndef DEBUG
 
 module Gowin_DPB_16384_8 (douta, doutb, clka, ocea, cea, reseta, wrea, clkb, oceb, ceb, resetb, wreb, ada, dina, adb, dinb);
 
@@ -295,3 +296,59 @@ defparam dpb_inst_7.BLK_SEL_1 = 3'b000;
 defparam dpb_inst_7.RESET_MODE = "SYNC";
 
 endmodule //Gowin_DPB_16384_8
+
+`else
+// Testbench model
+module Gowin_DPB_16384_8 (
+    output wire [7:0] douta,
+    output wire [7:0] doutb,
+    input wire clka,
+    input wire ocea,
+    input wire cea,
+    input wire reseta,
+    input wire wrea,
+    input wire clkb,
+    input wire oceb,
+    input wire ceb,
+    input wire resetb,
+    input wire wreb,
+    input wire [13:0] ada,
+    input wire [7:0] dina,
+    input wire [13:0] adb,
+    input wire [7:0] dinb
+);
+    integer i;
+
+    // Memory declaration: 16384 x 8 bits
+    reg [7:0] mem [0:16383];
+
+    assign douta = mem[ada];
+    assign doutb = mem[adb];
+
+    initial begin
+        for (i = 0; i < 16384; i = i + 1) begin
+            mem[i] = 8'b0;
+        end
+    end
+    
+    // Port A: Write/Read Logic
+    always @(posedge clka) begin
+        if (cea) begin
+            if (wrea) begin
+                mem[ada] <= dina;
+            end
+        end
+    end
+
+    // Port B: Write/Read Logic
+    always @(posedge clkb) begin
+        if (ceb) begin
+            if (wreb) begin
+                mem[adb] <= dinb;
+            end
+        end
+    end
+
+endmodule
+
+`endif
