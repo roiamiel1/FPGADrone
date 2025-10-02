@@ -75,6 +75,9 @@ sw-build:
 	$(MIPS_OBJDUMP) -d -M no-aliases $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
 	$(MIPS_READELF) --all $(SW_BINARY_PATH) > $(SW_READELF_TEXT_PATH)
 	$(XXD) -c 4 -p $(SW_SHELLCODE_PATH) > $(SW_HEX_PATH)
+	dd if=/dev/zero bs=4 count=30 of=$(BUILD_SW_PATH)/padding.bin
+	cat $(BUILD_SW_PATH)/padding.bin $(SW_SHELLCODE_PATH) > $(SW_SHELLCODE_PATH).tmp
+	mv $(SW_SHELLCODE_PATH).tmp $(SW_SHELLCODE_PATH)
 
 sw-build-asm:
 	$(MIPS_AS) -o $(SW_BINARY_PATH) $(SW_SRCS_ASM)
@@ -82,7 +85,8 @@ sw-build-asm:
 
 sw-build-c:
 	mkdir -p $(BUILD_SW_PATH)
-	$(MIPS_GCC) -o $(SW_BINARY_PATH) $(SW_SRCS_C)
+	$(MIPS_GCC) -o $(SW_BINARY_PATH).o -ffreestanding -ffunction-sections -c $(SW_SRCS_C)
+	$(MIPS_GCC) -T ./scripts/linker.ld -Wl,--nmagic -o $(SW_BINARY_PATH) -Wl,-Map=$(SW_BINARY_PATH).map $(SW_BINARY_PATH).o
 	make sw-build
 
 sw-burn:
