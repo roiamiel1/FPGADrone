@@ -73,7 +73,6 @@ endif
 sw-build:
 	$(MIPS_OBJCOPY) --dump-section .text=$(SW_SHELLCODE_PATH) $(SW_BINARY_PATH)
 	$(MIPS_OBJDUMP) -d -M no-aliases $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
-	$(MIPS_READELF) --all $(SW_BINARY_PATH) > $(SW_READELF_TEXT_PATH)
 	$(XXD) -c 4 -p $(SW_SHELLCODE_PATH) > $(SW_HEX_PATH)
 	dd if=/dev/zero bs=4 count=30 of=$(BUILD_SW_PATH)/padding.bin
 	cat $(BUILD_SW_PATH)/padding.bin $(SW_SHELLCODE_PATH) > $(SW_SHELLCODE_PATH).tmp
@@ -85,19 +84,17 @@ sw-build-asm:
 
 sw-build-c:
 	mkdir -p $(BUILD_SW_PATH)
-	$(MIPS_GCC) -o $(SW_BINARY_PATH).o -ffreestanding -ffunction-sections -c $(SW_SRCS_C)
+	$(MIPS_GCC) -g -o $(SW_BINARY_PATH).o -ffreestanding -ffunction-sections -c $(SW_SRCS_C)
 	$(MIPS_GCC) -T ./scripts/linker.ld -Wl,--nmagic -o $(SW_BINARY_PATH) -Wl,-Map=$(SW_BINARY_PATH).map $(SW_BINARY_PATH).o
-	make sw-build
+	$(MIPS_READELF) --all $(SW_BINARY_PATH) > $(SW_READELF_TEXT_PATH)
 
-sw-burn:
-	dd if=$(SW_SHELLCODE_PATH) of=/dev/disk2 oflag=sync
+elf : sw-build-c
+	$(PYTHON) scripts/offline_elf_loader.py --elf $(SW_BINARY_PATH) --image $(SW_IMAGE_PATH)
+	$(MIPS_OBJDUMP) -S -d $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
 
-sw-build-and-burn : sw-build-c
-	make sw-burn
 
-elf:
-	$(MIPS_GCC) -o $(SW_BINARY_PATH) $(SW_SRCS_C)
-	$(PYTHON) scripts/offline_elf_loader.py $(SW_BINARY_PATH) $(SW_IMAGE_PATH)
+sw-burn : elf
+	dd if=$(SW_IMAGE_PATH) of=/dev/disk2 oflag=sync
 
 # ------------------------- Hardware ------------------------- #
 
@@ -159,6 +156,9 @@ hw-test-uart:
 	$(XXD) -c 4 -p $(BUILD_PATH)/test.shellcode > $(BUILD_PATH)/test.hex
 
 	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(TEST_PATH)
+
+hw-software-rom:
+	$(PYTHON) scripts/generate_rom_switch_case.py $(SW_IMAGE_PATH)
 
 hw-run-startup-test:
 	$(eval BUILD_PATH := $(BUILD_HW_TEST_PATH)/startup_test)

@@ -12,25 +12,21 @@
 
 __attribute__((section(".text")))
 void main() {
-    /*
-    *((char*) 2000) = 'H';
-    *((char*) 2001) = 'e';
-    *((char*) 2002) = 'l';
-    *((char*) 2003) = 'l';
-    *((char*) 2004) = 'o';
-    *((char*) 2005) = '!';
-    *((char*) 2006) = ' ';
-    */
+    char msg[] = "Roi Was Here! \n";
+
+    UART_PUTC('A');
+    UART_PUTC('a');
+    UART_PUTC('1');
 
     while (1) {
-       UART_PUTC('H');
-       UART_PUTC('e');
-       UART_PUTC('l');
-       UART_PUTC('l');
-       UART_PUTC('o');
-       UART_PUTC('!');
-       UART_PUTC(' ');
-       UART_PUTC('\n');
+        UART_PUTC(msg[0]);
+        UART_PUTC(msg[1]);
+        UART_PUTC(msg[2]);
+        UART_PUTC(msg[3]);
+        UART_PUTC(msg[4]);
+        UART_PUTC(msg[5]);
+        UART_PUTC(msg[6]);
+        UART_PUTC(msg[7]);
     }
     return;
 }
