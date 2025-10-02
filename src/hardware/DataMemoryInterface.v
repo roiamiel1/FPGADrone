@@ -142,7 +142,7 @@ module DataMemoryInterface(
         .card_type(/* ignore */),
         // Read sector command input (sync with clk)
         .rstart(SD_Start),
-        .rsector({29'b0, SD_ReadSectorIndex}),
+        .rsector({26'b0, SD_ReadSectorIndex}),
         .rbusy(SD_Busy),
         .rdone(SD_Done),
         // Read sector command output (sync with clk)
