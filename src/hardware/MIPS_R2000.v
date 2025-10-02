@@ -170,20 +170,6 @@ module MIPS_R2000 (
         .NextPC(U_PCU_NextPC)
     );
 
-    // TODO: read from data memory.
-    /*
-    InstructionMemory U_InstructionMemory(
-        .clk(clk),
-        .rst(rst),
-        .en(MemoryReady),
-        // The `>> 2` is a hack cause InstructionMemory works with regualr indexes, 
-        // i.e. 0, 1, 2, 3, etc... and not 4 multiplies.
-        // In the future we will read the instructions from the data memory, till then let's keep it that way.
-        .IMAdress(U_PCU_PC >> 2),
-        .IR(U_InstructionMemory_IR)
-    );
-    */
-
     IFIDReg U_IFIDReg(
         .clk(clk),
         .rst(rst),
@@ -311,10 +297,7 @@ module MIPS_R2000 (
         .data_in(U_EXMEMReg_Reg2_out),
         .data_out(U_DataMemory_DataOut),
         .ready(MemoryReady),
-
-        // Instruction memory interface
-        // The `>> 2` is a hack cause InstructionMemory works with regualr indexes, 
-        // i.e. 0, 1, 2, 3, etc... and not 4 multiplies.
+        
         .IMAdress(U_PCU_PC >> 2),
         .IR(U_InstructionMemory_IR),
 
