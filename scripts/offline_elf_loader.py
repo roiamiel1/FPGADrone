@@ -3,8 +3,7 @@ import argparse
 from colorama import Fore, Back, Style
 from elftools.elf.elffile import ELFFile
 
-STACK_BASE_ADDR = 0x3fff
-PT_MIPS_REGINFO = 0x70000000  # MIPS-specific
+STACK_BASE_ADDR = 0x3ff0
 
 SP = 29
 FP = 30

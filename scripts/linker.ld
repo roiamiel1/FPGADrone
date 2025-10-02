@@ -1,6 +1,6 @@
 ENTRY(main)
 
-_stack_top = 0x3fff;
+_stack_top = 0x3ff0;
 
 SECTIONS {
   . = 0x00000000;
@@ -11,6 +11,10 @@ SECTIONS {
 
   .data : {
     *(.data)
+  }
+
+  .rodata : {
+    *(.rodata)
   }
 
   .bss : {

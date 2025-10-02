@@ -120,7 +120,7 @@ module DataMemoryInterface(
         // Read Write Main Interface
         .write_enable_a(DataMemoryWriteEnable),
         .mode_a(DataMemoryMode),
-        .address_a(DataMemoryAddress),
+        .address_a(ready ? DataMemoryAddress >> 2 : DataMemoryAddress), // WTF?!?!?!??!?!
         .data_in_a(DataMemoryIn),
         .data_out_a(MemoryDataOut),
         // Read Instruction Memory Interface
