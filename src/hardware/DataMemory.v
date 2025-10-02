@@ -3,16 +3,30 @@
 module DataMemory(
     input wire clk,
     input wire rst,
-    input wire write_enable,
-    input wire [1:0] mode,
-    input wire [13:0] address,
-    input wire [31:0] data_in, 
-    output reg [31:0] data_out
+    // Port A
+    input wire write_enable_a,
+    input wire [1:0] mode_a,
+    input wire [13:0] address_a,
+    input wire [31:0] data_in_a, 
+    output reg [31:0] data_out_a,
+    // Port B
+    input wire write_enable_b,
+    input wire [1:0] mode_b,
+    input wire [13:0] address_b,
+    input wire [31:0] data_in_b, 
+    output reg [31:0] data_out_b
 );
-    reg [3:0] internal_write_enable;
-    reg [13:0] internal_address;
-    reg [31:0] internal_data_in;
-    wire [31:0] internal_data_out;
+    // Internal signals for Port A
+    reg [3:0] internal_write_enable_a;
+    reg [13:0] internal_address_a;
+    reg [31:0] internal_data_in_a;
+    wire [31:0] internal_data_out_a;
+
+    // Internal signals for Port B
+    reg [3:0] internal_write_enable_b;
+    reg [13:0] internal_address_b;
+    reg [31:0] internal_data_in_b;
+    wire [31:0] internal_data_out_b;
 
     Gowin_DPB_16384_8 MemBlock0(
         // Port A
@@ -20,19 +34,19 @@ module DataMemory(
         .reseta(rst),
         .ocea(1'b1),
         .cea(1'b1),
-        .ada(internal_address),
-        .wrea(internal_write_enable[0]),
-        .douta(internal_data_out[7:0]),
-        .dina(internal_data_in[7:0]),
+        .ada(internal_address_a),
+        .wrea(internal_write_enable_a[0]),
+        .douta(internal_data_out_a[7:0]),
+        .dina(internal_data_in_a[7:0]),
         // Port B
         .clkb(clk),
         .resetb(rst),
         .oceb(1'b1),
         .ceb(1'b1),
-        .adb(14'b0),
-        .wreb(1'b0),
-        .doutb(),
-        .dinb(8'b0)
+        .adb(internal_address_b),
+        .wreb(internal_write_enable_b[0]),
+        .doutb(internal_data_out_b[7:0]),
+        .dinb(internal_data_in_b[7:0])
     );
     
     Gowin_DPB_16384_8 MemBlock1(
@@ -41,19 +55,19 @@ module DataMemory(
         .reseta(rst),
         .ocea(1'b1),
         .cea(1'b1),
-        .ada(internal_address),
-        .wrea(internal_write_enable[1]),
-        .douta(internal_data_out[15:8]),
-        .dina(internal_data_in[15:8]),
+        .ada(internal_address_a),
+        .wrea(internal_write_enable_a[1]),
+        .douta(internal_data_out_a[15:8]),
+        .dina(internal_data_in_a[15:8]),
         // Port B
         .clkb(clk),
         .resetb(rst),
         .oceb(1'b1),
         .ceb(1'b1),
-        .adb(14'b0),
-        .wreb(1'b0),
-        .doutb(),
-        .dinb(8'b0)
+        .adb(internal_address_b),
+        .wreb(internal_write_enable_b[1]),
+        .doutb(internal_data_out_b[15:8]),
+        .dinb(internal_data_in_b[15:8])
     );
 
     Gowin_DPB_16384_8 MemBlock2(
@@ -62,19 +76,19 @@ module DataMemory(
         .reseta(rst),
         .ocea(1'b1),
         .cea(1'b1),
-        .ada(internal_address),
-        .wrea(internal_write_enable[2]),
-        .douta(internal_data_out[23:16]),
-        .dina(internal_data_in[23:16]),
+        .ada(internal_address_a),
+        .wrea(internal_write_enable_a[2]),
+        .douta(internal_data_out_a[23:16]),
+        .dina(internal_data_in_a[23:16]),
         // Port B
         .clkb(clk),
         .resetb(rst),
         .oceb(1'b1),
         .ceb(1'b1),
-        .adb(14'b0),
-        .wreb(1'b0),
-        .doutb(),
-        .dinb(8'b0)
+        .adb(internal_address_b),
+        .wreb(internal_write_enable_b[2]),
+        .doutb(internal_data_out_b[23:16]),
+        .dinb(internal_data_in_b[23:16])
     );
 
     Gowin_DPB_16384_8 MemBlock3(
@@ -83,47 +97,72 @@ module DataMemory(
         .reseta(rst),
         .ocea(1'b1),
         .cea(1'b1),
-        .ada(internal_address),
-        .wrea(internal_write_enable[3]),
-        .douta(internal_data_out[31:24]),
-        .dina(internal_data_in[31:24]),
+        .ada(internal_address_a),
+        .wrea(internal_write_enable_a[3]),
+        .douta(internal_data_out_a[31:24]),
+        .dina(internal_data_in_a[31:24]),
         // Port B
         .clkb(clk),
         .resetb(rst),
         .oceb(1'b1),
         .ceb(1'b1),
-        .adb(14'b0),
-        .wreb(1'b0),
-        .doutb(),
-        .dinb(8'b0)
+        .adb(internal_address_b),
+        .wreb(internal_write_enable_b[3]),
+        .doutb(internal_data_out_b[31:24]),
+        .dinb(internal_data_in_b[31:24])
     );
 
     always @(posedge clk) begin
-        internal_address = address;
+        internal_address_a = address_a;
+        internal_address_b = address_b;
 
-        if (write_enable) begin
-            case (mode)
-                `DataMemoryMode_WORD:     internal_write_enable = 4'b1111;
-                `DataMemoryMode_HALFWORD: internal_write_enable = 4'b0011;
-                `DataMemoryMode_BYTE:     internal_write_enable = 4'b0001;
+        if (write_enable_a) begin
+            case (mode_a)
+                `DataMemoryMode_WORD:     internal_write_enable_a = 4'b1111;
+                `DataMemoryMode_HALFWORD: internal_write_enable_a = 4'b0011;
+                `DataMemoryMode_BYTE:     internal_write_enable_a = 4'b0001;
             endcase
-            case (mode)
-                `DataMemoryMode_WORD:     internal_data_in = data_in;
-                `DataMemoryMode_HALFWORD: internal_data_in = {16'b0, data_in[15:0]};
-                `DataMemoryMode_BYTE:     internal_data_in = {24'b0, data_in[7:0]};
+            case (mode_a)
+                `DataMemoryMode_WORD:     internal_data_in_a = data_in_a;
+                `DataMemoryMode_HALFWORD: internal_data_in_a = {16'b0, data_in_a[15:0]};
+                `DataMemoryMode_BYTE:     internal_data_in_a = {24'b0, data_in_a[7:0]};
             endcase
         end else begin
-            internal_write_enable = 4'b0;
-            internal_data_in = 32'b0;
+            internal_write_enable_a = 4'b0;
+            internal_data_in_a = 32'b0;
+        end
+
+        if (write_enable_b) begin
+            case (mode_b)
+                `DataMemoryMode_WORD:     internal_write_enable_b = 4'b1111;
+                `DataMemoryMode_HALFWORD: internal_write_enable_b = 4'b0011;
+                `DataMemoryMode_BYTE:     internal_write_enable_b = 4'b0001;
+            endcase
+            case (mode_b)
+                `DataMemoryMode_WORD:     internal_data_in_b = data_in_b;
+                `DataMemoryMode_HALFWORD: internal_data_in_b = {16'b0, data_in_b[15:0]};
+                `DataMemoryMode_BYTE:     internal_data_in_b = {24'b0, data_in_b[7:0]};
+            endcase
+        end else begin
+            internal_write_enable_b = 4'b0;
+            internal_data_in_b = 32'b0;
         end
     end
 
     always @(negedge clk) begin
-        if (!write_enable) begin
-            case (mode)
-                `DataMemoryMode_WORD:     data_out = internal_data_out;
-                `DataMemoryMode_HALFWORD: data_out = {16'b0, internal_data_out[15:0]};
-                `DataMemoryMode_BYTE:     data_out <= {24'b0, internal_data_out[7:0]};
+        if (!write_enable_a) begin
+            case (mode_a)
+                `DataMemoryMode_WORD:     data_out_a = internal_data_out_a;
+                `DataMemoryMode_HALFWORD: data_out_a = {16'b0, internal_data_out_a[15:0]};
+                `DataMemoryMode_BYTE:     data_out_a <= {24'b0, internal_data_out_a[7:0]};
+            endcase
+        end
+
+        if (!write_enable_b) begin
+            case (mode_b)
+                `DataMemoryMode_WORD:     data_out_b = internal_data_out_b;
+                `DataMemoryMode_HALFWORD: data_out_b = {16'b0, internal_data_out_b[15:0]};
+                `DataMemoryMode_BYTE:     data_out_b <= {24'b0, internal_data_out_b[7:0]};
             endcase
         end
     end

@@ -171,6 +171,7 @@ module MIPS_R2000 (
     );
 
     // TODO: read from data memory.
+    /*
     InstructionMemory U_InstructionMemory(
         .clk(clk),
         .rst(rst),
@@ -181,13 +182,14 @@ module MIPS_R2000 (
         .IMAdress(U_PCU_PC >> 2),
         .IR(U_InstructionMemory_IR)
     );
+    */
 
     IFIDReg U_IFIDReg(
         .clk(clk),
         .rst(rst),
         .HazardFlush(HazardFlushRegs),
         .PC_in(U_PCU_NextPC),
-        .Instr_in(U_InstructionMemory_IR),
+        .Instr_in(MemoryReady ? U_InstructionMemory_IR : 32'b0),
         .PC_out(U_IFIDReg_PC_out),
         .Instr_out(U_IFIDReg_Instr_out)
     );
@@ -298,17 +300,29 @@ module MIPS_R2000 (
     DataMemoryInterface U_DataMemory(
         .clk(clk),
         .rst(rst),
-        .ready(MemoryReady),
-        .uart_clk(uartTxClk),
-        .data_out(U_DataMemory_DataOut),
-        .data_in(U_EXMEMReg_Reg2_out),
+
+        // Data memory interface
         .write_enable(U_EXMEMReg_MemWrite_out),
-        .address(U_EXMEMReg_ALU_out),
         .mode(U_EXMEMReg_SpecialOP_out == `SpecialOP_DM_BYTE ? `DataMemoryMode_BYTE : (
             U_EXMEMReg_SpecialOP_out == `SpecialOP_DM_HW ? `DataMemoryMode_HALFWORD :
             `DataMemoryMode_WORD
         )),
+        .address(U_EXMEMReg_ALU_out),
+        .data_in(U_EXMEMReg_Reg2_out),
+        .data_out(U_DataMemory_DataOut),
+        .ready(MemoryReady),
+
+        // Instruction memory interface
+        // The `>> 2` is a hack cause InstructionMemory works with regualr indexes, 
+        // i.e. 0, 1, 2, 3, etc... and not 4 multiplies.
+        .IMAdress(U_PCU_PC >> 2),
+        .IR(U_InstructionMemory_IR),
+
+        // UART interface
+        .uart_clk(uartTxClk),
         .uart_tx_out(uart_tx_out),
+
+        // SD card interface
         .sdclk(sdclk),
         .sdcmd(sdcmd),
         .sddat0(sddat0)

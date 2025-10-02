@@ -18,12 +18,18 @@
 module DataMemoryInterface(
     input wire clk,
     input wire rst,
+
+    // Data memory interface
     input wire write_enable,
     input wire [1:0] mode,
     input wire [31:0] address,
     input wire [31:0] data_in, 
     output wire [31:0] data_out,
     output reg ready,
+
+    // Instruction memory interface
+    input wire [31:0] IMAdress,
+    output wire [31:0] IR,
 
     // UART interface
     input wire uart_clk,
@@ -107,11 +113,18 @@ module DataMemoryInterface(
     DataMemory U_DataMemory(
         .clk(clk),
         .rst(rst),
-        .write_enable(DataMemoryWriteEnable),
-        .mode(mode),
-        .address(DataMemoryAddress),
-        .data_in(MemoryDataIn),
-        .data_out(MemoryDataOut)
+        // Read Write Main Interface
+        .write_enable_a(DataMemoryWriteEnable),
+        .mode_a(mode),
+        .address_a(DataMemoryAddress),
+        .data_in_a(MemoryDataIn),
+        .data_out_a(MemoryDataOut),
+        // Read Instruction Memory Interface
+        .write_enable_b(1'b0),
+        .mode_b(`DataMemoryMode_WORD),
+        .address_b(IMAdress[13:0]),
+        .data_in_b(32'b0),
+        .data_out_b(IR)
     );
 
     // SD card interface
@@ -173,10 +186,10 @@ module DataMemoryInterface(
                 `S_SD_READ_SECTOR: begin
                     if (SD_OutEn) begin
                         case (SD_OutAddrModulo4)
-                            2'b00: SD_WordBuffer <= SD_WordBuffer | SD_OutByte;
-                            2'b01: SD_WordBuffer <= SD_WordBuffer | {SD_OutByte, 8'b0};
-                            2'b10: SD_WordBuffer <= SD_WordBuffer | {SD_OutByte, 16'b0};
-                            2'b11: SD_WordBuffer <= SD_WordBuffer | {SD_OutByte, 24'b0};
+                            2'b00: SD_WordBuffer <= SD_WordBuffer | {SD_OutByte, 24'b0};
+                            2'b01: SD_WordBuffer <= SD_WordBuffer | {SD_OutByte, 16'b0};
+                            2'b10: SD_WordBuffer <= SD_WordBuffer | {SD_OutByte, 8'b0};
+                            2'b11: SD_WordBuffer <= SD_WordBuffer | SD_OutByte;
                         endcase
 
                         if (SD_OutAddrLast) begin
