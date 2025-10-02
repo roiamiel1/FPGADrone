@@ -242,7 +242,7 @@ wire  [ 3:0] readbyteidx = 4'hf - read_byte_idx[3:0];
 wire  [ 1:0] readquadidx = 2'h3 - read_byte_idx[1:0];
 reg   [15:0] read_crc = 0;
 reg   [15:0] read_crc_wide [0:3];
-wire  [15:0] rddata_reversed = {rddata[7:0], rddata[15:8]};
+wire  [15:0] rddata_reversed = rddata[15:0];
 reg          widebus = 1'b0;  // 0:1bit Mode  1:4bit Mode
 
 wire [511:0] SD_STAT   = { widebus,1'b0, 1'b0, 13'h0, // bus-width, no security mode

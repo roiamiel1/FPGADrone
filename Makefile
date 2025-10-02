@@ -57,7 +57,8 @@ MIPS_AS = $(MIPS_COMPILER_RUN) mips-linux-gnu-as -mips1 -march=r2000 -O0
 MIPS_OBJCOPY = $(MIPS_COMPILER_RUN) mips-linux-gnu-objcopy
 MIPS_OBJDUMP = $(MIPS_COMPILER_RUN) mips-linux-gnu-objdump
 MIPS_READELF = $(MIPS_COMPILER_RUN) mips-linux-gnu-readelf
-MIPS_GCC = $(MIPS_COMPILER_RUN) mips-linux-gnu-gcc -mfp32 -march=r2000 -mshared -static -nostdlib
+MIPS_GCC = $(MIPS_COMPILER_RUN) mips-linux-gnu-gcc -mfp32 -march=r2000 -mno-shared -static -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -ffreestanding -nostdlib -fno-builtin -fno-builtin-memcpy -O0
+
 RM_ALL = $(RM) -rf
 GW_SH := $(GOWIN_BUILDER_RUN) gw_sh
 

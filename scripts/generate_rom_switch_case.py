@@ -1,3 +1,5 @@
+import clipboard
+
 def binary_to_verilog_case(input_file):
     with open(input_file, 'rb') as f:
         data = f.read()
@@ -29,5 +31,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     lines = binary_to_verilog_case(sys.argv[1])
-    for line in lines:
-        print(line)
+    text = "\n".join(lines)
+    clipboard.copy(text)
+    print("Copied to clipboard :)")
+        
