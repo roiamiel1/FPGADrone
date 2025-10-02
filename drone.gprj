@@ -14,7 +14,6 @@
         <File path="src/hardware/GPR.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/IDEXReg.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/IFIDReg.v" type="file.verilog" enable="1"/>
-        <File path="src/hardware/InstructionMemory.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/MEMWBReg.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/MIPS_R2000.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/PCU.v" type="file.verilog" enable="1"/>

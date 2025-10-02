@@ -8,7 +8,6 @@ add_file -type verilog src/hardware/ForwardingUnit.v
 add_file -type verilog src/hardware/GPR.v
 add_file -type verilog src/hardware/IDEXReg.v
 add_file -type verilog src/hardware/IFIDReg.v
-add_file -type verilog src/hardware/InstructionMemory.v
 add_file -type verilog src/hardware/MEMWBReg.v
 add_file -type verilog src/hardware/MIPS_R2000.v
 add_file -type verilog src/hardware/PCU.v
