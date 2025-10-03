@@ -1,5 +1,141 @@
 `include "signal_def.v"
 
+module MemoryAccess(
+    input  wire clk,
+    input  wire rst,
+
+    input  wire [13:0] address,
+    input  wire [1:0]  mode,
+    input  wire        write_enable,
+    
+    output wire [13:0] addr_block_0,
+    output wire [13:0] addr_block_1,
+    output wire [13:0] addr_block_2,
+    output wire [13:0] addr_block_3,
+
+    input  wire [7:0]  data_in_block_0,
+    input  wire [7:0]  data_in_block_1,
+    input  wire [7:0]  data_in_block_2,
+    input  wire [7:0]  data_in_block_3,
+
+    output wire [7:0]  data_out_block_0,
+    output wire [7:0]  data_out_block_1,
+    output wire [7:0]  data_out_block_2,
+    output wire [7:0]  data_out_block_3,
+
+    output reg         write_enable_block_0,
+    output reg         write_enable_block_1,
+    output reg         write_enable_block_2,
+    output reg         write_enable_block_3,
+
+    input  wire [31:0] data_in,
+    output wire [31:0] data_out
+);
+    wire [1:0]  addr_module_4;
+    wire [31:0] data_in_internal;
+    wire [31:0] data_out_internal;
+
+    initial begin
+        write_enable_block_0 = 1'b0;
+        write_enable_block_1 = 1'b0;
+        write_enable_block_2 = 1'b0;
+        write_enable_block_3 = 1'b0;
+    end
+
+    /************************ Address logic ************************/
+
+    assign addr_module_4 = address & 2'b11;
+
+    assign addr_block_0 = addr_module_4 == 2'b00 ? ( (address + 14'h0) >> 2 ) :
+                          addr_module_4 == 2'b01 ? ( (address + 14'h3) >> 2 ) :
+                          addr_module_4 == 2'b10 ? ( (address + 14'h2) >> 2 ) :
+                          addr_module_4 == 2'b11 ? ( (address + 14'h1) >> 2 ) :
+                          14'h0;
+    assign addr_block_1 = addr_module_4 == 2'b00 ? ( (address + 14'h0) >> 2 ) :
+                          addr_module_4 == 2'b01 ? ( (address - 14'h1) >> 2 ) :
+                          addr_module_4 == 2'b10 ? ( (address + 14'h2) >> 2 ) :
+                          addr_module_4 == 2'b11 ? ( (address + 14'h1) >> 2 ) :
+                          14'h0;
+    assign addr_block_2 = addr_module_4 == 2'b00 ? ( (address + 14'h0) >> 2 ) :
+                          addr_module_4 == 2'b01 ? ( (address - 14'h1) >> 2 ) :
+                          addr_module_4 == 2'b10 ? ( (address - 14'h2) >> 2 ) :
+                          addr_module_4 == 2'b11 ? ( (address + 14'h1) >> 2 ) :
+                          14'h0;
+    assign addr_block_3 = addr_module_4 == 2'b00 ? ( (address + 14'h0) >> 2 ) :
+                          addr_module_4 == 2'b01 ? ( (address - 14'h1) >> 2 ) :
+                          addr_module_4 == 2'b10 ? ( (address - 14'h2) >> 2 ) :
+                          addr_module_4 == 2'b11 ? ( (address - 14'h3) >> 2 ) : 
+                          14'h0;
+
+    /************************ Read logic ************************/
+
+    assign data_in_internal = addr_module_4 == 2'b00 ? { data_in_block_0, data_in_block_1, data_in_block_2, data_in_block_3 } :
+                              addr_module_4 == 2'b01 ? { data_in_block_1, data_in_block_2, data_in_block_3, data_in_block_0 } :
+                              addr_module_4 == 2'b10 ? { data_in_block_2, data_in_block_3, data_in_block_0, data_in_block_1 } :
+                              addr_module_4 == 2'b11 ? { data_in_block_3, data_in_block_0, data_in_block_1, data_in_block_2 } : 
+                              32'h0;
+    
+    assign data_out = mode == `DataMemoryMode_BYTE      ? data_in_internal >> 24 :
+                      mode == `DataMemoryMode_HALFWORD ? data_in_internal >> 16 :
+                      mode == `DataMemoryMode_WORD      ? data_in_internal >> 00 :
+                      32'h0;
+
+    /************************ Write logic ************************/
+
+    assign data_out_internal = mode == `DataMemoryMode_BYTE      ? data_in << 24 :
+                               mode == `DataMemoryMode_HALFWORD ? data_in << 16 :
+                               mode == `DataMemoryMode_WORD      ? data_in << 00 :
+                               32'h0;
+
+    assign data_out_block_0 = addr_module_4 == 2'b00 ? data_out_internal[31:24] :
+                              addr_module_4 == 2'b01 ? data_out_internal[23:16] :
+                              addr_module_4 == 2'b10 ? data_out_internal[15:08] :
+                              addr_module_4 == 2'b11 ? data_out_internal[07:00] :
+                              32'h0;
+    assign data_out_block_1 = addr_module_4 == 2'b00 ? data_out_internal[23:16] :
+                              addr_module_4 == 2'b01 ? data_out_internal[15:08] :
+                              addr_module_4 == 2'b10 ? data_out_internal[07:00] :
+                              addr_module_4 == 2'b11 ? data_out_internal[31:24] :
+                              32'h0;
+    assign data_out_block_2 = addr_module_4 == 2'b00 ? data_out_internal[15:08] :
+                              addr_module_4 == 2'b01 ? data_out_internal[07:00] :
+                              addr_module_4 == 2'b10 ? data_out_internal[31:24] :
+                              addr_module_4 == 2'b11 ? data_out_internal[23:16] :
+                              32'h0;
+    assign data_out_block_3 = addr_module_4 == 2'b00 ? data_out_internal[07:00] :
+                              addr_module_4 == 2'b01 ? data_out_internal[31:24] :
+                              addr_module_4 == 2'b10 ? data_out_internal[23:16] :
+                              addr_module_4 == 2'b11 ? data_out_internal[15:08] :
+                              32'h0;
+
+    always @(negedge clk, posedge rst) begin
+        if (rst || !write_enable) begin
+            write_enable_block_0 <= 1'b0;
+            write_enable_block_1 <= 1'b0;
+            write_enable_block_2 <= 1'b0;
+            write_enable_block_3 <= 1'b0;      
+        end else begin
+            write_enable_block_0 <= mode == `DataMemoryMode_BYTE     ? (addr_module_4 == 2'b00) :
+                                    mode == `DataMemoryMode_HALFWORD ? (addr_module_4 == 2'b00 || addr_module_4 == 2'b01) :
+                                    mode == `DataMemoryMode_WORD     ? 1'b1 :
+                                    1'b0;
+            write_enable_block_1 <= mode == `DataMemoryMode_BYTE     ? (addr_module_4 == 2'b01) :
+                                    mode == `DataMemoryMode_HALFWORD ? (addr_module_4 == 2'b01 || addr_module_4 == 2'b10) :
+                                    mode == `DataMemoryMode_WORD     ? 1'b1 :
+                                    1'b0;
+            write_enable_block_2 <= mode == `DataMemoryMode_BYTE     ? (addr_module_4 == 2'b10) :
+                                    mode == `DataMemoryMode_HALFWORD ? (addr_module_4 == 2'b10 || addr_module_4 == 2'b11) :
+                                    mode == `DataMemoryMode_WORD     ? 1'b1 :
+                                    1'b0;
+            write_enable_block_3 <= mode == `DataMemoryMode_BYTE     ? (addr_module_4 == 2'b11) :
+                                    mode == `DataMemoryMode_HALFWORD ? (addr_module_4 == 2'b11 || addr_module_4 == 2'b00) :
+                                    mode == `DataMemoryMode_WORD     ? 1'b1 :
+                                    1'b0;
+        end
+    end
+
+endmodule
+
 module DataMemory(
     input wire clk,
     input wire rst,
@@ -16,37 +152,111 @@ module DataMemory(
     input wire [31:0] data_in_b, 
     output wire [31:0] data_out_b
 );
-    // Internal signals for Port A
-    reg [3:0] internal_write_enable_a;
-    wire [13:0] internal_address_a;
-    reg [31:0] internal_data_in_a;
-    wire [31:0] internal_data_out_a;
+    wire [13:0] addr_a_block_0;
+    wire [13:0] addr_a_block_1;
+    wire [13:0] addr_a_block_2;
+    wire [13:0] addr_a_block_3;
+    wire [7:0]  data_in_a_block_0;
+    wire [7:0]  data_in_a_block_1;
+    wire [7:0]  data_in_a_block_2;
+    wire [7:0]  data_in_a_block_3;
+    wire [7:0]  data_out_a_block_0;
+    wire [7:0]  data_out_a_block_1;
+    wire [7:0]  data_out_a_block_2;
+    wire [7:0]  data_out_a_block_3;
+    wire        write_enable_a_block_0;
+    wire        write_enable_a_block_1;
+    wire        write_enable_a_block_2;
+    wire        write_enable_a_block_3;
 
-    // Internal signals for Port B
-    reg [3:0] internal_write_enable_b;
-    wire [13:0] internal_address_b;
-    reg [31:0] internal_data_in_b;
-    wire [31:0] internal_data_out_b;
-    
+    MemoryAccess MemoryAccessChannelA(
+        .clk(clk),
+        .rst(rst),
+        .address(address_a),
+        .mode(mode_a),
+        .write_enable(write_enable_a),
+        .addr_block_0(addr_a_block_0),
+        .addr_block_1(addr_a_block_1),
+        .addr_block_2(addr_a_block_2),
+        .addr_block_3(addr_a_block_3),
+        .data_in_block_0(data_in_a_block_0),
+        .data_in_block_1(data_in_a_block_1),
+        .data_in_block_2(data_in_a_block_2),
+        .data_in_block_3(data_in_a_block_3),
+        .data_out_block_0(data_out_a_block_0),
+        .data_out_block_1(data_out_a_block_1),
+        .data_out_block_2(data_out_a_block_2),
+        .data_out_block_3(data_out_a_block_3),
+        .write_enable_block_0(write_enable_a_block_0),
+        .write_enable_block_1(write_enable_a_block_1),
+        .write_enable_block_2(write_enable_a_block_2),
+        .write_enable_block_3(write_enable_a_block_3),
+        .data_in(data_in_a),
+        .data_out(data_out_a)
+    );
+
+    wire [13:0] addr_b_block_0;
+    wire [13:0] addr_b_block_1;
+    wire [13:0] addr_b_block_2;
+    wire [13:0] addr_b_block_3;
+    wire [7:0]  data_in_b_block_0;
+    wire [7:0]  data_in_b_block_1;
+    wire [7:0]  data_in_b_block_2;
+    wire [7:0]  data_in_b_block_3;
+    wire [7:0]  data_out_b_block_0;
+    wire [7:0]  data_out_b_block_1;
+    wire [7:0]  data_out_b_block_2;
+    wire [7:0]  data_out_b_block_3;
+    wire        write_enable_b_block_0;
+    wire        write_enable_b_block_1;
+    wire        write_enable_b_block_2;
+    wire        write_enable_b_block_3;
+
+    MemoryAccess MemoryAccessChannelB(
+        .clk(clk),
+        .rst(rst),
+        .address(address_b),
+        .mode(mode_b),
+        .write_enable(write_enable_b),
+        .addr_block_0(addr_b_block_0),
+        .addr_block_1(addr_b_block_1),
+        .addr_block_2(addr_b_block_2),
+        .addr_block_3(addr_b_block_3),
+        .data_in_block_0(data_in_b_block_0),
+        .data_in_block_1(data_in_b_block_1),
+        .data_in_block_2(data_in_b_block_2),
+        .data_in_block_3(data_in_b_block_3),
+        .data_out_block_0(data_out_b_block_0),
+        .data_out_block_1(data_out_b_block_1),
+        .data_out_block_2(data_out_b_block_2),
+        .data_out_block_3(data_out_b_block_3),
+        .write_enable_block_0(write_enable_b_block_0),
+        .write_enable_block_1(write_enable_b_block_1),
+        .write_enable_block_2(write_enable_b_block_2),
+        .write_enable_block_3(write_enable_b_block_3),
+        .data_in(data_in_b),
+        .data_out(data_out_b)
+    );
+
     Gowin_DPB_16384_8 MemBlock0(
         // Port A
         .clka(clk),
         .reseta(rst),
         .ocea(1'b1),
         .cea(1'b1),
-        .ada(internal_address_a),
-        .wrea(internal_write_enable_a[0]),
-        .douta(internal_data_out_a[7:0]),
-        .dina(internal_data_in_a[7:0]),
+        .ada(addr_a_block_0),
+        .wrea(write_enable_a_block_0),
+        .douta(data_in_a_block_0),
+        .dina(data_out_a_block_0),
         // Port B
         .clkb(!clk),
         .resetb(rst),
         .oceb(1'b1),
         .ceb(1'b1),
-        .adb(internal_address_b),
-        .wreb(internal_write_enable_b[0]),
-        .doutb(internal_data_out_b[7:0]),
-        .dinb(internal_data_in_b[7:0])
+        .adb(addr_b_block_0),
+        .wreb(write_enable_b_block_0),
+        .doutb(data_in_b_block_0),
+        .dinb(data_out_b_block_0)
     );
     
     Gowin_DPB_16384_8 MemBlock1(
@@ -55,19 +265,19 @@ module DataMemory(
         .reseta(rst),
         .ocea(1'b1),
         .cea(1'b1),
-        .ada(internal_address_a),
-        .wrea(internal_write_enable_a[1]),
-        .douta(internal_data_out_a[15:8]),
-        .dina(internal_data_in_a[15:8]),
+        .ada(addr_a_block_1),
+        .wrea(write_enable_a_block_1),
+        .douta(data_in_a_block_1),
+        .dina(data_out_a_block_1),
         // Port B
         .clkb(!clk),
         .resetb(rst),
         .oceb(1'b1),
         .ceb(1'b1),
-        .adb(internal_address_b),
-        .wreb(internal_write_enable_b[1]),
-        .doutb(internal_data_out_b[15:8]),
-        .dinb(internal_data_in_b[15:8])
+        .adb(addr_b_block_1),
+        .wreb(write_enable_b_block_1),
+        .doutb(data_in_b_block_1),
+        .dinb(data_out_b_block_1)
     );
 
     Gowin_DPB_16384_8 MemBlock2(
@@ -76,19 +286,19 @@ module DataMemory(
         .reseta(rst),
         .ocea(1'b1),
         .cea(1'b1),
-        .ada(internal_address_a),
-        .wrea(internal_write_enable_a[2]),
-        .douta(internal_data_out_a[23:16]),
-        .dina(internal_data_in_a[23:16]),
+        .ada(addr_a_block_2),
+        .wrea(write_enable_a_block_2),
+        .douta(data_in_a_block_2),
+        .dina(data_out_a_block_2),
         // Port B
         .clkb(!clk),
         .resetb(rst),
         .oceb(1'b1),
         .ceb(1'b1),
-        .adb(internal_address_b),
-        .wreb(internal_write_enable_b[2]),
-        .doutb(internal_data_out_b[23:16]),
-        .dinb(internal_data_in_b[23:16])
+        .adb(addr_b_block_2),
+        .wreb(write_enable_b_block_2),
+        .doutb(data_in_b_block_2),
+        .dinb(data_out_b_block_2)
     );
 
     Gowin_DPB_16384_8 MemBlock3(
@@ -97,71 +307,18 @@ module DataMemory(
         .reseta(rst),
         .ocea(1'b1),
         .cea(1'b1),
-        .ada(internal_address_a),
-        .wrea(internal_write_enable_a[3]),
-        .douta(internal_data_out_a[31:24]),
-        .dina(internal_data_in_a[31:24]),
+        .ada(addr_a_block_3),
+        .wrea(write_enable_a_block_3),
+        .douta(data_in_a_block_3),
+        .dina(data_out_a_block_3),
         // Port B
         .clkb(!clk),
         .resetb(rst),
         .oceb(1'b1),
         .ceb(1'b1),
-        .adb(internal_address_b),
-        .wreb(internal_write_enable_b[3]),
-        .doutb(internal_data_out_b[31:24]),
-        .dinb(internal_data_in_b[31:24])
+        .adb(addr_b_block_3),
+        .wreb(write_enable_b_block_3),
+        .doutb(data_in_b_block_3),
+        .dinb(data_out_b_block_3)
     );
-
-    assign internal_address_a = address_a;
-    assign internal_address_b = address_b;
-
-    assign data_out_a = mode_a == `DataMemoryMode_BYTE     ? {24'b0, internal_data_out_a[7:0]}  :
-                        mode_a == `DataMemoryMode_HALFWORD ? {16'b0, internal_data_out_a[15:0]} :
-                        internal_data_out_a;
-
-    assign data_out_b = mode_b == `DataMemoryMode_BYTE     ? {24'b0, internal_data_out_b[7:0]}  :
-                        mode_b == `DataMemoryMode_HALFWORD ? {16'b0, internal_data_out_b[15:0]} :
-                        internal_data_out_b;
-
-    initial begin
-        internal_write_enable_a = 4'b0;
-        internal_data_in_a = 32'b0;
-
-        internal_write_enable_b = 4'b0;
-        internal_data_in_b = 32'b0;
-    end
-
-    always @(negedge clk) begin
-        if (write_enable_a) begin
-            case (mode_a)
-                `DataMemoryMode_HALFWORD: internal_write_enable_a <= 4'b0011;
-                `DataMemoryMode_BYTE:     internal_write_enable_a <= 4'b0001;
-                default:                  internal_write_enable_a <= 4'b1111;
-            endcase
-            case (mode_a)
-                `DataMemoryMode_HALFWORD: internal_data_in_a <= {16'b0, data_in_a[15:0]};
-                `DataMemoryMode_BYTE:     internal_data_in_a <= {24'b0, data_in_a[7:0]};
-                default:                  internal_data_in_a <= data_in_a;
-            endcase
-        end else begin
-            internal_write_enable_a <= 4'b0;
-            internal_data_in_a <= 32'b0;
-        end
-
-        if (write_enable_b) begin
-            case (mode_b)
-                `DataMemoryMode_HALFWORD: internal_write_enable_b <= 4'b0011;
-                `DataMemoryMode_BYTE:     internal_write_enable_b <= 4'b0001;
-                default:                  internal_write_enable_b <= 4'b1111;
-            endcase
-            case (mode_b)
-                `DataMemoryMode_HALFWORD: internal_data_in_b <= {16'b0, data_in_b[15:0]};
-                `DataMemoryMode_BYTE:     internal_data_in_b <= {24'b0, data_in_b[7:0]};
-                default:                  internal_data_in_b <= data_in_b;
-            endcase
-        end else begin
-            internal_write_enable_b <= 4'b0;
-            internal_data_in_b <= 32'b0;
-        end
-    end
 endmodule

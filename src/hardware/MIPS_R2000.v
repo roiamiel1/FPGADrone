@@ -298,7 +298,7 @@ module MIPS_R2000 (
         .data_out(U_DataMemory_DataOut),
         .ready(MemoryReady),
         
-        .IMAdress(U_PCU_PC >> 2),
+        .IMAdress(U_PCU_PC),
         .IR(U_InstructionMemory_IR),
 
         // UART interface

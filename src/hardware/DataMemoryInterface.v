@@ -98,7 +98,7 @@ module DataMemoryInterface(
     );
 
     assign DataMemoryWriteEnable = (write_enable && !IsSpacialAddress) || IsInitiateWordPending;
-    assign DataMemoryAddress = IsInitiateWordPending ? InitiateWordAddr : address[13:0];
+    assign DataMemoryAddress = IsInitiateWordPending ? (InitiateWordAddr << 2) : address[13:0];
     assign DataMemoryIn = IsInitiateWordPending ? InitiateWordBuffer : data_in;
     assign DataMemoryMode = IsInitiateWordPending ? `DataMemoryMode_WORD : mode;
 
@@ -120,7 +120,8 @@ module DataMemoryInterface(
         // Read Write Main Interface
         .write_enable_a(DataMemoryWriteEnable),
         .mode_a(DataMemoryMode),
-        .address_a(ready ? DataMemoryAddress >> 2 : DataMemoryAddress), // WTF?!?!?!??!?!
+        // .address_a(ready ? DataMemoryAddress >> 2 : DataMemoryAddress), // WTF?!?!?!??!?!
+        .address_a(DataMemoryAddress),
         .data_in_a(DataMemoryIn),
         .data_out_a(MemoryDataOut),
         // Read Instruction Memory Interface
