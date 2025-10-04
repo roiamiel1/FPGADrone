@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 `define P_UART_CHAR  32'd1000
 `define P_UART_START 32'd1001
 `define P_UART_DONE  32'd1002

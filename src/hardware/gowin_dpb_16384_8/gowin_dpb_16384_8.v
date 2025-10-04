@@ -6,6 +6,8 @@
 //Device: GW2AR-18
 //Device Version: C
 //Created Time: Sun Jun 29 23:28:15 2025
+`timescale 1ns / 1ps
+
 `ifndef DEBUG
 
 module Gowin_DPB_16384_8 (douta, doutb, clka, ocea, cea, reseta, wrea, clkb, oceb, ceb, resetb, wreb, ada, dina, adb, dinb);
