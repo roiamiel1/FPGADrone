@@ -1,4 +1,6 @@
 // AUTO-GENERATED - DO NOT CHNAGE!
+`timescale 1ns / 1ps
+
 `include "instruction_def.v"
 `include "signal_def.v"
 
@@ -406,6 +408,18 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_DM_BYTE;
+        end else if (OpCode == 6'h0 && Funct == 6'h3) begin
+            // sra case:
+            Jump      <= 1'b0;
+            RegDst    <= `REG_DST_RD;
+            Branch    <= 1'b0;
+            MemRead   <= 1'b0;
+            MemWrite  <= 1'b0;
+            RegWrite  <= 1;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= `ALUOp_SRA;
+            SpecialOP <= `SpecialOP_NONE;
         end else begin
             // default case:
             Jump      <= 1'b0;
