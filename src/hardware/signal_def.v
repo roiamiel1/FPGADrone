@@ -51,6 +51,7 @@
 `define ALUOp_SLT   5'b01101    // ALURes = 1 if A<B else 0;
 `define ALUOp_LUI   5'b01110    // ALURes = 1 if A<B else 0;
 `define ALUOp_IN1   5'b01111    // ALURes = A;
+`define ALUOp_SRA   5'b10000    // ALURes = A >> 1 (with sign extension)
 
 
 // DataMemoryMode

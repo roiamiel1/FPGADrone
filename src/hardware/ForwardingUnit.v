@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module ForwardingUnit (
     input wire [4:0] ALUDataIn1RegAddr_in,  // Address of the register being insterted as first input to the ALU?
     input wire [4:0] ALUDataIn2RegAddr_in,  // Address of the register being insterted as second input to the ALU?

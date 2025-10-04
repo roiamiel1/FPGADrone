@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 `include "signal_def.v"
 `include "instruction_def.v"
 

@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module IFIDReg (
     input clk,
     input rst,

@@ -1,4 +1,6 @@
 
+`timescale 1ns / 1ps
+
 module GPR (
     input wire clk,
     input wire rst,

@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 // states of state machine
 `define RESET       3'b001
 `define IDLE        3'b010
