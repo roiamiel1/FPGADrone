@@ -5,6 +5,8 @@
 // Function: Imitate a SDHCv2 Read-Only SD card
 //--------------------------------------------------------------------------------------------------------
 
+`timescale 1ns / 1ps
+
 module sd_fake (
     input  wire         rstn_async,
     // SD-card signals, connect to a SD-host, such as a SDcard Reader

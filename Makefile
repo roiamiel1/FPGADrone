@@ -165,6 +165,9 @@ hw-run-startup-test:
 	$(eval BUILD_PATH := $(BUILD_HW_TEST_PATH)/startup_test)
 	$(eval TEST_PATH := $(TESTS_HW_PATH)/startup_test)
 
+	make elf
+	make hw-software-rom
+
 	mkdir -p $(BUILD_PATH)
 
 	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(TEST_PATH)

@@ -1,5 +1,3 @@
-import clipboard
-
 def binary_to_verilog_case(input_file):
     with open(input_file, 'rb') as f:
         data = f.read()
@@ -31,7 +29,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     lines = binary_to_verilog_case(sys.argv[1])
-    text = "\n".join(lines)
-    clipboard.copy(text)
-    print("Copied to clipboard :)")
+    text = "`define ROM_SWITCH_CASE\t\\\n" + "\t\\\n".join(lines)
+    with open("tests/hardware/startup_test/rom_switch_case.v", "w") as f:
+        f.write(text)
+
+    
         
