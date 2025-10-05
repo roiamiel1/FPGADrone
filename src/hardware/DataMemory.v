@@ -240,7 +240,7 @@ module DataMemory(
         .data_out(data_out_b)
     );
 
-    Gowin_DPB_16384_8 MemBlock0(
+    Gowin_DPB_16384_8 `ifdef DEBUG #(.BLOCK_INDEX(0)) `endif MemBlock0(
         // Port A
         .clka(clk),
         .reseta(rst),
@@ -261,7 +261,7 @@ module DataMemory(
         .dinb(data_out_b_block_0)
     );
     
-    Gowin_DPB_16384_8 MemBlock1(
+    Gowin_DPB_16384_8 `ifdef DEBUG #(.BLOCK_INDEX(1)) `endif MemBlock1(
         // Port A
         .clka(clk),
         .reseta(rst),
@@ -282,7 +282,7 @@ module DataMemory(
         .dinb(data_out_b_block_1)
     );
 
-    Gowin_DPB_16384_8 MemBlock2(
+    Gowin_DPB_16384_8 `ifdef DEBUG #(.BLOCK_INDEX(2)) `endif MemBlock2(
         // Port A
         .clka(clk),
         .reseta(rst),
@@ -303,7 +303,7 @@ module DataMemory(
         .dinb(data_out_b_block_2)
     );
 
-    Gowin_DPB_16384_8 MemBlock3(
+    Gowin_DPB_16384_8 `ifdef DEBUG #(.BLOCK_INDEX(3)) `endif MemBlock3(
         // Port A
         .clka(clk),
         .reseta(rst),

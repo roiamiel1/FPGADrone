@@ -10,25 +10,19 @@
     while (*P_UART_DONE == 0);  \
     *P_UART_START = 0;
 
+// There is a problem in the simulation, that every time we check `i` value in the for loop, it returns 60 for some reason.
+// This is why we wont enter the for loop.
+// I think the problem is related to memory read or write, something about the timing with the clk or sample rate is wrong.
+
 __attribute__((section(".text")))
 void main() {
     const char* msg = "0123012301230123012301230123012301230123012301230123012301230123";
 
     while (1) {
-        UART_PUTC('A');
-        UART_PUTC(msg[0]);
-        UART_PUTC(msg[1]);
-        UART_PUTC(msg[2]);
-        UART_PUTC(msg[3]);
-        UART_PUTC(msg[4]);
-        UART_PUTC(msg[5]);
-        UART_PUTC(msg[6]);
-        UART_PUTC(msg[7]);
-        UART_PUTC(msg[8]);
-        UART_PUTC(msg[9]);
-        UART_PUTC(msg[10]);
-        UART_PUTC(msg[11]);
-        UART_PUTC('Z');
+        UART_PUTC('Q');
+        for (char i = 0; i < 5; i++) {
+            UART_PUTC('A' + i);
+        }
     }
     return;
 }

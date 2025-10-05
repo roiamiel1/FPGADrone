@@ -141,25 +141,27 @@ class MipsObjects(Enum, metaclass=DirectValueMeta):
     class Mem():
         @staticmethod
         def WORD(addr):
+            mem_blocks_list = ", ".join([f"TESTBENCH.InternalMem[{addr} + {i}]" for i in range(0, 4)])
             return MipsObject(
                 f"mem_{addr}_word", 
-                f"U_MIPS_R2000.U_DataMemory.memory[{addr}]", 
+                "{" + mem_blocks_list + "}",
                 32
             )
 
         @staticmethod
         def HALFWORD(addr):
+            mem_blocks_list = ", ".join([f"TESTBENCH.InternalMem[{addr} + {i}]" for i in range(0, 2)])
             return MipsObject(
                 f"mem_{addr}_halfword", 
-                f"U_MIPS_R2000.U_DataMemory.memory[{addr}][15:0]", 
+                "{" + mem_blocks_list + "}",
                 16
             )
         
         @staticmethod
         def BYTE(addr):
             return MipsObject(
-                f"mem_{addr}_byte", 
-                f"U_MIPS_R2000.U_DataMemory.memory[{addr}][7:0]", 
+                f"mem_{addr}_byte",
+                f"TESTBENCH.InternalMem[{addr}]",
                 8
             )
         
