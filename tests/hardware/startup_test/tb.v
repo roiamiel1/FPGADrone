@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 `include "signal_def.v"
-`include "../../tests/hardware/startup_test/rom_switch_case.v"
+`include "../../build/hardware/tests/startup_test/rom_switch_case.v"
 
 module TESTBENCH;
     integer cycles;

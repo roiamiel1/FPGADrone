@@ -259,79 +259,52 @@ class TestbanchBuilder(object):
     def build_tb(self):
         printer = CodePrinter()
 
-        printer.write_line('// NOTE! THIS FILE IS AUTO GENERATED!')
-        printer.write_line('`include \"signal_def.v"')
-        printer.write_line()
-        self._write_define_consts(printer)
+        self._write_create_pipe_stage_vars(printer)
+        self._write_init_cond_vars(printer)
+
+        printer.write_line("integer cycles;")
         printer.write_line()
 
-        printer.write_line(normalize_tabs("""
-            module TESTBENCH (
-                input clk,
-                input rst
-            );
-                reg clk_debug;
-                reg rst_debug;
-                reg [31:0] cycles;
-        """))
+        printer.write_line("initial begin")
 
         with printer.group(indent=4*1):
-            printer.write_line()
-            self._write_create_pipe_stage_vars(printer)
-            self._write_init_cond_vars(printer)
-
-        with printer.group(indent=4*1):     
-            printer.write_line(normalize_tabs("""
-                MIPS_R2000 U_MIPS_R2000(
-                    .clk(clk_debug),
-                    .rst(rst_debug)
-                );
-
-                initial begin
-            """))
-
-        with printer.group(indent=4*2):
             self._write_init_pipe_stage_vars(printer)
             printer.write_line(normalize_tabs(f"""
                 $dumpfile("{os.path.join(self._test_output_folder_path, "test.vcd")}");
                 $dumpvars;
-                $readmemh("{self._test_hex_path}", U_MIPS_R2000.U_InstructionMemory.IMem);
 
                 U_MIPS_R2000.U_IFIDReg.StageReg = 0;
                 U_MIPS_R2000.U_IDEXReg.StageReg = 0;
                 U_MIPS_R2000.U_EXMEMReg.StageReg = 0;
                 U_MIPS_R2000.U_MEMWBReg.StageReg = 0;
 
-                clk_debug = 1;
-                rst_debug = 0;
                 cycles = 0;
 
-                rst_debug = 1;
-                #2 rst_debug = 0;
+                while (U_MIPS_R2000.MemoryReady == 1'b0) begin
+                    clk = ~clk; #5;
+                end
+
+                $display("\\n\\n***************  Start Test  ***************\\n\\n");
             """))
 
-        with printer.group(indent=4*1):
-            printer.write_line(normalize_tabs(f"""
-                end
-                
-                always begin
-                    #10 clk_debug = ~clk_debug;
-                end
+        printer.write_line("end")
+        printer.write_line()
 
-                always @ (posedge rst_debug) begin
-                    cycles = 0;
-                end
-
-                always@(posedge clk_debug) begin
+        printer.write_line(normalize_tabs(f"""
+            always@(posedge clk) begin
+                if (U_MIPS_R2000.MemoryReady == 1'b0) begin
+                    // Do nothing, wait for memory to be ready.
+                end else begin
                     cycles = cycles + 1;
                     if({MipsObjects.Regs.PC.value} > {(self._max_pc() + 1) * 16 + 4}) begin
                         $display("\\n\\n***************  Done  ***************\\n\\n");
                         $finish;
                     end
-            """))
+        """))
+
+        printer.write_line()
 
         with printer.group(indent=4*2):
-            printer.write_line()
             self._write_update_pipe_stage_vars(printer)
             self._write_pc_triggers(printer)
             self._write_reset_pipe_stage_vars_on_hazard(printer)
@@ -339,9 +312,25 @@ class TestbanchBuilder(object):
         
         with printer.group(indent=4*1):
             printer.write_line("end")
-        
-        printer.write_line("endmodule")
 
+        printer.write_line("end")
+        
+        return self._code_to_define(printer.assemble())
+
+    def _code_to_define(self, code) -> str:
+        printer = CodePrinter()
+        printer.write_line('// NOTE! THIS FILE IS AUTO GENERATED!')
+        printer.write_line()
+        self._write_define_consts(printer)
+        printer.write_line()
+        printer.write_line("`define TEST_CODE \\\n\\")
+        for line in code.splitlines():
+            if line.strip().startswith("//"):
+                printer.write_line(f"\\ {line}")
+            else:
+                printer.write_line(f"{line} \\")
+            
+        printer.write_line()
         return printer.assemble()
 
     def _write_define_consts(self, printer: CodePrinter) -> None:

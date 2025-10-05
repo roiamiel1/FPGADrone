@@ -24,13 +24,13 @@ def binary_to_verilog_case(input_file):
 if __name__ == "__main__":
     import sys
 
-    if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} <binary_file>")
+    if len(sys.argv) != 3:
+        print(f"Usage: {sys.argv[0]} <binary_file> <output_verilog_file>")
         sys.exit(1)
 
     lines = binary_to_verilog_case(sys.argv[1])
     text = "`define ROM_SWITCH_CASE\t\\\n" + "\t\\\n".join(lines)
-    with open("tests/hardware/startup_test/rom_switch_case.v", "w") as f:
+    with open(sys.argv[2], "w") as f:
         f.write(text)
 
     

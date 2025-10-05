@@ -300,10 +300,13 @@ defparam dpb_inst_7.RESET_MODE = "SYNC";
 endmodule //Gowin_DPB_16384_8
 
 `else
+
 // Testbench model
-module Gowin_DPB_16384_8 (
-    output wire [7:0] douta,
-    output wire [7:0] doutb,
+module Gowin_DPB_16384_8 #(
+   	parameter BLOCK_INDEX = 0
+)(
+    output reg [7:0] douta,
+    output reg [7:0] doutb,
     input wire clka,
     input wire ocea,
     input wire cea,
@@ -318,39 +321,46 @@ module Gowin_DPB_16384_8 (
     input wire [7:0] dina,
     input wire [13:0] adb,
     input wire [7:0] dinb
-);
-    integer i;
-
-    // Memory declaration: 16384 x 8 bits
-    reg [7:0] mem [0:16383];
-
-    assign douta = mem[ada];
-    assign doutb = mem[adb];
-
-    initial begin
-        for (i = 0; i < 16384; i = i + 1) begin
-            mem[i] = 8'b0;
-        end
-    end
-    
-    // Port A: Write/Read Logic
+);    
     always @(posedge clka) begin
         if (cea) begin
+            douta <= TESTBENCH.InternalMem[(ada << 2) + BLOCK_INDEX];
+    
             if (wrea) begin
-                mem[ada] <= dina;
+                TESTBENCH.InternalMem[(ada << 2) + BLOCK_INDEX] <= dina;
             end
         end
     end
 
-    // Port B: Write/Read Logic
     always @(posedge clkb) begin
         if (ceb) begin
+            doutb <= TESTBENCH.InternalMem[(adb << 2) + BLOCK_INDEX];
+
             if (wreb) begin
-                mem[adb] <= dinb;
+                TESTBENCH.InternalMem[(adb << 2) + BLOCK_INDEX] <= dinb;
             end
         end
     end
 
+    always @(posedge clka) begin
+        if (cea) begin
+            douta <= TESTBENCH.InternalMem[(ada << 2) + BLOCK_INDEX];
+    
+            if (wrea) begin
+                TESTBENCH.InternalMem[(ada << 2) + BLOCK_INDEX] <= dina;
+            end
+        end
+    end
+
+    always @(posedge clkb) begin
+        if (ceb) begin
+            doutb <= TESTBENCH.InternalMem[(adb << 2) + BLOCK_INDEX];
+
+            if (wreb) begin
+                TESTBENCH.InternalMem[(adb << 2) + BLOCK_INDEX] <= dinb;
+            end
+        end
+    end
 endmodule
 
 `endif
