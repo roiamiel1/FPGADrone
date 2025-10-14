@@ -341,26 +341,6 @@ module Gowin_DPB_16384_8 #(
             end
         end
     end
-
-    always @(posedge clka) begin
-        if (cea) begin
-            douta <= TESTBENCH.InternalMem[(ada << 2) + BLOCK_INDEX];
-    
-            if (wrea) begin
-                TESTBENCH.InternalMem[(ada << 2) + BLOCK_INDEX] <= dina;
-            end
-        end
-    end
-
-    always @(posedge clkb) begin
-        if (ceb) begin
-            doutb <= TESTBENCH.InternalMem[(adb << 2) + BLOCK_INDEX];
-
-            if (wreb) begin
-                TESTBENCH.InternalMem[(adb << 2) + BLOCK_INDEX] <= dinb;
-            end
-        end
-    end
 endmodule
 
 `endif

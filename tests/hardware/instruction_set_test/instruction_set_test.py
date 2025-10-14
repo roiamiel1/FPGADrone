@@ -1,8 +1,8 @@
 [
     # Test `addiu``:
-    ("addiu $s0, 0",  "{after_mem(REGS.S0)} == 0"),
     ("addiu $s1, 1",  "{after_mem(REGS.S1)} == 1"),
     ("addiu $s2, 5",  "{after_mem(REGS.S2)} == 5"),
+    ("addiu $s0, 0",  "{after_mem(REGS.S0)} == 0"),
 
     # Just add numbers for the test.
     ("addi $s3, -1", "{after_mem(REGS.S3)} == -1"),
@@ -155,59 +155,66 @@
     ("addi $a0, $zero, -2",  "{after_mem(REGS.A0)} == -2"),
     ("sw $a0, 12($zero)", "{after_mem(MEM.WORD(12))} == -2"),
 
-        # Test `sb` - with 1 byte value
+    # Test `sb` - with 1 byte value
     ("addi $a0, $zero, 211",  "{after_mem(REGS.A0)} == 211"),
-    ("sb $a0, 3($zero)", "{after_mem(MEM.WORD(3))} == 211"),
+    ("sb $a0, 3($zero)", "{after(MEM.BYTE(3))} == 211"),
 
     # Test `sb` - with 2 byte value (will cut it to one byte)
     ("addi $a0, $zero, 355",  "{after_mem(REGS.A0)} == 355"),
-    ("sb $a0, 4($zero)", "{after_mem(MEM.WORD(4))} == 99"),
+    ("sb $a0, 4($zero)", "{after_mem(MEM.BYTE(4))} == 99"),
 
     # Test `sh` - with 2 byte value
     ("addi $a0, $zero, 355",  "{after_mem(REGS.A0)} == 355"),
-    ("sh $a0, 6($zero)", "{after_mem(MEM.WORD(6))} == 355"),
+    ("sh $a0, 6($zero)", "{after_mem(MEM.HALFWORD(6))} == 355"),
 
     # Test `sh` - with 3 byte value
     ("addiu $a0, $zero, 65535",  "{after_mem(REGS.A0)} == 65535"),
     ("addiu $a0, $a0, 123",  "{after_mem(REGS.A0)} == 65658"),
-    ("sh $a0, 6($zero)", "{after_mem(MEM.WORD(6))} == 122"),
+    ("sh $a0, 6($zero)", "{after_mem(MEM.HALFWORD(6))} == 122"),
 
     #  Test over load store commands
     ("addi $a0, $zero, -1",  "{after_mem(REGS.A0)} == -1"),
     ("sw $a0, 33($zero)", "{after_mem(MEM.WORD(33))} == -1"),
     ("addi $a0, $zero, 0",  "{after_mem(REGS.A0)} == 0"),
-    ("sb $a0, 33($zero)", "{after_mem(MEM.WORD(33))} == 4294967040"),
-    ("sh $a0, 33($zero)", "{after_mem(MEM.WORD(33))} == 4294901760"),
+    ("sb $a0, 33($zero)", "{after_mem(MEM.WORD(33))} == 16777215"),
+    ("nop",),
+    ("sh $a0, 33($zero)", "{after_mem(MEM.WORD(33))} == 65535"),
 
     # Test `lw`
     ("addi $a0, $zero, 145",  "{after_mem(REGS.A0)} == 145"),
     ("sw $a0, 34($zero)", "{after_mem(MEM.WORD(34))} == 145"),
+    ("nop",),
     ("lw $a1, 34($zero)", "{after_mem(REGS.A1)} == 145"),
 
     # Test `lbu`
     ("addi $a0, $zero, 146",  "{after_mem(REGS.A0)} == 146"),
-    ("sw $a0, 35($zero)", "{after_mem(MEM.WORD(35))} == 146"),
+    ("sb $a0, 35($zero)", "{after_mem(MEM.BYTE(35))} == 146"),
+    ("nop",),
     ("lbu $a1, 35($zero)", "{after_mem(REGS.A1)} == 146"),
     
     # Test `lb`
     ("addi $a0, $zero, -123",  "{after_mem(REGS.A0)} == -123"),
     ("sw $a0, 39($zero)", "{after_mem(MEM.WORD(39))} == -123"),
+    ("nop",),
     ("lw $a1, 39($zero)", "{after_mem(REGS.A1)} == -123"),
 
     # Test `lb` with forwarding
     ("addi $a2, $zero, 12",  "{after_mem(REGS.A2)} == 12"),
     ("sw $a2, 34($zero)", "{after_mem(MEM.WORD(34))} == 12"),
+    ("nop",),
     ("lw $v0, 34($zero)", "{after_mem(REGS.V0)} == 12"),
     ("addi $a1, $v0, 6",  "{after_mem(REGS.A1)} == 18"),
 
     # Test `lhu`
     ("addi $a1, $zero, 147",  "{after_mem(REGS.A1)} == 147"),
-    ("sw $a1, 36($zero)", "{after_mem(MEM.WORD(36))} == 147"),
+    ("sh $a1, 36($zero)", "{after_mem(MEM.HALFWORD(36))} == 147"),
+    ("nop",),
     ("lhu $a2, 36($zero)", "{after_mem(REGS.A2)} == 147"),
 
     # Test load opcodes bytes size cutting
     ("addi $a0, $zero, -1",  "{after_mem(REGS.A0)} == -1"),
     ("sw $a0, 37($zero)", "{after_mem(MEM.WORD(37))} == -1"),
+    ("nop",),
     ("lw $a1, 37($zero)", "{after_mem(REGS.A1)} == -1"),
     ("lbu $a1, 37($zero)", "{after_mem(REGS.A1)} == 255"),
     ("lhu $a1, 37($zero)", "{after_mem(REGS.A1)} == 65535"),
@@ -215,7 +222,7 @@
     # Test `lui`
     ("lui $a0, 100",  "{after_mem(REGS.A0)} == 6553600"),
 
-        # initial state
+    # initial state
     ("addi $s0, $zero, 123",  "{after_mem(REGS.S0)} == 123"),
     ("addi $s1, $zero, 321",  "{after_mem(REGS.S1)} == 321"),
     ("addi $s2, $zero, 534",  "{after_mem(REGS.S2)} == 534"),
@@ -264,4 +271,70 @@
     # Test `subu`
     ("subu $a0, $s0, $s1",  "{after_mem(REGS.A0)} == -198"),
     ("subu $a0, $s1, $s0",  "{after_mem(REGS.A0)} == 198"),
+
+    # Test byte write and read to align and non align address
+    # Align 1
+    ("addi $a0, $zero, 149",  "{after_mem(REGS.A0)} == 149"),
+    ("sb $a0, 8($zero)", "{after(MEM.BYTE(8))} == 149"),
+    ("nop",),
+    ("lb $a1, 8($zero)", "{after_mem(REGS.A1)} == 149"),
+    # Align 2
+    ("addi $a0, $zero, 150",  "{after_mem(REGS.A0)} == 150"),
+    ("sb $a0, 9($zero)", "{after(MEM.BYTE(9))} == 150"),
+    ("nop",),
+    ("lb $a1, 9($zero)", "{after_mem(REGS.A1)} == 150"),
+    # Align 3
+    ("addi $a0, $zero, 151",  "{after_mem(REGS.A0)} == 151"),
+    ("sb $a0, 10($zero)", "{after(MEM.BYTE(10))} == 151"),
+    ("nop",),
+    ("lb $a1, 10($zero)", "{after_mem(REGS.A1)} == 151"),
+    # Align 0
+    ("addi $a0, $zero, 152",  "{after_mem(REGS.A0)} == 152"),
+    ("sb $a0, 11($zero)", "{after(MEM.BYTE(11))} == 152"),
+    ("nop",),
+    ("lb $a1, 11($zero)", "{after_mem(REGS.A1)} == 152"),
+
+    # Test half word write and read to align and non align address
+    # Align 1
+    ("addi $a0, $zero, 1149",  "{after_mem(REGS.A0)} == 1149"),
+    ("sh $a0, 8($zero)", "{after(MEM.HALFWORD(8))} == 1149"),
+    ("nop",),
+    ("lhu $a1, 8($zero)", "{after_mem(REGS.A1)} == 1149"),
+    # Align 2
+    ("addi $a0, $zero, 1150",  "{after_mem(REGS.A0)} == 1150"),
+    ("sh $a0, 9($zero)", "{after(MEM.HALFWORD(9))} == 1150"),
+    ("nop",),
+    ("lhu $a1, 9($zero)", "{after_mem(REGS.A1)} == 1150"),
+    # Align 3
+    ("addi $a0, $zero, 1151",  "{after_mem(REGS.A0)} == 1151"),
+    ("sh $a0, 10($zero)", "{after(MEM.HALFWORD(10))} == 1151"),
+    ("nop",),
+    ("lhu $a1, 10($zero)", "{after_mem(REGS.A1)} == 1151"),
+    # Align 0
+    ("addi $a0, $zero, 1152",  "{after_mem(REGS.A0)} == 1152"),
+    ("sh $a0, 11($zero)", "{after(MEM.HALFWORD(11))} == 1152"),
+    ("nop",),
+    ("lhu $a1, 11($zero)", "{after_mem(REGS.A1)} == 1152"),
+
+    # Test word write and read to align and non align address
+    # Align 1
+    ("addi $a0, $zero, 1149",  "{after_mem(REGS.A0)} == 1149"),
+    ("sw $a0, 8($zero)", "{after(MEM.WORD(8))} == 1149"),
+    ("nop",),
+    ("lw $a1, 8($zero)", "{after_mem(REGS.A1)} == 1149"),
+    # Align 2
+    ("addi $a0, $zero, 1150",  "{after_mem(REGS.A0)} == 1150"),
+    ("sw $a0, 9($zero)", "{after(MEM.WORD(9))} == 1150"),
+    ("nop",),
+    ("lw $a1, 9($zero)", "{after_mem(REGS.A1)} == 1150"),
+    # Align 3
+    ("addi $a0, $zero, 1151",  "{after_mem(REGS.A0)} == 1151"),
+    ("sw $a0, 10($zero)", "{after(MEM.WORD(10))} == 1151"),
+    ("nop",),
+    ("lw $a1, 10($zero)", "{after_mem(REGS.A1)} == 1151"),
+    # Align 0
+    ("addi $a0, $zero, 1152",  "{after_mem(REGS.A0)} == 1152"),
+    ("sw $a0, 11($zero)", "{after(MEM.WORD(11))} == 1152"),
+    ("nop",),
+    ("lw $a1, 11($zero)", "{after_mem(REGS.A1)} == 1152"),
 ]

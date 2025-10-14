@@ -55,4 +55,13 @@ module TESTBENCH;
             endcase
         end
     end
+
+    always @ (posedge U_MIPS_R2000.U_DataMemory.U_DataMemory.write_enable_a) begin
+        /*
+        $display("Time %t: Write to address %h data %h", $time, 
+                U_MIPS_R2000.U_DataMemory.U_DataMemory.address_a, 
+                U_MIPS_R2000.U_DataMemory.U_DataMemory.data_in_a);
+        */
+    end
+
 endmodule

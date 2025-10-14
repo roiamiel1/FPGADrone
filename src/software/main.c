@@ -20,7 +20,7 @@ void main() {
 
     while (1) {
         UART_PUTC('Q');
-        for (char i = 0; i < 5; i++) {
+        for (char i = 0; i < 20; i++) {
             UART_PUTC('A' + i);
         }
     }

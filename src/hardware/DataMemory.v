@@ -63,60 +63,59 @@ module MemoryAccess(
                           14'h0;
 
     /************************ Read logic ************************/
-
     assign data_in_internal = addr_module_4 == 2'b00 ? { data_in_block_0, data_in_block_1, data_in_block_2, data_in_block_3 } :
                               addr_module_4 == 2'b01 ? { data_in_block_1, data_in_block_2, data_in_block_3, data_in_block_0 } :
                               addr_module_4 == 2'b10 ? { data_in_block_2, data_in_block_3, data_in_block_0, data_in_block_1 } :
                               addr_module_4 == 2'b11 ? { data_in_block_3, data_in_block_0, data_in_block_1, data_in_block_2 } : 
                               32'h0;
     
-    assign data_out = mode == `DataMemoryMode_BYTE      ? data_in_internal >> 24 :
-                      mode == `DataMemoryMode_HALFWORD  ? data_in_internal >> 16 :
-                      mode == `DataMemoryMode_WORD      ? data_in_internal >> 00 :
+    assign data_out = mode == `DataMemoryMode_BYTE     ? data_in_internal >> 24 :
+                      mode == `DataMemoryMode_HALFWORD ? data_in_internal >> 16 :
+                      mode == `DataMemoryMode_WORD     ? data_in_internal >> 00 :
                       32'h0;
 
     /************************ Write logic ************************/
 
-    assign data_out_internal = mode == `DataMemoryMode_BYTE      ? data_in << 24 :
-                               mode == `DataMemoryMode_HALFWORD  ? data_in << 16 :
-                               mode == `DataMemoryMode_WORD      ? data_in << 00 :
+    assign data_out_internal = mode == `DataMemoryMode_BYTE     ? data_in << 24 :
+                               mode == `DataMemoryMode_HALFWORD ? data_in << 16 :
+                               mode == `DataMemoryMode_WORD     ? data_in << 00 :
                                32'h0;
 
     assign data_out_block_0 = addr_module_4 == 2'b00 ? data_out_internal[31:24] :
-                              addr_module_4 == 2'b01 ? data_out_internal[23:16] :
+                              addr_module_4 == 2'b01 ? data_out_internal[07:00] :
                               addr_module_4 == 2'b10 ? data_out_internal[15:08] :
-                              addr_module_4 == 2'b11 ? data_out_internal[07:00] :
+                              addr_module_4 == 2'b11 ? data_out_internal[23:16] :
                               32'h0;
     assign data_out_block_1 = addr_module_4 == 2'b00 ? data_out_internal[23:16] :
-                              addr_module_4 == 2'b01 ? data_out_internal[15:08] :
+                              addr_module_4 == 2'b01 ? data_out_internal[31:24] :
                               addr_module_4 == 2'b10 ? data_out_internal[07:00] :
                               addr_module_4 == 2'b11 ? data_out_internal[15:08] :
                               32'h0;
     assign data_out_block_2 = addr_module_4 == 2'b00 ? data_out_internal[15:08] :
-                              addr_module_4 == 2'b01 ? data_out_internal[07:00] :
+                              addr_module_4 == 2'b01 ? data_out_internal[23:16] :
                               addr_module_4 == 2'b10 ? data_out_internal[31:24] :
-                              addr_module_4 == 2'b11 ? data_out_internal[23:16] :
+                              addr_module_4 == 2'b11 ? data_out_internal[07:00] :
                               32'h0;
     assign data_out_block_3 = addr_module_4 == 2'b00 ? data_out_internal[07:00] :
-                              addr_module_4 == 2'b01 ? data_out_internal[31:24] :
+                              addr_module_4 == 2'b01 ? data_out_internal[15:08] :
                               addr_module_4 == 2'b10 ? data_out_internal[23:16] :
                               addr_module_4 == 2'b11 ? data_out_internal[31:24] :
                               32'h0;
 
     assign write_enable_block_0 = (mode == `DataMemoryMode_BYTE     ? (addr_module_4 == 2'b00) :
-                                   mode == `DataMemoryMode_HALFWORD ? (addr_module_4 == 2'b00 || addr_module_4 == 2'b01) :
+                                   mode == `DataMemoryMode_HALFWORD ? (addr_module_4 == 2'b00 || addr_module_4 == 2'b11) :
                                    mode == `DataMemoryMode_WORD     ? 1'b1 :
                                    1'b0) & write_enable;
     assign write_enable_block_1 = (mode == `DataMemoryMode_BYTE     ? (addr_module_4 == 2'b01) :
-                                   mode == `DataMemoryMode_HALFWORD ? (addr_module_4 == 2'b01 || addr_module_4 == 2'b10) :
+                                   mode == `DataMemoryMode_HALFWORD ? (addr_module_4 == 2'b01 || addr_module_4 == 2'b00) :
                                    mode == `DataMemoryMode_WORD     ? 1'b1 :
                                    1'b0) & write_enable;
     assign write_enable_block_2 = (mode == `DataMemoryMode_BYTE     ? (addr_module_4 == 2'b10) :
-                                   mode == `DataMemoryMode_HALFWORD ? (addr_module_4 == 2'b10 || addr_module_4 == 2'b11) :
+                                   mode == `DataMemoryMode_HALFWORD ? (addr_module_4 == 2'b10 || addr_module_4 == 2'b01) :
                                    mode == `DataMemoryMode_WORD     ? 1'b1 :
                                    1'b0) & write_enable;
     assign write_enable_block_3 = (mode == `DataMemoryMode_BYTE     ? (addr_module_4 == 2'b11) :
-                                   mode == `DataMemoryMode_HALFWORD ? (addr_module_4 == 2'b11 || addr_module_4 == 2'b00) :
+                                   mode == `DataMemoryMode_HALFWORD ? (addr_module_4 == 2'b11 || addr_module_4 == 2'b10) :
                                    mode == `DataMemoryMode_WORD     ? 1'b1 :
                                    1'b0) & write_enable;
 
@@ -226,7 +225,7 @@ module DataMemory(
 
     Gowin_DPB_16384_8 `ifdef DEBUG #(.BLOCK_INDEX(0)) `endif MemBlock0(
         // Port A
-        .clka(clk),
+        .clka(!clk),
         .reseta(rst),
         .ocea(1'b1),
         .cea(1'b1),
@@ -247,7 +246,7 @@ module DataMemory(
     
     Gowin_DPB_16384_8 `ifdef DEBUG #(.BLOCK_INDEX(1)) `endif MemBlock1(
         // Port A
-        .clka(clk),
+        .clka(!clk),
         .reseta(rst),
         .ocea(1'b1),
         .cea(1'b1),
@@ -268,7 +267,7 @@ module DataMemory(
 
     Gowin_DPB_16384_8 `ifdef DEBUG #(.BLOCK_INDEX(2)) `endif MemBlock2(
         // Port A
-        .clka(clk),
+        .clka(!clk),
         .reseta(rst),
         .ocea(1'b1),
         .cea(1'b1),
@@ -289,7 +288,7 @@ module DataMemory(
 
     Gowin_DPB_16384_8 `ifdef DEBUG #(.BLOCK_INDEX(3)) `endif MemBlock3(
         // Port A
-        .clka(clk),
+        .clka(!clk),
         .reseta(rst),
         .ocea(1'b1),
         .cea(1'b1),

@@ -59,10 +59,10 @@ def encode_r_type(opcode, rs, rt, rd, shamt, funct):
     return (opcode << 26) | (rs << 21) | (rt << 16) | (rd << 11) | (shamt << 6) | funct
 
 def encode_lui(rt, immediate):
-    return encode_i_type(0b001111, 0, rt, immediate)  # rs = 0 for LUI
+    return (encode_i_type(0b001111, 0, rt, immediate), f"lui ${rt}, 0x{immediate:04X}")
 
 def encode_ori(rs, rt, immediate):
-    return encode_i_type(0b001101, rs, rt, immediate)  # ORI
+    return (encode_i_type(0b001101, rs, rt, immediate), f"ori ${rt}, ${rs}, 0x{immediate:04X}")
 
 def set_register_32bit(register, value):
     upper = (value >> 16) & 0xFFFF
@@ -90,7 +90,10 @@ def encode_jump(target_address):
     opcode = 0x02
     instr_index = (target_address >> 2) & 0x03FFFFFF  # Keep only 26 bits
     instruction = (opcode << 26) | instr_index
-    return [instruction]
+    return [(instruction, f"j 0x{target_address:08X}")]
+
+def encode_nop():
+    return [(0x00000000, "sll $0, $0, 0")]  # NOP is encoded as SLL $0, $0, 0
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -109,12 +112,14 @@ if __name__ == "__main__":
     loader_instructions += set_register_32bit(SP, STACK_BASE_ADDR)
     loader_instructions += set_register_32bit(FP, STACK_BASE_ADDR)
     loader_instructions += encode_jump(entry)
+    loader_instructions += encode_nop()  # Delay slot for jump, so the processor doesn't execute random instruction
+    loader_instructions += encode_nop()
 
     assert len(loader_instructions) <= (entry // 4), f"Loader patch exceeds {entry // 4} instructions limit"
 
     print(Fore.CYAN + f"Loader patch length: {len(loader_instructions)*4} bytes ({len(loader_instructions)} instructions)")
-    for i, instr in enumerate(loader_instructions):
-        print(Fore.YELLOW + f"  [0x{(i * 4):04X}] 0x{instr:08X}")
+    for i, (instr, opcode) in enumerate(loader_instructions):
+        print(Fore.YELLOW + f"  [0x{(i * 4):04X}] 0x{instr:08X} " + Fore.WHITE + "// " + Fore.LIGHTRED_EX + f"{opcode}")
         mem[i * 4 : (i + 1) * 4] = instr.to_bytes(4, 'big')
 
     print(Style.RESET_ALL)
