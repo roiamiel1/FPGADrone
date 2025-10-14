@@ -89,7 +89,7 @@ module Control(
             ExtOp     <= 1'b0;
             ALUOp     <= 5'b0;
             SpecialOP <= 4'b0;
-        end else {DATA_BLOCK}begin
+        end else {DATA_BLOCK} begin
             // default case:
             Jump      <= 1'b0;
             RegDst    <= 1'b0;
@@ -101,6 +101,17 @@ module Control(
             ExtOp     <= 1'b0;
             ALUOp     <= 5'b0;
             SpecialOP <= 4'b0;
+            `ifdef DEBUG
+            if (OpCode !== 6'bx && Funct !== 6'bx) begin
+                $display("\\n*************** Warning ***************"); 
+                $display(   "  Unsupported instruction encountered  ");
+                $display("Time: %t", $time);
+                $display("OpCode: 0x%h", OpCode);
+                $display("Funct: 0x%h", Funct);
+                $display("PCU: 0x%h", TESTBENCH.U_MIPS_R2000.U_PCU_PC);
+                $display("***************************************\\n"); 
+            end
+            `endif
         end
     end
 endmodule

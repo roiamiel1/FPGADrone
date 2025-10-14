@@ -93,16 +93,15 @@ module DataMemoryInterface(
         (address == `P_UART_DONE) ||
         (address == `P_UART_BUSY)
     );
-    assign data_out = !IsSpacialAddress ? MemoryDataOut : (
-        (address == `P_UART_DONE) ? {30'b0, UART_Done} :
-        (address == `P_UART_BUSY) ? {30'b0, UART_Busy} :
-        (31'b0)
-    );
-
     assign DataMemoryWriteEnable = (write_enable && !IsSpacialAddress) || IsInitiateWordPending;
     assign DataMemoryAddress = IsInitiateWordPending ? (InitiateWordAddr << 2) : address[13:0];
     assign DataMemoryIn = IsInitiateWordPending ? InitiateWordBuffer : data_in;
     assign DataMemoryMode = IsInitiateWordPending ? `DataMemoryMode_WORD : mode;
+
+    assign data_out = !IsSpacialAddress ? MemoryDataOut :
+                      address == `P_UART_DONE ? {31'b0, UART_Done} :
+                      address == `P_UART_BUSY ? {31'b0, UART_Busy} :
+                      32'b0;
 
     Uart8Transmitter U_Uart(
         .clk(uart_clk),
@@ -122,7 +121,6 @@ module DataMemoryInterface(
         // Read Write Main Interface
         .write_enable_a(DataMemoryWriteEnable),
         .mode_a(DataMemoryMode),
-        // .address_a(ready ? DataMemoryAddress >> 2 : DataMemoryAddress), // WTF?!?!?!??!?!
         .address_a(DataMemoryAddress),
         .data_in_a(DataMemoryIn),
         .data_out_a(MemoryDataOut),
@@ -154,17 +152,22 @@ module DataMemoryInterface(
         .outbyte(SD_OutByte)
     );
 
-    always @(posedge clk) begin
-        if (write_enable) begin
-            case (address)
-                `P_UART_CHAR: UART_In <= data_in[7:0];
-                `P_UART_START: UART_Start <= data_in[0];
-            endcase
+    always @(posedge clk, posedge rst) begin
+        if (rst) begin
+            UART_Start <= 1'b0;
+            UART_In <= 8'b0;
+        end else begin
+            if (write_enable) begin
+                case (address)
+                    `P_UART_CHAR: UART_In <= data_in[7:0];
+                    `P_UART_START: UART_Start <= data_in[0];
+                endcase
+            end
         end
     end
 
-    always @(posedge clk, posedge rst) begin
-        if (rst) begin
+    always @(negedge clk, posedge rst) begin
+        if (rst) begin            
             SD_State <= `S_SD_RESET;
             SD_Start <= 1'b0;
             SD_ReadSectorIndex <= 32'b0;

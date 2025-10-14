@@ -420,7 +420,19 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SRA;
             SpecialOP <= `SpecialOP_NONE;
-        end else begin
+        end else if (OpCode == 6'h0 && Funct == 6'h0) begin
+            // nop case:
+            Jump      <= 1'b0;
+            RegDst    <= 1'b0;
+            Branch    <= 1'b0;
+            MemRead   <= 1'b0;
+            MemWrite  <= 1'b0;
+            RegWrite  <= 1'b0;
+            ALUSrc    <= 1'b0;
+            ExtOp     <= 1'b0;
+            ALUOp     <= 5'b0;
+            SpecialOP <= 4'b0;
+        end else  begin
             // default case:
             Jump      <= 1'b0;
             RegDst    <= 1'b0;
@@ -432,6 +444,17 @@ module Control(
             ExtOp     <= 1'b0;
             ALUOp     <= 5'b0;
             SpecialOP <= 4'b0;
+            `ifdef DEBUG
+            if (OpCode !== 6'bx && Funct !== 6'bx) begin
+                $display("\n*************** Warning ***************"); 
+                $display(   "  Unsupported instruction encountered  ");
+                $display("Time: %t", $time);
+                $display("OpCode: 0x%h", OpCode);
+                $display("Funct: 0x%h", Funct);
+                $display("PCU: 0x%h", TESTBENCH.U_MIPS_R2000.U_PCU_PC);
+                $display("***************************************\n"); 
+            end
+            `endif
         end
     end
 endmodule

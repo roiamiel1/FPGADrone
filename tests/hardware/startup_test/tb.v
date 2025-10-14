@@ -22,6 +22,9 @@ module TESTBENCH;
     wire [5:0] show_sdcmd_cmd;
     wire [31:0] show_sdcmd_arg;
 
+    // Memory declaration: (16384 x 4) x 8 bits
+    reg [7:0] InternalMem [0:65536];
+
     MIPS_R2000 U_MIPS_R2000(
         .clk(clk),
         .rst(1'b0),

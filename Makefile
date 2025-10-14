@@ -140,6 +140,7 @@ hw-test-instruction-set:
 	# Compile output test.asm to test.hex
 	$(MIPS_AS) -o $(BUILD_PATH)/test.out $(BUILD_PATH)/test.asm
 	$(MIPS_OBJCOPY) --dump-section .text=$(BUILD_PATH)/test.shellcode $(BUILD_PATH)/test.out
+	$(MIPS_OBJDUMP) -d -M no-aliases $(BUILD_PATH)/test.out > $(BUILD_PATH)/test.shellcode.text
 
 	mkdir -p build/hardware/tests/instruction_set_test
 	$(PYTHON) scripts/generate_rom_switch_case.py $(BUILD_PATH)/test.shellcode build/hardware/tests/instruction_set_test/rom_switch_case.v

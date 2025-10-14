@@ -60,7 +60,6 @@ module Uart8Transmitter(
                 end
                 `IDLE: begin
                     out     <= 1'b1; // drive line high for idle
-                    done    <= 1'b0;
                     busy    <= 1'b0;
                     bitIdx  <= 3'b0;
                     data    <= 8'b0;
@@ -73,6 +72,7 @@ module Uart8Transmitter(
                 `START_BIT: begin
                     out     <= 1'b0; // send start bit (low)
                     busy    <= 1'b1;
+                    done    <= 1'b0;
                     state   <= `DATA_BITS;
                 end
                 `DATA_BITS: begin // Wait 8 clock cycles for data bits to be sent
