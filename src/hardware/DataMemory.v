@@ -71,14 +71,14 @@ module MemoryAccess(
                               32'h0;
     
     assign data_out = mode == `DataMemoryMode_BYTE      ? data_in_internal >> 24 :
-                      mode == `DataMemoryMode_HALFWORD ? data_in_internal >> 16 :
+                      mode == `DataMemoryMode_HALFWORD  ? data_in_internal >> 16 :
                       mode == `DataMemoryMode_WORD      ? data_in_internal >> 00 :
                       32'h0;
 
     /************************ Write logic ************************/
 
     assign data_out_internal = mode == `DataMemoryMode_BYTE      ? data_in << 24 :
-                               mode == `DataMemoryMode_HALFWORD ? data_in << 16 :
+                               mode == `DataMemoryMode_HALFWORD  ? data_in << 16 :
                                mode == `DataMemoryMode_WORD      ? data_in << 00 :
                                32'h0;
 
@@ -90,7 +90,7 @@ module MemoryAccess(
     assign data_out_block_1 = addr_module_4 == 2'b00 ? data_out_internal[23:16] :
                               addr_module_4 == 2'b01 ? data_out_internal[15:08] :
                               addr_module_4 == 2'b10 ? data_out_internal[07:00] :
-                              addr_module_4 == 2'b11 ? data_out_internal[31:24] :
+                              addr_module_4 == 2'b11 ? data_out_internal[15:08] :
                               32'h0;
     assign data_out_block_2 = addr_module_4 == 2'b00 ? data_out_internal[15:08] :
                               addr_module_4 == 2'b01 ? data_out_internal[07:00] :
@@ -100,7 +100,7 @@ module MemoryAccess(
     assign data_out_block_3 = addr_module_4 == 2'b00 ? data_out_internal[07:00] :
                               addr_module_4 == 2'b01 ? data_out_internal[31:24] :
                               addr_module_4 == 2'b10 ? data_out_internal[23:16] :
-                              addr_module_4 == 2'b11 ? data_out_internal[15:08] :
+                              addr_module_4 == 2'b11 ? data_out_internal[31:24] :
                               32'h0;
 
     assign write_enable_block_0 = (mode == `DataMemoryMode_BYTE     ? (addr_module_4 == 2'b00) :
