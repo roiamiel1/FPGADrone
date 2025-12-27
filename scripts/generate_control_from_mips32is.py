@@ -108,6 +108,7 @@ module Control(
                 $display("Time: %t", $time);
                 $display("OpCode: 0x%h", OpCode);
                 $display("Funct: 0x%h", Funct);
+                $display("Inst: 0x%h", TESTBENCH.U_MIPS_R2000.U_IFIDReg_Instr_out);
                 $display("PCU: 0x%h", TESTBENCH.U_MIPS_R2000.U_PCU_PC);
                 $display("***************************************\\n"); 
             end
