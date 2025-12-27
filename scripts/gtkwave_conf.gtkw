@@ -1,0 +1,27 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sat Dec 27 23:18:17 2025
+[*]
+[dumpfile] "./build/hardware/tests/startup_test//test.vcd"
+[dumpfile_mtime] "Sat Dec 27 22:49:03 2025"
+[dumpfile_size] 1056440799
+[savefile] "/Users/roi/Projects/drone/scripts/gtkwave_conf.gtkw"
+[timestart] 26066159013
+[size] 1792 1061
+[pos] -1 -1
+*0.000000 26066159016 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[treeopen] TESTBENCH.
+[treeopen] TESTBENCH.U_MIPS_R2000.
+[sst_width] 255
+[signals_width] 232
+[sst_expanded] 1
+[sst_vpaned_height] 312
+@28
+TESTBENCH.U_MIPS_R2000.MemoryReady
+@22
+TESTBENCH.U_MIPS_R2000.U_DataMemory.IMAdress[31:0]
+@4023
+^>1 /Users/roi/Projects/drone/scripts/gtkwave_filter_mips.py
+TESTBENCH.U_MIPS_R2000.U_DataMemory.IR[31:0]
+[pattern_trace] 1
+[pattern_trace] 0
