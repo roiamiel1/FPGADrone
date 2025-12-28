@@ -4,7 +4,12 @@
 `include "instruction_def.v"
 
 `define CLOCK_RATE      27_000_000 // board internal clock (27Mhz)
+
+`ifndef DEBUG
 `define UART_BAUD_RATE  9_600
+`else
+`define UART_BAUD_RATE  `CLOCK_RATE / 2 // for debugging purposes
+`endif
 
 module MIPS_R2000 (
     input clk,
@@ -14,7 +19,9 @@ module MIPS_R2000 (
     inout sdcmd,
     input sddat0
 );
-    parameter UART_MAX_RATE_TX = `CLOCK_RATE / (2 * `UART_BAUD_RATE);
+    // Why devided by 2? because we toggle the clk every UART_MAX_RATE_TX cycles.
+    // So the full period is 2 * UART_MAX_RATE_TX cycles.
+    parameter UART_MAX_RATE_TX = `CLOCK_RATE / (`UART_BAUD_RATE * 2); 
     parameter UART_TX_CNT_WIDTH = $clog2(UART_MAX_RATE_TX);
 
     // U_Ctrl connections.

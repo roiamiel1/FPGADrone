@@ -71,7 +71,7 @@ module TESTBENCH;
         reg [9:0] uart_frame;
         integer bit_time_ns;
         begin
-            bit_time_ns = 104166;  // ≈ 1e9 / 9600 baud (in ns)
+            bit_time_ns = 37 * 2;  // ≈ 1e9 / (27000000 / 2) baud (in ns)
 
             forever begin
                 // Wait for start bit (falling edge)
@@ -104,7 +104,7 @@ module TESTBENCH;
     always @(posedge clk) begin
         if (U_MIPS_R2000.MemoryReady == 1'b1) begin
             cycles = cycles + 1;
-            if(cycles > 200000) begin
+            if(cycles > 1000) begin
                 $display("\n\n***************  Done  ***************\n\n");
                 $finish;
             end
