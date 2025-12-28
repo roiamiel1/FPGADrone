@@ -3,6 +3,11 @@
 module MEMWBReg (
     input clk,
     input rst,
+
+    // Debugging instruction
+    input  [31:0] Instr_in,
+    output [31:0] Instr_out,
+
     // WB signal
     input RegWrite_in,
     input MemRead_in,
@@ -18,9 +23,10 @@ module MEMWBReg (
     output [31:0] ALU_out,
     output [4:0] WriteBackRegAddr_out
 );
-    reg[70:0] StageReg;
+    reg[102:0] StageReg;
 
     assign {
+        Instr_out[31:0],
         RegWrite_out,
         MemRead_out,
         Mem_out[31:0],
@@ -29,14 +35,15 @@ module MEMWBReg (
     } = StageReg;
 
     initial begin
-        StageReg <= 71'b0;
+        StageReg <= 103'b0;
     end
 
     always @(posedge clk, posedge rst) begin
         if (rst)
-            StageReg <= 71'b0;
+            StageReg <= 103'b0;
         else begin
             StageReg <= {
+                Instr_in[31:0],
                 RegWrite_in,
                 MemRead_in,
                 Mem_in[31:0],

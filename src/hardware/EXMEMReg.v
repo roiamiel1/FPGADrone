@@ -5,6 +5,10 @@ module EXMEMReg (
     input rst,
     input HazardFlush,
 
+    // Debugging instruction
+    input  [31:0] Instr_in,
+    output [31:0] Instr_out,
+
     // MEM signal
     input Branch_in,
     input Jump_in,
@@ -43,16 +47,17 @@ module EXMEMReg (
     output [31:0] ALU_out,
     output [4:0] WriteBackRegAddr_out
 );
-    reg[110:0] StageReg;
+    reg[142:0] StageReg;
 
     assign {
+        Instr_out[31:0],
         Branch_out,
         Jump_out,
-        BranchAddress_out,
+        BranchAddress_out[31:0],
         MemRead_out,
         MemWrite_out,
-        Reg2_out,
-        SpecialOP_out,
+        Reg2_out[31:0],
+        SpecialOP_out[3:0],
         RegWrite_out,
         Zero_out,
         ALU_out[31:0],
@@ -60,21 +65,22 @@ module EXMEMReg (
     } = StageReg;
 
     initial begin
-        StageReg <= 111'b0;
+        StageReg <= 143'b0;
     end
 
     always @(posedge clk, posedge rst) begin
         if (rst || HazardFlush)
-            StageReg <= 107'b0;
+            StageReg <= 143'b0;
         else begin
             StageReg <= {
+                Instr_in[31:0],
                 Branch_in,
                 Jump_in,
-                BranchAddress_in,
+                BranchAddress_in[31:0],
                 MemRead_in,
                 MemWrite_in,
-                Reg2_in,
-                SpecialOP_in,
+                Reg2_in[31:0],
+                SpecialOP_in[3:0],
                 RegWrite_in,
                 Zero_in,
                 ALU_in[31:0],
