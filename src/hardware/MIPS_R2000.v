@@ -359,7 +359,7 @@ module MIPS_R2000 (
         if (rst) begin
             uartTxClk <= 1'b0;
             uartTxCounter <= 0;
-        end else if (uartTxCounter == UART_MAX_RATE_TX) begin
+        end else if (uartTxCounter == (UART_MAX_RATE_TX - 1)) begin
             uartTxCounter <= 0;
             uartTxClk <= ~uartTxClk;
         end else begin
