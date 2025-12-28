@@ -123,7 +123,7 @@ hw-run-test:
 	endif
 
 hw-view-wave:
-	gtkwave $(TEST_BUILD_PATH)/test.vcd scripts/gtkwave_conf.gtkw
+	gtkwave $(TEST_BUILD_PATH)/test.vcd scripts/gtkwave_conf.gtkw --dark -A --rcvar 'fontname_signals Monospace 18' --rcvar 'fontname_waves Monospace 18'
     
 
 hw-test-instruction-set:
