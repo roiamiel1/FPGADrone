@@ -1,27 +1,174 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Sat Dec 27 23:18:17 2025
+[*] Sun Dec 28 20:14:50 2025
 [*]
 [dumpfile] "./build/hardware/tests/startup_test//test.vcd"
-[dumpfile_mtime] "Sat Dec 27 22:49:03 2025"
-[dumpfile_size] 1056440799
-[savefile] "/Users/roi/Projects/drone/scripts/gtkwave_conf.gtkw"
-[timestart] 26066159013
+[dumpfile_mtime] "Sun Dec 28 20:11:16 2025"
+[dumpfile_size] 1202527131
+[savefile] "scripts/gtkwave_conf.gtkw"
+[timestart] 26066177532
 [size] 1792 1061
 [pos] -1 -1
-*0.000000 26066159016 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+*0.000000 26066177534 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
 [treeopen] TESTBENCH.
 [treeopen] TESTBENCH.U_MIPS_R2000.
+[treeopen] TESTBENCH.U_MIPS_R2000.U_ALU.
 [sst_width] 255
-[signals_width] 232
+[signals_width] 405
 [sst_expanded] 1
 [sst_vpaned_height] 312
+@200
+-General
+@29
+[color] 1
+TESTBENCH.U_MIPS_R2000.clk
 @28
+[color] 1
 TESTBENCH.U_MIPS_R2000.MemoryReady
 @22
+[color] 1
 TESTBENCH.U_MIPS_R2000.U_DataMemory.IMAdress[31:0]
-@4023
+@4022
+[color] 1
 ^>1 /Users/roi/Projects/drone/scripts/gtkwave_filter_mips.py
 TESTBENCH.U_MIPS_R2000.U_DataMemory.IR[31:0]
+@200
+-IF
+@4022
+[color] 2
+^>1 /Users/roi/Projects/drone/scripts/gtkwave_filter_mips.py
+TESTBENCH.U_MIPS_R2000.U_IFIDReg.Instr_in[31:0]
+@22
+[color] 2
+TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_in[31:0]
+@200
+-ID
+@4022
+^>1 /Users/roi/Projects/drone/scripts/gtkwave_filter_mips.py
+TESTBENCH.U_MIPS_R2000.IFID_Instr[31:0]
+@c00022
+[color] 3
+TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+@28
+(0)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(1)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(2)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(3)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(4)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(5)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(6)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(7)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(8)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(9)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(10)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(11)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(12)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(13)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(14)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(15)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(16)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(17)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(18)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(19)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(20)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(21)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(22)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(23)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(24)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(25)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(26)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(27)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(28)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(29)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(30)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+(31)TESTBENCH.U_MIPS_R2000.U_IFIDReg.PC_out[31:0]
+@1401200
+-group_end
+@4022
+[color] 3
+^>2 /Users/roi/Projects/drone/scripts/gtkwave_filter_regs.py
+TESTBENCH.U_MIPS_R2000.U_GPR.ReadRegister1[4:0]
+@22
+[color] 3
+TESTBENCH.U_MIPS_R2000.U_GPR.DataOut1[31:0]
+@4022
+[color] 3
+^>2 /Users/roi/Projects/drone/scripts/gtkwave_filter_regs.py
+TESTBENCH.U_MIPS_R2000.U_GPR.ReadRegister2[4:0]
+@22
+[color] 3
+TESTBENCH.U_MIPS_R2000.U_GPR.DataOut2[31:0]
+@200
+-EX
+@4022
+^>1 /Users/roi/Projects/drone/scripts/gtkwave_filter_mips.py
+TESTBENCH.U_MIPS_R2000.IDEX_Instr[31:0]
+@22
+[color] 5
+TESTBENCH.U_MIPS_R2000.U_ALU.ALUOp[4:0]
+[color] 5
+TESTBENCH.U_MIPS_R2000.U_ALU.DataIn1[31:0]
+[color] 5
+TESTBENCH.U_MIPS_R2000.U_ALU.DataIn2[31:0]
+[color] 5
+TESTBENCH.U_MIPS_R2000.U_ALU.ALURes[31:0]
+@200
+-MEM
+@4022
+^>1 /Users/roi/Projects/drone/scripts/gtkwave_filter_mips.py
+TESTBENCH.U_MIPS_R2000.EXMEM_Instr[31:0]
+@28
+[color] 7
+TESTBENCH.U_MIPS_R2000.U_DataMemory.DataMemoryWriteEnable
+@22
+[color] 7
+TESTBENCH.U_MIPS_R2000.U_DataMemory.DataMemoryAddress[13:0]
+[color] 7
+TESTBENCH.U_MIPS_R2000.U_DataMemory.DataMemoryIn[31:0]
+@4028
+[color] 7
+^>3 /Users/roi/Projects/drone/scripts/gtkwave_filter_mem_block_mode.py
+TESTBENCH.U_MIPS_R2000.U_DataMemory.DataMemoryMode[1:0]
+@200
+-WB
+@4022
+^>1 /Users/roi/Projects/drone/scripts/gtkwave_filter_mips.py
+TESTBENCH.U_MIPS_R2000.MEMWB_Instr[31:0]
+@28
+[color] 4
+TESTBENCH.U_MIPS_R2000.U_GPR.RegWrite
+@22
+[color] 4
+TESTBENCH.U_MIPS_R2000.U_GPR.WriteData[31:0]
+@4022
+[color] 4
+^>2 /Users/roi/Projects/drone/scripts/gtkwave_filter_regs.py
+TESTBENCH.U_MIPS_R2000.U_GPR.WriteRegister[4:0]
 [pattern_trace] 1
 [pattern_trace] 0
