@@ -154,8 +154,8 @@ module MIPS_R2000 (
     );
 
     // IDEXReg assigns.
-    // In case the SpecialOP is JAL -> R[31] = $RA = PC + 8;
-    assign U_IDEXReg_Reg1_in = ((U_Ctrl_SpecialOP == `SpecialOP_JAL) ? (U_IFIDReg_PC_out + 8) : U_GPR_DataOut1);
+    // In case the SpecialOP is JAL -> R[31] = $RA = PC + 4;
+    assign U_IDEXReg_Reg1_in = ((U_Ctrl_SpecialOP == `SpecialOP_JAL) ? (U_IFIDReg_PC_out + 4) : U_GPR_DataOut1);
     assign U_IDEXReg_Rd_in = ((U_Ctrl_SpecialOP == `SpecialOP_JAL) ? 31 : (`RD(IFID_Instr)));
 
     // Assigns Forwaring Mux's
