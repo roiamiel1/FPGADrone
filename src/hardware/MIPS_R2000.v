@@ -147,10 +147,10 @@ module MIPS_R2000 (
 
     // Branch and Jump assigns.
     assign U_PCU_PCSrc = U_EXMEMReg_Jump_out || (U_EXMEMReg_Branch_out && (
-        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BEQ  &&  U_EXMEMReg_Zero_out                          )  ||
-        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BNE  && !U_EXMEMReg_Zero_out                          )  ||
-        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BGTZ && !U_EXMEMReg_Sign_out                          )  ||
-        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BLEZ &&  (U_EXMEMReg_Zero_out || U_EXMEMReg_Sign_out ))
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BEQ  &&   U_EXMEMReg_Zero_out                          )  ||
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BNE  &&  !U_EXMEMReg_Zero_out                          )  ||
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BGTZ && (!U_EXMEMReg_Zero_out && !U_EXMEMReg_Sign_out ))  ||
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BLEZ &&  (U_EXMEMReg_Zero_out ||  U_EXMEMReg_Sign_out ))
     ));
     assign HazardFlushRegs = U_PCU_PCSrc == 1'b1; // U_PCU_PCSrc == 1'b1 -> Jump or Branch.
 

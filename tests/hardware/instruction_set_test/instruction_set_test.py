@@ -369,12 +369,11 @@
     # Bgtz test when zero
     ("addi $a0, $zero, 0",  "{after_mem(REGS.A0)} == 0"),
     ("bgtz $a0, bgtz_zero_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*4"),
-    ("bgtz_zero_unsuccess: addiu $k0, $zero, 100", FALSE),
-    ("bgtz_zero_success: addiu $k1, $zero, 559", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 559"),
+    ("bgtz_zero_unsuccess: addiu $k0, $zero, 100", TRUE),
+    ("bgtz_zero_success: addiu $k1, $zero, 559", "{after_mem(REGS.K0)} == 100", "{after_mem(REGS.K1)} == 559"),
     ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
 
     # Bgtz test when positive
-    ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
     ("addi $a0, $zero, 1",  "{after_mem(REGS.A0)} == 1"),
     ("bgtz $a0, bgtz_pos_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
     ("bgtz_pos_unsuccess: addiu $k0, $zero, 100", FALSE),
