@@ -131,7 +131,7 @@ module Control(
             ALUSrc    <= `ALU_SRC_REG;
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SUB;
-            SpecialOP <= `SpecialOP_NONE;
+            SpecialOP <= `SpecialOP_BEQ;
         end else if (OpCode == 6'h5) begin
             // bne case:
             Jump      <= 1'b0;
@@ -142,8 +142,8 @@ module Control(
             RegWrite  <= 1'b0;
             ALUSrc    <= `ALU_SRC_REG;
             ExtOp     <= `EXT_SIGNED;
-            ALUOp     <= `ALUOp_BNE;
-            SpecialOP <= `SpecialOP_NONE;
+            ALUOp     <= `ALUOp_SUB;
+            SpecialOP <= `SpecialOP_BNE;
         end else if (OpCode == 6'h2) begin
             // j case:
             Jump      <= 1;
@@ -432,6 +432,30 @@ module Control(
             ExtOp     <= 1'b0;
             ALUOp     <= 5'b0;
             SpecialOP <= 4'b0;
+        end else if (OpCode == 6'h7) begin
+            // bgtz case:
+            Jump      <= 1'b0;
+            RegDst    <= 1'b0;
+            Branch    <= 1;
+            MemRead   <= 1'b0;
+            MemWrite  <= 1'b0;
+            RegWrite  <= 1'b0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= `ALUOp_IN1;
+            SpecialOP <= `SpecialOP_BGTZ;
+        end else if (OpCode == 6'h6) begin
+            // blez case:
+            Jump      <= 1'b0;
+            RegDst    <= 1'b0;
+            Branch    <= 1;
+            MemRead   <= 1'b0;
+            MemWrite  <= 1'b0;
+            RegWrite  <= 1'b0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= `ALUOp_IN1;
+            SpecialOP <= `SpecialOP_BLEZ;
         end else  begin
             // default case:
             Jump      <= 1'b0;
