@@ -89,7 +89,7 @@ module TESTBENCH;
                 // Only proceed if framing is valid
                 if (uart_frame[0] === 0 && uart_frame[9] === 1) begin
                     data = uart_frame[8:1];
-                    $display("Received char: %c (0x%02h) at time %t", data, data, $time);
+                    $write("%c", data);
                 end else begin
                     $display("Invalid UART frame at time %t: start=%b stop=%b", $time, uart_frame[0], uart_frame[9]);
                 end
@@ -104,7 +104,7 @@ module TESTBENCH;
     always @(posedge clk) begin
         if (U_MIPS_R2000.MemoryReady == 1'b1) begin
             cycles = cycles + 1;
-            if(cycles > 1000) begin
+            if(cycles > 10000) begin
                 $display("\n\n***************  Done  ***************\n\n");
                 $finish;
             end
