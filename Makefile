@@ -118,9 +118,9 @@ hw-run-test:
 # Run the test
 	cd $(SRC_HW_PATH); $(IVERILOG) -DDEBUG=1 -g2001 -Wall -o $(SRC_HW_PATH_BACKWARDS)/$(BUILD_PATH)/test.vvp $(HW_SRCS) $(SRC_HW_PATH_BACKWARDS)/tests/hardware/common/sd_fake.v $(shell cd $(SRC_HW_PATH); find $(SRC_HW_PATH_BACKWARDS)/$(TEST_PATH) -type f -name "*.v") 
 	$(VVP) $(BUILD_PATH)/test.vvp | tee $(BUILD_PATH)/test.log
-	ifneq ($(GTK),)
-		TEST_BUILD_PATH=$(BUILD_PATH) make hw-view-wave
-	endif
+ifneq ($(GTK),)
+	TEST_BUILD_PATH=$(BUILD_PATH) make hw-view-wave
+endif
 
 hw-view-wave:
 	gtkwave $(TEST_BUILD_PATH)/test.vcd scripts/gtkwave_conf.gtkw --dark -A --rcvar 'fontname_signals Monospace 18' --rcvar 'fontname_waves Monospace 18'
