@@ -97,14 +97,14 @@
     ("jal_success: addi $k1, $zero, -12312", 
         "{after_mem(REGS.K0)} == 0",
         "{after_mem(REGS.K1)} == -12312", 
-        "{after_mem(REGS.RA)} == {before(REGS.PC)} - 8 + 4*2"
+        "{after_mem(REGS.RA)} == {before(REGS.PC)} - 8 + 4"
     ),
     
     # Test `jr` - branching:
     # Note! this test should come after `jal` test. 
     # because after `jal` test, $RA register contains the current PC. 
     # We use this data to calculate where to jump to.
-    ("addiu $t0, $ra, 20", TRUE), # We have 6 opcodes after jal to jr_success.
+    ("addiu $t0, $ra, 24", TRUE), # We have 6 opcodes after jal to jr_success (6 * 4 = 24).
     ("jr $t0", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
     ("jr_unsuccess: addiu $k0, 100", FALSE),
     ("jr_success: addiu $k1, $zero, 123", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 123"),
@@ -337,4 +337,47 @@
     ("sw $a0, 11($zero)", "{after(MEM.WORD(11))} == 1152"),
     ("nop",),
     ("lw $a1, 11($zero)", "{after_mem(REGS.A1)} == 1152"),
+
+    # Blez test when negative
+    ("addi $a0, $zero, -1", "{after_mem(REGS.A0)} == -1"),
+    ("blez $a0, blez_neg_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("blez_neg_unsuccess: addiu $k0, $zero, 100", FALSE),
+    ("blez_neg_success: addiu $k1, $zero, 555", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 555"),
+    ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
+
+    # Blez test when zero
+    ("addi $a0, $zero, 0", "{after_mem(REGS.A0)} == 0"),
+    ("blez $a0, blez_zero_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*4"),
+    ("blez_zero_unsuccess: addiu $k0, $zero, 100", FALSE),
+    ("blez_zero_success: addiu $k1, $zero, 556", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 556"),
+    ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
+
+    # Blez test when positive
+    ("addi $a0, $zero, 1",  "{after_mem(REGS.A0)} == 1"),
+    ("blez $a0, blez_pos_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*4"),
+    ("blez_pos_unsuccess: addiu $k0, $zero, 100", TRUE),
+    ("blez_pos_success: addiu $k1, $zero, 557", "{after_mem(REGS.K0)} == 100", "{after_mem(REGS.K1)} == 557"),
+    ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
+
+    # Bgtz test when negative
+    ("addi $a0, $zero, -1", "{after_mem(REGS.A0)} == -1"),
+    ("bgtz $a0, bgtz_neg_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*4"),
+    ("bgtz_neg_unsuccess: addiu $k0, $zero, 100", TRUE),
+    ("bgtz_neg_success: addiu $k1, $zero, 558", "{after_mem(REGS.K0)} == 100", "{after_mem(REGS.K1)} == 558"),
+    ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
+
+    # Bgtz test when zero
+    ("addi $a0, $zero, 0",  "{after_mem(REGS.A0)} == 0"),
+    ("bgtz $a0, bgtz_zero_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*4"),
+    ("bgtz_zero_unsuccess: addiu $k0, $zero, 100", FALSE),
+    ("bgtz_zero_success: addiu $k1, $zero, 559", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 559"),
+    ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
+
+    # Bgtz test when positive
+    ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
+    ("addi $a0, $zero, 1",  "{after_mem(REGS.A0)} == 1"),
+    ("bgtz $a0, bgtz_pos_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("bgtz_pos_unsuccess: addiu $k0, $zero, 100", FALSE),
+    ("bgtz_pos_success: addiu $k1, $zero, 560", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 560"),
+    ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
 ]
