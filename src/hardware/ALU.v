@@ -22,11 +22,13 @@ module ALU(
     input wire [4:0] shamt,
     input wire [4:0] ALUOp,
     output reg [31:0] ALURes,
-    output wire Zero
+    output wire Zero,
+    output wire Sign
 );
     wire [31:0] sra_shifter_out;
 
-    assign Zero = ALURes == 32'b0 ? (ALUOp == `ALUOp_BNE ? 0 : 1) : (ALUOp == `ALUOp_BNE ? 1 : 0);
+    assign Zero = ALURes == 32'b0;
+    assign Sign = ALURes[31];
 
     sra_shifter_manual sra_shifter (
         .rt(DataIn2),
@@ -38,12 +40,12 @@ module ALU(
         case(ALUOp)
             `ALUOp_ADD:
                 ALURes <= DataIn1 + DataIn2;
-            `ALUOp_SUB, `ALUOp_BNE:
+            `ALUOp_SUB:
                 ALURes <= DataIn1 - DataIn2;
             `ALUOp_MUL:
                 ALURes <= DataIn1 * DataIn2;
             `ifdef DEBUG
-            // TODO: Division in the ALU create a very log logic path combaining with ForwardingUnit.
+            // TODO: Division in the ALU create a very long logic path combaining with ForwardingUnit.
             // TODO: In the future we should create a faster divider.
             `ALUOp_DIV:
                 ALURes <= DataIn1 / DataIn2;

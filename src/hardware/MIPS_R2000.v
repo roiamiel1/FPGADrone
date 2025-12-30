@@ -56,6 +56,7 @@ module MIPS_R2000 (
     wire [3:0] U_EXMEMReg_SpecialOP_out;
     wire U_EXMEMReg_RegWrite_out;
     wire U_EXMEMReg_Zero_out;
+    wire U_EXMEMReg_Sign_out;
     wire [31:0] U_EXMEMReg_ALU_in;
     wire [31:0] U_EXMEMReg_ALU_out;
     wire [4:0] U_EXMEMReg_WriteBackRegAddr_out;
@@ -106,6 +107,7 @@ module MIPS_R2000 (
 
     // U_ALU connections.
     wire U_ALU_Zero;
+    wire U_ALU_Sign;
 
     // U_DataMemory connections.
     wire [31:0] U_DataMemory_DataOut;
@@ -144,7 +146,12 @@ module MIPS_R2000 (
     assign U_MEMWBReg_WriteBackValue = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
 
     // Branch and Jump assigns.
-    assign U_PCU_PCSrc = (U_EXMEMReg_Branch_out && U_EXMEMReg_Zero_out) || U_EXMEMReg_Jump_out;
+    assign U_PCU_PCSrc = U_EXMEMReg_Jump_out || (U_EXMEMReg_Branch_out && (
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BEQ  &&  U_EXMEMReg_Zero_out                          )  ||
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BNE  && !U_EXMEMReg_Zero_out                          )  ||
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BGTZ && !U_EXMEMReg_Sign_out                          )  ||
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BLEZ &&  (U_EXMEMReg_Zero_out || U_EXMEMReg_Sign_out ))
+    ));
     assign HazardFlushRegs = U_PCU_PCSrc == 1'b1; // U_PCU_PCSrc == 1'b1 -> Jump or Branch.
 
     assign BranchAddress = (U_IDEXReg_SpecialOP_out == `SpecialOP_JR ? U_EXMEMReg_ALU_in : 
@@ -266,7 +273,8 @@ module MIPS_R2000 (
         .ALUOp(U_IDEXReg_ALUOp_out),
         .shamt(U_IDEXReg_shamt_out),
         .ALURes(U_EXMEMReg_ALU_in),
-        .Zero(U_ALU_Zero)
+        .Zero(U_ALU_Zero),
+        .Sign(U_ALU_Sign)
     );
 
     EXMEMReg U_EXMEMReg (
@@ -284,6 +292,7 @@ module MIPS_R2000 (
         .SpecialOP_in(U_IDEXReg_SpecialOP_out),
         .RegWrite_in(U_IDEXReg_RegWrite_out),
         .Zero_in(U_ALU_Zero),
+        .Sign_in(U_ALU_Sign),
         .WriteBackRegAddr_in(U_EXMEMReg_WriteBackRegAddr_in),
         .Branch_out(U_EXMEMReg_Branch_out),
         .Jump_out(U_EXMEMReg_Jump_out),
@@ -294,6 +303,7 @@ module MIPS_R2000 (
         .SpecialOP_out(U_EXMEMReg_SpecialOP_out),
         .RegWrite_out(U_EXMEMReg_RegWrite_out),
         .Zero_out(U_EXMEMReg_Zero_out),
+        .Sign_out(U_EXMEMReg_Sign_out),
         .ALU_in(U_EXMEMReg_ALU_in),
         .ALU_out(U_EXMEMReg_ALU_out),
         .WriteBackRegAddr_out(U_EXMEMReg_WriteBackRegAddr_out)

@@ -23,6 +23,7 @@ module EXMEMReg (
 
     // ALU signal
     input Zero_in,
+    input Sign_in,
 
     // data
     input wire [31:0] ALU_in,
@@ -42,12 +43,13 @@ module EXMEMReg (
 
     // ALU signal
     output Zero_out,
+    output Sign_out,
     
     // data
     output [31:0] ALU_out,
     output [4:0] WriteBackRegAddr_out
 );
-    reg[142:0] StageReg;
+    reg[143:0] StageReg;
 
     assign {
         Instr_out[31:0],
@@ -60,17 +62,18 @@ module EXMEMReg (
         SpecialOP_out[3:0],
         RegWrite_out,
         Zero_out,
+        Sign_out,
         ALU_out[31:0],
         WriteBackRegAddr_out[4:0]
     } = StageReg;
 
     initial begin
-        StageReg <= 143'b0;
+        StageReg <= 144'b0;
     end
 
     always @(posedge clk, posedge rst) begin
         if (rst || HazardFlush)
-            StageReg <= 143'b0;
+            StageReg <= 144'b0;
         else begin
             StageReg <= {
                 Instr_in[31:0],
@@ -83,6 +86,7 @@ module EXMEMReg (
                 SpecialOP_in[3:0],
                 RegWrite_in,
                 Zero_in,
+                Sign_in,
                 ALU_in[31:0],
                 WriteBackRegAddr_in[4:0]
             };
