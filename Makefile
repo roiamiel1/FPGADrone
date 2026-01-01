@@ -111,9 +111,6 @@ hw-write-flash:
 hw-gen-mips-control:
 	$(PYTHON) scripts/generate_control_from_mips32is.py
 
-hw-gen-rom32:
-	$(PYTHON) scripts/shellcode_to_rom32.py
-
 hw-run-test:
 # Run the test
 	cd $(SRC_HW_PATH); $(IVERILOG) -DDEBUG=1 -g2001 -Wall -o $(SRC_HW_PATH_BACKWARDS)/$(BUILD_PATH)/test.vvp $(HW_SRCS) $(SRC_HW_PATH_BACKWARDS)/tests/hardware/common/sd_fake.v $(shell cd $(SRC_HW_PATH); find $(SRC_HW_PATH_BACKWARDS)/$(TEST_PATH) -type f -name "*.v") 
@@ -124,7 +121,6 @@ endif
 
 hw-view-wave:
 	gtkwave $(TEST_BUILD_PATH)/test.vcd scripts/gtkwave_conf.gtkw --dark -A --rcvar 'fontname_signals Monospace 18' --rcvar 'fontname_waves Monospace 18'
-    
 
 hw-test-instruction-set:
 	$(eval BUILD_PATH := $(BUILD_HW_TEST_PATH)/instruction_set_test)
@@ -132,11 +128,11 @@ hw-test-instruction-set:
 	mkdir -p $(BUILD_PATH)
 
 	# Build tb.v and test.asm 
-	$(PYTHON) ./scripts/generate_test.py										\
-		--insts=$(TESTS_HW_PATH)/instruction_set_test/instruction_set_test.py 	\
-		--tb=$(BUILD_PATH)/tb_test_code.v 										\
-		--asm=$(BUILD_PATH)/test.asm											\
-		--hex=$(BUILD_PATH)/test.hex											\
+	$(PYTHON) $(TESTS_HW_PATH)/instruction_set_test/scripts/generate_instructions_test.py	\
+		--insts=$(TESTS_HW_PATH)/instruction_set_test/instruction_set_test.py 				\
+		--tb=$(BUILD_PATH)/tb_test_code.v 													\
+		--asm=$(BUILD_PATH)/test.asm														\
+		--hex=$(BUILD_PATH)/test.hex														\
 		--test-out-path=$(BUILD_PATH)
 
 	# Compile output test.asm to test.hex
