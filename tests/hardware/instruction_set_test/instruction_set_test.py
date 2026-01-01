@@ -95,19 +95,21 @@
     ("j5: addiu $gp, $zero, 10432", "{after_mem(REGS.GP)} == 10432"),
 
     # Test `jal` - branching:
-    ("jal jal_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
+    ("jal jal_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} - 4*4"),
+    ("nop", FALSE),
     ("jal_unsuccess: addiu $k0, 100", FALSE),
+    ("nop", FALSE),
     ("jal_success: addi $k1, $zero, -12312", 
         "{after_mem(REGS.K0)} == 0",
         "{after_mem(REGS.K1)} == -12312", 
-        "{after_mem(REGS.RA)} == {before(REGS.PC)} - 8 + 4"
+        "{after_mem(REGS.RA)} == {before(REGS.PC)} - 4*4"
     ),
     
     # Test `jr` - branching:
     # Note! this test should come after `jal` test. 
     # because after `jal` test, $RA register contains the current PC. 
     # We use this data to calculate where to jump to.
-    ("addiu $t0, $ra, 24", TRUE), # We have 6 opcodes after jal to jr_success (6 * 4 = 24).
+    ("addiu $t0, $ra, 36", TRUE), # We have 6 opcodes after jal to jr_success (8 * 4 + 4 = 36).
     ("jr $t0", "{after_mem(REGS.PC)} == {before(REGS.PC)} + 4*3"),
     ("jr_unsuccess: addiu $k0, 100", FALSE),
     ("jr_success: addiu $k1, $zero, 123", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 123"),
