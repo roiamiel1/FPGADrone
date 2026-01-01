@@ -83,7 +83,7 @@ module MIPS_R2000 (
     wire [31:0] U_GPR_DataOut2;
 
     // U_IFIDReg connections.
-    wire [31:0] U_IFIDReg_PC_out;
+    wire [31:0] U_IFIDReg_NextPC_out;
     wire [31:0] IFID_Instr;
 
     // U_PCU connections.
@@ -153,8 +153,8 @@ module MIPS_R2000 (
     );
 
     // IDEXReg assigns.
-    // In case the SpecialOP is JAL -> R[31] = $RA = PC + 4;
-    assign U_IDEXReg_Reg1_in = ((U_Ctrl_SpecialOP == `SpecialOP_JAL) ? (U_IFIDReg_PC_out + 4) : U_GPR_DataOut1);
+    // In case the SpecialOP is JAL -> R[31] = $RA = $PC + 4 (Note that U_IFIDReg_NextPC_out = $PC + 4);
+    assign U_IDEXReg_Reg1_in = ((U_Ctrl_SpecialOP == `SpecialOP_JAL) ? U_IFIDReg_NextPC_out : U_GPR_DataOut1);
     assign U_IDEXReg_Rd_in = ((U_Ctrl_SpecialOP == `SpecialOP_JAL) ? 31 : (`RD(IFID_Instr)));
 
     // Assigns Forwaring Mux's
@@ -185,9 +185,9 @@ module MIPS_R2000 (
         .clk(clk),
         .rst(rst),
         .HazardFlush(HazardFlushRegs),
-        .PC_in(U_PCU_NextPC),
+        .NextPC_in(U_PCU_NextPC),
         .Instr_in(MemoryReady ? U_InstructionMemory_IR : 32'b0),
-        .PC_out(U_IFIDReg_PC_out),
+        .NextPC_out(U_IFIDReg_NextPC_out),
         .Instr_out(IFID_Instr)
     );
 
@@ -216,7 +216,7 @@ module MIPS_R2000 (
         .Branch_in(U_Ctrl_Branch),
         .Jump_in(U_Ctrl_Jump),
         .JumpAddress_in(`JUMP_ADDRESS(IFID_Instr)),
-        .NextPC_in(U_IFIDReg_PC_out),
+        .NextPC_in(U_IFIDReg_NextPC_out),
         .MemRead_in(U_Ctrl_MemRead),
         .MemWrite_in(U_Ctrl_MemWrite),
         .RegWrite_in(U_Ctrl_RegWrite),
