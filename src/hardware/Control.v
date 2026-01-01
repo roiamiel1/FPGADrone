@@ -81,7 +81,7 @@ module Control(
             MemWrite  <= 1'b0;
             RegWrite  <= 1;
             ALUSrc    <= `ALU_SRC_EXT;
-            ExtOp     <= `EXT_ZERO;
+            ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h0 && Funct == 6'h21) begin
