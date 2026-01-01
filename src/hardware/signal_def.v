@@ -1,3 +1,11 @@
+`define CLOCK_RATE      27_000_000 // board internal clock (27Mhz)
+
+`ifndef DEBUG
+`define UART_BAUD_RATE  9_600
+`else
+`define UART_BAUD_RATE `CLOCK_RATE / 2 // for debugging purposes
+`endif
+
 `define OP(instr)           instr[31:26]
 `define RS(instr)           instr[25:21]
 `define RT(instr)           instr[20:16]

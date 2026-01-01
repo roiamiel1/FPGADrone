@@ -3,14 +3,6 @@
 `include "signal_def.v"
 `include "instruction_def.v"
 
-`define CLOCK_RATE      27_000_000 // board internal clock (27Mhz)
-
-`ifndef DEBUG
-`define UART_BAUD_RATE  9_600
-`else
-`define UART_BAUD_RATE  `CLOCK_RATE / 2 // for debugging purposes
-`endif
-
 module MIPS_R2000 (
     input clk,
     input rst,
