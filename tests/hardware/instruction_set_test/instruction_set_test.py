@@ -3,6 +3,9 @@
     ("addiu $s1, 1",  "{after_mem(REGS.S1)} == 1"),
     ("addiu $s2, 5",  "{after_mem(REGS.S2)} == 5"),
     ("addiu $s0, 0",  "{after_mem(REGS.S0)} == 0"),
+    ("addiu $v0, -1", "{after_mem(REGS.V0)} == -1"),
+    ("addiu $v0, $zero, 0", "{after_mem(REGS.V0)} == 0"),
+    ("addiu $v0, $v0, -1", "{after_mem(REGS.V0)} == {before(REGS.V0)} - 1"),
 
     # Just add numbers for the test.
     ("addi $s3, -1", "{after_mem(REGS.S3)} == -1"),
