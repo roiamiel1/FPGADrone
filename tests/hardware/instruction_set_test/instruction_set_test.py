@@ -117,7 +117,7 @@
     ("addi $fp, $zero, 32767", "{after_mem(REGS.FP)} == 32767"),
     ("addi $fp, $zero, 32768", "{after_mem(REGS.FP)} != 32768"),
     ("addiu $fp, $zero, 32767", "{after_mem(REGS.FP)} == 32767"),
-    ("addiu $fp, $zero, 32768", "{after_mem(REGS.FP)} == 32768"),
+    ("addiu $fp, $zero, 32768", "{after_mem(REGS.FP)} == -32768"),
 
     # Test `sw` - with 1 step write value forward
     ("addiu $a0, $zero, 5",  "{after_mem(REGS.A0)} == 5"),
@@ -171,8 +171,8 @@
     ("sh $a0, 6($zero)", "{after_mem(MEM.HALFWORD(6))} == 355"),
 
     # Test `sh` - with 3 byte value
-    ("addiu $a0, $zero, 65535",  "{after_mem(REGS.A0)} == 65535"),
-    ("addiu $a0, $a0, 123",  "{after_mem(REGS.A0)} == 65658"),
+    ("addiu $a0, $zero, 65535",  "{after_mem(REGS.A0)} == -1"),
+    ("addiu $a0, $a0, 123",  "{after_mem(REGS.A0)} == 122"),
     ("sh $a0, 6($zero)", "{after_mem(MEM.HALFWORD(6))} == 122"),
 
     #  Test over load store commands
