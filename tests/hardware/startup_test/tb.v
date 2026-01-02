@@ -1,7 +1,6 @@
 `timescale 1ns / 1ps
 
 `include "signal_def.v"
-`include "../../build/hardware/tests/startup_test/rom_switch_case.v"
 
 module TESTBENCH;
     integer cycles;
@@ -24,6 +23,31 @@ module TESTBENCH;
 
     // Memory declaration: (16384 x 4) x 8 bits
     reg [7:0] InternalMem [0:65536];
+    reg [15:0] SDCardMem   [0:16384];
+
+    string SDCardMemPath;
+
+    initial begin
+        if (!$value$plusargs("SDCARD_MEM_PATH=%s", SDCardMemPath)) begin
+            $fatal(1, "Usage: vvp +SDCARD_MEM_PATH=path/to/file.bin");
+        end
+        
+        $display("Loading %s", SDCardMemPath);
+        $readmemh(SDCardMemPath, SDCardMem);
+
+        $dumpfile("./build/hardware/tests/startup_test/test.vcd");
+        $dumpvars;
+        
+        U_MIPS_R2000.U_IFIDReg.StageReg = 0;
+        U_MIPS_R2000.U_IDEXReg.StageReg = 0;
+        U_MIPS_R2000.U_EXMEMReg.StageReg = 0;
+        U_MIPS_R2000.U_MEMWBReg.StageReg = 0;
+
+        cycles = 0;
+
+        $display("Starting UART receiver...");
+        uart_rx();
+    end
 
     MIPS_R2000 U_MIPS_R2000(
         .clk(clk),
@@ -48,21 +72,6 @@ module TESTBENCH;
         .show_sdcmd_cmd   ( show_sdcmd_cmd ),
         .show_sdcmd_arg   ( show_sdcmd_arg )
     );
-
-    initial begin        
-        $dumpfile("./build/hardware/tests/startup_test/test.vcd");
-        $dumpvars;
-        
-        U_MIPS_R2000.U_IFIDReg.StageReg = 0;
-        U_MIPS_R2000.U_IDEXReg.StageReg = 0;
-        U_MIPS_R2000.U_EXMEMReg.StageReg = 0;
-        U_MIPS_R2000.U_MEMWBReg.StageReg = 0;
-
-        cycles = 0;
-
-        $display("Starting UART receiver...");
-        uart_rx();
-    end
     
     // UART receiver task
     task uart_rx;
@@ -114,16 +123,7 @@ module TESTBENCH;
     // Fake content of the fake SD card
     always @ (posedge sdclk) begin
         if (rom_req) begin
-            case (rom_addr)
-                `ROM_SWITCH_CASE
-            endcase
-        end
-    end
-
-    // Show SD command requests
-    always @ (posedge sdclk) begin
-        if (show_sdcmd_en) begin 
-            $display("sdcmd request:  %2d  %08x", show_sdcmd_cmd, show_sdcmd_arg);
+            rom_data <= SDCardMem[rom_addr];
         end
     end
 endmodule

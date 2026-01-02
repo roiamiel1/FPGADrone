@@ -2,7 +2,6 @@
 
 `include "signal_def.v"
 `include "../../build/hardware/tests/instruction_set_test/tb_test_code.v"
-`include "../../build/hardware/tests/instruction_set_test/rom_switch_case.v"
 
 module TESTBENCH;
     reg clk = 0;
@@ -20,7 +19,19 @@ module TESTBENCH;
     reg [15:0] rom_data;
 
     // Memory declaration: (16384 x 4) x 8 bits
-    reg [7:0] InternalMem [0:65536];
+    reg [7:0]  InternalMem [0:65536];
+    reg [15:0] SDCardMem   [0:16384];
+
+    string SDCardMemPath;
+
+    initial begin
+        if (!$value$plusargs("SDCARD_MEM_PATH=%s", SDCardMemPath)) begin
+            $fatal(1, "Usage: vvp +SDCARD_MEM_PATH=path/to/file.bin");
+        end
+
+        $display("Loading %s", SDCardMemPath);
+        $readmemh(SDCardMemPath, SDCardMem);
+    end
 
     MIPS_R2000 U_MIPS_R2000(
         .clk(clk),
@@ -50,18 +61,8 @@ module TESTBENCH;
     // Fake content of the fake SD card
     always @ (posedge sdclk) begin
         if (rom_req) begin
-            case (rom_addr)
-                `ROM_SWITCH_CASE
-            endcase
+            rom_data <= SDCardMem[rom_addr];
         end
-    end
-
-    always @ (posedge U_MIPS_R2000.U_DataMemory.U_DataMemory.write_enable_a) begin
-        /*
-        $display("Time %t: Write to address %h data %h", $time, 
-                U_MIPS_R2000.U_DataMemory.U_DataMemory.address_a, 
-                U_MIPS_R2000.U_DataMemory.U_DataMemory.data_in_a);
-        */
     end
 
 endmodule

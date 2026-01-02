@@ -112,9 +112,10 @@ hw-gen-mips-control:
 	$(PYTHON) scripts/generate_control_from_mips32is.py
 
 hw-run-test:
-# Run the test
-	cd $(SRC_HW_PATH); $(IVERILOG) -DDEBUG=1 -g2001 -Wall -o $(SRC_HW_PATH_BACKWARDS)/$(BUILD_PATH)/test.vvp $(HW_SRCS) $(SRC_HW_PATH_BACKWARDS)/tests/hardware/common/sd_fake.v $(shell cd $(SRC_HW_PATH); find $(SRC_HW_PATH_BACKWARDS)/$(TEST_PATH) -type f -name "*.v") 
-	$(VVP) $(BUILD_PATH)/test.vvp | tee $(BUILD_PATH)/test.log
+	$(XXD) -p -c 2 $(IMAGE_PATH) > $(IMAGE_PATH).hex
+
+	cd $(SRC_HW_PATH); $(IVERILOG) -DDEBUG=1 -g2012 -Wall -o $(SRC_HW_PATH_BACKWARDS)/$(BUILD_PATH)/test.vvp $(HW_SRCS) $(SRC_HW_PATH_BACKWARDS)/tests/hardware/common/sd_fake.v $(shell cd $(SRC_HW_PATH); find $(SRC_HW_PATH_BACKWARDS)/$(TEST_PATH) -type f -name "*.v")
+	$(VVP) $(BUILD_PATH)/test.vvp +SDCARD_MEM_PATH=$(IMAGE_PATH).hex | tee $(BUILD_PATH)/test.log
 ifneq ($(GTK),)
 	TEST_BUILD_PATH=$(BUILD_PATH) make hw-view-wave
 endif
@@ -141,9 +142,8 @@ hw-test-instruction-set:
 	$(MIPS_OBJDUMP) -d -M no-aliases $(BUILD_PATH)/test.out > $(BUILD_PATH)/test.shellcode.text
 
 	mkdir -p build/hardware/tests/instruction_set_test
-	$(PYTHON) scripts/generate_rom_switch_case.py $(BUILD_PATH)/test.shellcode build/hardware/tests/instruction_set_test/rom_switch_case.v
 
-	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(TEST_PATH)
+	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(TEST_PATH) IMAGE_PATH=$(BUILD_PATH)/test.shellcode
 		
 hw-test-uart:
 	$(eval BUILD_PATH := $(BUILD_HW_TEST_PATH)/uart_test)
@@ -154,24 +154,18 @@ hw-test-uart:
 	$(MIPS_GCC) -o $(BUILD_PATH)/test.out ./tests/hardware/uart_test/test.c
 	$(MIPS_OBJCOPY) --dump-section .text=$(BUILD_PATH)/test.shellcode $(BUILD_PATH)/test.out
 	$(MIPS_OBJDUMP) -d -M no-aliases $(BUILD_PATH)/test.out > $(BUILD_PATH)/test.text
-	$(XXD) -c 4 -p $(BUILD_PATH)/test.shellcode > $(BUILD_PATH)/test.hex
 
-	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(TEST_PATH)
-
-hw-software-rom:
-	mkdir -p build/hardware/tests/startup_test
-	$(PYTHON) scripts/generate_rom_switch_case.py $(SW_IMAGE_PATH) build/hardware/tests/startup_test/rom_switch_case.v
+	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(TEST_PATH) IMAGE_PATH=$(BUILD_PATH)/test.shellcode
 
 hw-run-startup-test:
 	$(eval BUILD_PATH := $(BUILD_HW_TEST_PATH)/startup_test)
 	$(eval TEST_PATH := $(TESTS_HW_PATH)/startup_test)
 
 	make elf
-	make hw-software-rom
-
+	
 	mkdir -p $(BUILD_PATH)
 
-	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(TEST_PATH)
+	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(TEST_PATH) IMAGE_PATH=$(SW_IMAGE_PATH)
 
 lint:
 	verilator -g2001 -Wall --lint-only $(SRCS) $(HARDWARE_TESTBENCH).v
