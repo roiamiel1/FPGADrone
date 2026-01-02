@@ -1,9 +1,10 @@
 `timescale 1ns / 1ps
 
-`define P_UART_CHAR  32'd1000
-`define P_UART_START 32'd1001
-`define P_UART_DONE  32'd1002
-`define P_UART_BUSY  32'd1003
+`define P_UART_CHAR  32'hFFFFFFFF
+`define P_UART_START 32'hFFFFFFFE
+`define P_UART_DONE  32'hFFFFFFFD
+`define P_UART_BUSY  32'hFFFFFFFC
+`define P_ESC1_SPEED  32'hFFFFFFFB
 
 // states of SDReader state machine
 `define S_SD_RESET               3'b001
@@ -34,7 +35,6 @@ module DataMemoryInterface(
     output wire [31:0] IR,
 
     // UART interface
-    input wire uart_clk,
     output wire uart_tx_out,
 
     // SD card interface
@@ -104,7 +104,7 @@ module DataMemoryInterface(
                       32'b0;
 
     Uart8Transmitter U_Uart(
-        .clk(uart_clk),
+        .clk(clk),
         .rst(rst),
         .en(ready),
         .start(UART_Start),

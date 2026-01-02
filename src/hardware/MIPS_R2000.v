@@ -11,11 +11,6 @@ module MIPS_R2000 (
     inout sdcmd,
     input sddat0
 );
-    // Why devided by 2? because we toggle the clk every UART_MAX_RATE_TX cycles.
-    // So the full period is 2 * UART_MAX_RATE_TX cycles.
-    parameter UART_MAX_RATE_TX = `CLOCK_RATE / (`UART_BAUD_RATE * 2); 
-    parameter UART_TX_CNT_WIDTH = $clog2(UART_MAX_RATE_TX);
-
     // U_Ctrl connections.
     wire U_Ctrl_RegDst;
     wire [4:0] U_Ctrl_ALUOp;
@@ -119,15 +114,6 @@ module MIPS_R2000 (
 
     // Sign Extender connections.
     wire [15:0] ExtenderDataIn;
-
-    // Uart connections.
-    reg uartTxClk;
-    reg [UART_TX_CNT_WIDTH:0] uartTxCounter = 0;
-
-    initial begin
-        uartTxClk = 1'b0;
-        uartTxCounter = 0;
-    end
     
     // Sign Extender assigns.
     assign ExtenderDataIn = `IMMEDIATE(IFID_Instr);
@@ -320,7 +306,6 @@ module MIPS_R2000 (
         .IR(U_InstructionMemory_IR),
 
         // UART interface
-        .uart_clk(uartTxClk),
         .uart_tx_out(uart_tx_out),
 
         // SD card interface
@@ -363,17 +348,5 @@ module MIPS_R2000 (
         .nBranch(U_Ctrl_nBranch),
         .ExtOp(U_Ctrl_ExtOp)
     );
-
-    always @(posedge clk, posedge rst) begin
-        if (rst) begin
-            uartTxClk <= 1'b0;
-            uartTxCounter <= 0;
-        end else if (uartTxCounter == (UART_MAX_RATE_TX - 1)) begin
-            uartTxCounter <= 0;
-            uartTxClk <= ~uartTxClk;
-        end else begin
-            uartTxCounter <= uartTxCounter + 1'b1;
-        end
-    end
 
 endmodule
