@@ -1,16 +1,18 @@
-#define P_UART_CHAR  ((unsigned char*) 1000)
-#define P_UART_START ((unsigned char*) 1001)
-#define P_UART_DONE  ((unsigned char*) 1002)
-#define P_UART_BUSY  ((unsigned char*) 1003)
+#define P_UART_CHAR  ((unsigned char*) 0xFFFFFFFF)
+#define P_UART_START ((unsigned char*) 0xFFFFFFFE)
+#define P_UART_DONE  ((unsigned char*) 0xFFFFFFFD)
+#define P_UART_BUSY  ((unsigned char*) 0xFFFFFFFC)
 
 #define UART_PUTC(C)                        \
-    do {                                    \   
+    do {                                    \
+        *P_UART_START = 0;                  \
         while((*P_UART_BUSY) != 0) {}       \
         *P_UART_CHAR = (unsigned char) (C); \
         *P_UART_START = 1;                  \
-        while ((*P_UART_DONE) != 1) {}      \
-        *P_UART_START = 0;                  \   
-        while((*P_UART_BUSY) != 0) {}       \  
+        while ((*P_UART_DONE) == 0) {}      \
+        *P_UART_START = 0;                  \
+        while((*P_UART_BUSY) != 0) {}       \
+        while ((*P_UART_DONE) != 0) {}      \
     } while (0)
 
 static int make_upper = 1;
@@ -51,6 +53,7 @@ char func(char* msg, unsigned int len) {
     }
 
     UART_PUTC(recursive_func(5));
+    UART_PUTC('\r');
 
     return '\n';
 }
@@ -59,7 +62,7 @@ __attribute__((section(".text")))
 void main() {
     char msg[] = "hello my name is roi"; 
 
-    while (1) {
+    while (1) {        
         UART_PUTC(func(msg, sizeof(msg) - 1));
     }
 
