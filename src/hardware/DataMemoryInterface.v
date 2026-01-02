@@ -37,6 +37,9 @@ module DataMemoryInterface(
     // UART interface
     output wire uart_tx_out,
 
+    // ESC interface
+    output wire pwm_esc1_out,
+
     // SD card interface
     output sdclk,
     inout sdcmd,
@@ -55,6 +58,9 @@ module DataMemoryInterface(
     reg [7:0] UART_In = 8'b0;
     wire UART_Done;
     wire UART_Busy;
+
+    // ESC Interface
+    reg [9:0] ESC1_Speed = 10'b0;
 
     // SD Interface
     reg [2:0] SD_State = `S_SD_RESET;
@@ -75,6 +81,8 @@ module DataMemoryInterface(
         UART_Start <= 1'b0;
         UART_In <= 8'b0;
 
+        ESC1_Speed <= 10'b0;
+
         SD_State <= `S_SD_RESET;
         SD_ReadSectorIndex <= 2'b0;
         SD_Start <= 1'b0;
@@ -88,10 +96,11 @@ module DataMemoryInterface(
 
     // Assigns
     assign IsSpacialAddress = (
-        (address == `P_UART_CHAR) ||
+        (address == `P_UART_CHAR ) ||
         (address == `P_UART_START) ||
-        (address == `P_UART_DONE) ||
-        (address == `P_UART_BUSY)
+        (address == `P_UART_DONE ) ||
+        (address == `P_UART_BUSY ) ||
+        (address == `P_ESC1_SPEED)
     );
     assign DataMemoryWriteEnable = (write_enable && !IsSpacialAddress) || IsInitiateWordPending;
     assign DataMemoryAddress = IsInitiateWordPending ? (InitiateWordAddr << 2) : address[13:0];
@@ -99,9 +108,17 @@ module DataMemoryInterface(
     assign DataMemoryMode = IsInitiateWordPending ? `DataMemoryMode_WORD : mode;
 
     assign data_out = !IsSpacialAddress ? MemoryDataOut :
-                      address == `P_UART_DONE ? {31'b0, UART_Done} :
-                      address == `P_UART_BUSY ? {31'b0, UART_Busy} :
+                      address == `P_UART_DONE  ? {31'b0, UART_Done}  :
+                      address == `P_UART_BUSY  ? {31'b0, UART_Busy}  :
+                      address == `P_ESC1_SPEED ? {22'b0, ESC1_Speed} :
                       32'b0;
+
+    ESCDriver U_ESCDriver(
+        .clk(clk),
+        .rst(rst),
+        .speed(ESC1_Speed),
+        .pwm_out(pwm_esc1_out)
+    );
 
     Uart8Transmitter U_Uart(
         .clk(clk),
@@ -156,11 +173,13 @@ module DataMemoryInterface(
         if (rst) begin
             UART_Start <= 1'b0;
             UART_In <= 8'b0;
+            ESC1_Speed <= 10'b0;
         end else begin
             if (write_enable) begin
                 case (address)
                     `P_UART_CHAR: UART_In <= data_in[7:0];
                     `P_UART_START: UART_Start <= data_in[0];
+                    `P_ESC1_SPEED: ESC1_Speed <= data_in[9:0];
                 endcase
             end
         end

@@ -7,6 +7,7 @@ module MIPS_R2000 (
     input clk,
     input rst,
     output uart_tx_out,
+    output pwm_esc1_out,
     output sdclk,
     inout sdcmd,
     input sddat0
@@ -307,6 +308,9 @@ module MIPS_R2000 (
 
         // UART interface
         .uart_tx_out(uart_tx_out),
+
+        // ESC interface
+        .pwm_esc1_out(pwm_esc1_out),
 
         // SD card interface
         .sdclk(sdclk),
