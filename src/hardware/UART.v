@@ -43,6 +43,8 @@ module Uart8Transmitter(
         busy <= 1'b0;
         bitIdx <= 3'b0;
         data <= 8'b0;
+        uartTxCounter <= 1'b0;
+        uartTxTick <= 1'b0;
     end
 
     always @(posedge clk) begin

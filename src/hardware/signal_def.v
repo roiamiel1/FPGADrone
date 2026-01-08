@@ -3,7 +3,7 @@
 `ifndef DEBUG
 `define UART_BAUD_RATE  115_200
 `else
-`define UART_BAUD_RATE `CLOCK_RATE / 2 // for debugging purposes
+`define UART_BAUD_RATE (`CLOCK_RATE / 2) // for debugging purposes
 `endif
 
 `define MEM_TOP_ADDRESS     32'h0000_3FF0
