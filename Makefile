@@ -72,14 +72,15 @@ RUN_IN_DOCKER = $(DOCKER) run --rm -it -w /source -v ./:/source:delegated
 MIPS_COMPILER_RUN = $(RUN_IN_DOCKER) mips_compiler
 GOWIN_BUILDER_RUN = $(RUN_IN_DOCKER) -v $(HW_IMPL_PATH):/source/impl:delegated gowin_builder
 PICOLIBC_COMPILER_RUN = $(RUN_IN_DOCKER) picolibc_compiler
-OBJCOPY = $(MIPS_COMPILER_RUN) mips-linux-gnu-objcopy
-OBJDUMP = $(MIPS_COMPILER_RUN) mips-linux-gnu-objdump
-READELF = $(MIPS_COMPILER_RUN) mips-linux-gnu-readelf
-CC = $(MIPS_COMPILER_RUN) mips-linux-gnu-gcc
-AS = $(MIPS_COMPILER_RUN) mips-linux-gnu-as
-AR = $(MIPS_COMPILER_RUN) mips-linux-gnu-ar
-LD = $(MIPS_COMPILER_RUN) mips-linux-gnu-ld
-STRIP = $(MIPS_COMPILER_RUN) mips-linux-gnu-strip
+TOOLCHAIN = mips-linux-gnu-
+OBJCOPY = $(MIPS_COMPILER_RUN) $(TOOLCHAIN)objcopy
+OBJDUMP = $(MIPS_COMPILER_RUN) $(TOOLCHAIN)objdump
+READELF = $(MIPS_COMPILER_RUN) $(TOOLCHAIN)readelf
+CC = $(MIPS_COMPILER_RUN) $(TOOLCHAIN)gcc
+AS = $(MIPS_COMPILER_RUN) $(TOOLCHAIN)as
+AR = $(MIPS_COMPILER_RUN) $(TOOLCHAIN)ar
+LD = $(MIPS_COMPILER_RUN) $(TOOLCHAIN)ld
+STRIP = $(MIPS_COMPILER_RUN) $(TOOLCHAIN)strip
 
 RM_ALL = $(RM) -rf
 GW_SH := $(GOWIN_BUILDER_RUN) gw_sh
@@ -93,7 +94,7 @@ endif
 
 # ------------------------- Software ------------------------- #
 
-CFLAGS := -mfp32 -march=r2000 -mabi=o32 -mno-shared -static -ffunction-sections -static-libgcc -O0
+CFLAGS := -mfp32 -march=r2000 -mno-shared -static -ffunction-sections -static-libgcc -O0
 LDFLAGS := -Wl,-Map=$(SW_BINARY_PATH).map -static-libgcc
 ASFLAGS := -mips1 -march=r2000 -O0
 
@@ -129,32 +130,46 @@ elf : sw-build-c
 sw-burn : elf
 	dd if=$(SW_IMAGE_PATH) of=/dev/disk2 oflag=sync
 
-sw-build-libc:
-	cd $(SW_PICOLIBC_PATH) && git add -A && git stash && git reset --hard && rm -rf build build-mips
+sw-build-libc-clean:
+	cd $(SW_PICOLIBC_PATH) && $(GIT) add -A && $(GIT) stash && $(GIT) reset --hard && $(RM_ALL) build build-mips
 
+sw-build-libc: sw-build-libc-clean
 	printf "%s\n" 										\
 	"[binaries]"										\
-	"c = 'mips-linux-gnu-gcc'"							\
-	"ar = 'mips-linux-gnu-ar'"							\
-	"as = 'mips-linux-gnu-as'"							\
-	"ld = 'mips-linux-gnu-ld'"							\
-	"strip = 'mips-linux-gnu-strip'"					\
-	"ranlib = 'mips-linux-gnu-ranlib'"					\
+	"c = '$(TOOLCHAIN)gcc'"								\
+	"ar = '$(TOOLCHAIN)ar'"								\
+	"as = '$(TOOLCHAIN)as'"								\
+	"ld = '$(TOOLCHAIN)ld'"								\
+	"strip = '$(TOOLCHAIN)strip'"						\
+	"ranlib = '$(TOOLCHAIN)ranlib'"						\
 	""													\
 	"[host_machine]"									\
 	"system = 'none'"									\
 	"cpu_family = 'mips'"								\
-	"cpu = 'mips'"										\
+	"cpu = 'r2000'"										\
 	"endian = 'big'"									\
 	""													\
 	"[built-in options]"								\
 	"c_args = $(call meson_split_array, $(CFLAGS))"		\
 	> $(SW_PICOLIBC_PATH)/cross-mips.txt
 
-	$(PICOLIBC_COMPILER_RUN) /bin/bash -c "cd $(SW_PICOLIBC_PATH) && 	\
-	meson setup build-mips --reconfigure --cross-file cross-mips.txt &&	\
-	ninja -C build-mips"
-
+	$(PICOLIBC_COMPILER_RUN) /bin/bash -c "				\
+		cd $(SW_PICOLIBC_PATH) && 						\
+		meson setup build-mips 							\
+			--reconfigure 								\
+			-Dmultilib=false 							\
+			-Dsingle-thread=true 						\
+			-Dprintf-aliases=false 						\
+			-Dio-float-exact=false 						\
+			-Datomic-ungetc=false 						\
+			-Dfast-strcmp=false 						\
+			-Dpicocrt=false 							\
+			-Dpicocrt-enable-mmu=false 					\
+			-Dpicocrt-lib=false 						\
+			-Dinitfini-array=false 						\
+			--cross-file cross-mips.txt &&				\
+		ninja -C build-mips								\
+	"
 
 # ------------------------- Hardware ------------------------- #
 
