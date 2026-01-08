@@ -171,6 +171,8 @@ sw-build-libc: sw-build-libc-clean
 		ninja -C build-mips								\
 	"
 
+	$(RM_ALL) $(SW_PICOLIBC_PATH)/cross-mips.txt
+
 # ------------------------- Hardware ------------------------- #
 
 hw-build:
