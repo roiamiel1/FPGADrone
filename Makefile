@@ -7,6 +7,8 @@ HW_BOARD_NAME := tangnano20k
 SRC_PATH := ./src
 BUILD_PATH := ./build
 IMPL_PATH := ./impl
+LIBS_PATH := ./libs
+RESOURCES_PATH := ./resources
 TESTS_PATH := ./tests
 
 SRC_SW_PATH := $(SRC_PATH)/software
@@ -23,8 +25,7 @@ BUILD_HW_TEST_PATH := $(BUILD_HW_PATH)/tests
 
 # Src files
 SW_SRCS_C := $(shell find $(SRC_SW_PATH) -type f -name *.c)
-SW_SRCS_ASM := $(shell find $(SRC_SW_PATH) -type f -name *.asm)
-HW_SRCS := $(shell find $(SRC_HW_PATH) -type f -name "*.v" | sed "s|^$(SRC_HW_PATH)/||")
+SW_OBJ_FILES := $(patsubst $(SRC_SW_PATH)/%.c,$(BUILD_SW_PATH)/%.o,$(SW_SRCS_C))
 
 # SW Paths
 SW_BINARY_PATH := $(BUILD_SW_PATH)/build.out
@@ -33,31 +34,52 @@ SW_SHELLCODE_PATH := $(BUILD_SW_PATH)/build.shellcode
 SW_HEX_PATH := $(BUILD_SW_PATH)/build.hex
 SW_SHELLCODE_TEXT_PATH := $(SW_SHELLCODE_PATH).text
 SW_READELF_TEXT_PATH := $(BUILD_SW_PATH)/build.readelf.text
+SW_PICOLIBC_PATH := $(LIBS_PATH)/picolibc
 
 # HW Paths
+HW_SRCS := $(shell find $(SRC_HW_PATH) -type f -name "*.v" | sed "s|^$(SRC_HW_PATH)/||")
 HW_IMPL_PATH := $(BUILD_HW_PATH)/impl
 HW_MAKEFILE_PATH := ./scripts/Makefile.tcl
 SRC_HW_PATH_BACKWARDS := $(shell ARG=$(SRC_HW_PATH) echo ".$$(printf '/..%.0s' $$(seq 1 $$(echo "$${ARG\#./}" | awk -F'/' '{print NF}')))")
+
+# -------------------------- Utils --------------------------- #
+
+define meson_split_array
+['$(shell printf "%s\n" "$(1)" | tr -s ' ' | sed "s/^ *//; s/ *$$//; s/ /', '/g")']
+endef
+
+build_docker:
+	$(DOCKER) build -t mips_compiler -f $(RESOURCES_PATH)/dockers/Dockerfile.gcc .
+	$(DOCKER) build -t gowin_builder -f $(RESOURCES_PATH)/dockers/Dockerfile.gowin .
+	$(DOCKER) build -t picolibc_compiler -f $(RESOURCES_PATH)/dockers/Dockerfile.picolibc .
 
 # ------------------------- Programs ------------------------- #
 
 CAT = $(shell which cat)
 XXD = $(shell which xxd)
 RM = $(shell which rm)
+TAR = $(shell which tar)
+GIT = $(shell which git)
+MKDIR = $(shell which mkdir)
+PATCH = $(shell which patch)
 DOCKER = $(shell which docker)
 VVP = $(shell which vvp)
 PYTHON := $(shell which python3 || which python)
 OPEN_FPGA_LOADER := $(shell which openFPGALoader) -b $(HW_BOARD_NAME)
 IVERILOG = $(shell which iverilog)
 
-RUN_IN_DOCKER = $(DOCKER) run --rm -it -w /$(PROJECT_NAME) -v ./:/$(PROJECT_NAME):delegated
+RUN_IN_DOCKER = $(DOCKER) run --rm -it -w /source -v ./:/source:delegated
 MIPS_COMPILER_RUN = $(RUN_IN_DOCKER) mips_compiler
-GOWIN_BUILDER_RUN = $(RUN_IN_DOCKER) -v $(HW_IMPL_PATH):/$(PROJECT_NAME)/impl:delegated gowin_builder
-MIPS_AS = $(MIPS_COMPILER_RUN) mips-linux-gnu-as -mips1 -march=r2000 -O0
-MIPS_OBJCOPY = $(MIPS_COMPILER_RUN) mips-linux-gnu-objcopy
-MIPS_OBJDUMP = $(MIPS_COMPILER_RUN) mips-linux-gnu-objdump
-MIPS_READELF = $(MIPS_COMPILER_RUN) mips-linux-gnu-readelf
-MIPS_GCC = $(MIPS_COMPILER_RUN) mips-linux-gnu-gcc -mfp32 -march=r2000 -mno-shared -static -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -ffreestanding -nostdlib -fno-builtin -fno-builtin-memcpy -O0
+GOWIN_BUILDER_RUN = $(RUN_IN_DOCKER) -v $(HW_IMPL_PATH):/source/impl:delegated gowin_builder
+PICOLIBC_COMPILER_RUN = $(RUN_IN_DOCKER) picolibc_compiler
+OBJCOPY = $(MIPS_COMPILER_RUN) mips-linux-gnu-objcopy
+OBJDUMP = $(MIPS_COMPILER_RUN) mips-linux-gnu-objdump
+READELF = $(MIPS_COMPILER_RUN) mips-linux-gnu-readelf
+CC = $(MIPS_COMPILER_RUN) mips-linux-gnu-gcc
+AS = $(MIPS_COMPILER_RUN) mips-linux-gnu-as
+AR = $(MIPS_COMPILER_RUN) mips-linux-gnu-ar
+LD = $(MIPS_COMPILER_RUN) mips-linux-gnu-ld
+STRIP = $(MIPS_COMPILER_RUN) mips-linux-gnu-strip
 
 RM_ALL = $(RM) -rf
 GW_SH := $(GOWIN_BUILDER_RUN) gw_sh
@@ -71,31 +93,68 @@ endif
 
 # ------------------------- Software ------------------------- #
 
-sw-build:
-	$(MIPS_OBJCOPY) --dump-section .text=$(SW_SHELLCODE_PATH) $(SW_BINARY_PATH)
-	$(MIPS_OBJDUMP) -d -M no-aliases $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
+CFLAGS := -mfp32 -march=r2000 -mabi=o32 -mno-shared -static -ffunction-sections -static-libgcc -O0
+LDFLAGS := -Wl,-Map=$(SW_BINARY_PATH).map -static-libgcc
+ASFLAGS := -mips1 -march=r2000 -O0
+
+$(BUILD_SW_PATH):
+	-$(MKDIR) -p $(BUILD_SW_PATH)
+
+# Generic file compiler
+$(BUILD_SW_PATH)/%.o: $(SRC_SW_PATH)/%.c | $(BUILD_SW_PATH)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+# Linker
+sw-build: $(SW_OBJ_FILES)
+	$(CC) $(LDFLAGS) -o $@ $^
+
+sw-build-2:
+	$(OBJCOPY) --dump-section .text=$(SW_SHELLCODE_PATH) $(SW_BINARY_PATH)
+	$(OBJDUMP) -d -M no-aliases $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
 	$(XXD) -c 4 -p $(SW_SHELLCODE_PATH) > $(SW_HEX_PATH)
 	dd if=/dev/zero bs=4 count=30 of=$(BUILD_SW_PATH)/padding.bin
 	cat $(BUILD_SW_PATH)/padding.bin $(SW_SHELLCODE_PATH) > $(SW_SHELLCODE_PATH).tmp
 	mv $(SW_SHELLCODE_PATH).tmp $(SW_SHELLCODE_PATH)
 
-sw-build-asm:
-	$(MIPS_AS) -o $(SW_BINARY_PATH) $(SW_SRCS_ASM)
-	make sw-build
-
 sw-build-c:
 	mkdir -p $(BUILD_SW_PATH)
-	$(MIPS_GCC) -g -o $(SW_BINARY_PATH).o -ffreestanding -ffunction-sections -c $(SW_SRCS_C)
-	$(MIPS_GCC) -T ./scripts/linker.ld -Wl,--nmagic -o $(SW_BINARY_PATH) -Wl,-Map=$(SW_BINARY_PATH).map $(SW_BINARY_PATH).o
-	$(MIPS_READELF) --all $(SW_BINARY_PATH) > $(SW_READELF_TEXT_PATH)
+	$(CC) $(CFLAGS) -g -o $(SW_BINARY_PATH).o -c $(SW_SRCS_C)
+	$(CC) $(LDFLAGS) -o $(SW_BINARY_PATH) $(SW_BINARY_PATH).o
+	$(READELF) --all $(SW_BINARY_PATH) > $(SW_READELF_TEXT_PATH)
 
 elf : sw-build-c
 	$(PYTHON) scripts/offline_elf_loader.py --elf $(SW_BINARY_PATH) --image $(SW_IMAGE_PATH)
-	$(MIPS_OBJDUMP) -S -d $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
-
+	$(OBJDUMP) -S -d $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
 
 sw-burn : elf
 	dd if=$(SW_IMAGE_PATH) of=/dev/disk2 oflag=sync
+
+sw-build-libc:
+	cd $(SW_PICOLIBC_PATH) && git add -A && git stash && git reset --hard && rm -rf build build-mips
+
+	printf "%s\n" 										\
+	"[binaries]"										\
+	"c = 'mips-linux-gnu-gcc'"							\
+	"ar = 'mips-linux-gnu-ar'"							\
+	"as = 'mips-linux-gnu-as'"							\
+	"ld = 'mips-linux-gnu-ld'"							\
+	"strip = 'mips-linux-gnu-strip'"					\
+	"ranlib = 'mips-linux-gnu-ranlib'"					\
+	""													\
+	"[host_machine]"									\
+	"system = 'none'"									\
+	"cpu_family = 'mips'"								\
+	"cpu = 'mips'"										\
+	"endian = 'big'"									\
+	""													\
+	"[built-in options]"								\
+	"c_args = $(call meson_split_array, $(CFLAGS))"		\
+	> $(SW_PICOLIBC_PATH)/cross-mips.txt
+
+	$(PICOLIBC_COMPILER_RUN) /bin/bash -c "cd $(SW_PICOLIBC_PATH) && 	\
+	meson setup build-mips --reconfigure --cross-file cross-mips.txt &&	\
+	ninja -C build-mips"
+
 
 # ------------------------- Hardware ------------------------- #
 
@@ -137,9 +196,9 @@ hw-test-instruction-set:
 		--test-out-path=$(BUILD_PATH)
 
 	# Compile output test.asm to test.hex
-	$(MIPS_AS) -o $(BUILD_PATH)/test.out $(BUILD_PATH)/test.asm
-	$(MIPS_OBJCOPY) --dump-section .text=$(BUILD_PATH)/test.shellcode $(BUILD_PATH)/test.out
-	$(MIPS_OBJDUMP) -d -M no-aliases $(BUILD_PATH)/test.out > $(BUILD_PATH)/test.shellcode.text
+	$(AS) $(ASFLAGS) -o $(BUILD_PATH)/test.out $(BUILD_PATH)/test.asm
+	$(OBJCOPY) --dump-section .text=$(BUILD_PATH)/test.shellcode $(BUILD_PATH)/test.out
+	$(OBJDUMP) -d -M no-aliases $(BUILD_PATH)/test.out > $(BUILD_PATH)/test.shellcode.text
 
 	mkdir -p build/hardware/tests/instruction_set_test
 
@@ -151,9 +210,9 @@ hw-test-uart:
 	mkdir -p $(BUILD_PATH)
 
 # Compile test.c to test.hex
-	$(MIPS_GCC) -o $(BUILD_PATH)/test.out ./tests/hardware/uart_test/test.c
-	$(MIPS_OBJCOPY) --dump-section .text=$(BUILD_PATH)/test.shellcode $(BUILD_PATH)/test.out
-	$(MIPS_OBJDUMP) -d -M no-aliases $(BUILD_PATH)/test.out > $(BUILD_PATH)/test.text
+	$(CC) $(CFLAGS) -o $(BUILD_PATH)/test.out ./tests/hardware/uart_test/test.c
+	$(OBJCOPY) --dump-section .text=$(BUILD_PATH)/test.shellcode $(BUILD_PATH)/test.out
+	$(OBJDUMP) -d -M no-aliases $(BUILD_PATH)/test.out > $(BUILD_PATH)/test.text
 
 	make hw-run-test BUILD_PATH=$(BUILD_PATH) TEST_PATH=$(TEST_PATH) IMAGE_PATH=$(BUILD_PATH)/test.shellcode
 
