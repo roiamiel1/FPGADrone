@@ -6,6 +6,8 @@
 `define UART_BAUD_RATE `CLOCK_RATE / 2 // for debugging purposes
 `endif
 
+`define MEM_TOP_ADDRESS     32'h0000_3FF0
+
 `define OP(instr)           instr[31:26]
 `define RS(instr)           instr[25:21]
 `define RT(instr)           instr[20:16]

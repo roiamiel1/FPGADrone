@@ -8,6 +8,7 @@ SRC_PATH := ./src
 BUILD_PATH := ./build
 IMPL_PATH := ./impl
 LIBS_PATH := ./libs
+SCRIPTS_PATH := ./scripts
 RESOURCES_PATH := ./resources
 TESTS_PATH := ./tests
 
@@ -94,8 +95,10 @@ endif
 
 # ------------------------- Software ------------------------- #
 
-CFLAGS := -mfp32 -march=r2000 -mno-shared -static -ffunction-sections -static-libgcc -O0
-LDFLAGS := -Wl,-Map=$(SW_BINARY_PATH).map -static-libgcc
+CFLAGS := -mfp32 -march=r2000 -mno-shared -static -ffreestanding -ffunction-sections -fdata-sections -nostdlib -nodefaultlibs -fno-builtin -fno-builtin-memcpy -fno-builtin-memset -fno-builtin-memmove -fno-exceptions -fno-stack-protector -fno-unwind-tables -fno-asynchronous-unwind-tables --no-common -Os -g0
+LDFLAGS := -T $(SCRIPTS_PATH)/linker.ld -nostdlib -nodefaultlibs -ffreestanding -Wl,-Map=$(SW_BINARY_PATH).map -static-libgcc -Wl,--gc-sections -Wl,--build-id=none
+STRIP_FLAGS := --strip-debug --strip-unneeded --strip-all
+
 ASFLAGS := -mips1 -march=r2000 -O0
 
 $(BUILD_SW_PATH):
@@ -108,27 +111,30 @@ $(BUILD_SW_PATH)/%.o: $(SRC_SW_PATH)/%.c | $(BUILD_SW_PATH)
 # Linker
 sw-build: $(SW_OBJ_FILES)
 	$(CC) $(LDFLAGS) -o $@ $^
+	$(STRIP) $(STRIP_FLAGS) $@
 
 sw-build-2:
 	$(OBJCOPY) --dump-section .text=$(SW_SHELLCODE_PATH) $(SW_BINARY_PATH)
 	$(OBJDUMP) -d -M no-aliases $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
 	$(XXD) -c 4 -p $(SW_SHELLCODE_PATH) > $(SW_HEX_PATH)
-	dd if=/dev/zero bs=4 count=30 of=$(BUILD_SW_PATH)/padding.bin
-	cat $(BUILD_SW_PATH)/padding.bin $(SW_SHELLCODE_PATH) > $(SW_SHELLCODE_PATH).tmp
-	mv $(SW_SHELLCODE_PATH).tmp $(SW_SHELLCODE_PATH)
+	$(DD) if=/dev/zero bs=4 count=30 of=$(BUILD_SW_PATH)/padding.bin
+	$(CAT) $(BUILD_SW_PATH)/padding.bin $(SW_SHELLCODE_PATH) > $(SW_SHELLCODE_PATH).tmp
+	$(MV) $(SW_SHELLCODE_PATH).tmp $(SW_SHELLCODE_PATH)
 
 sw-build-c:
-	mkdir -p $(BUILD_SW_PATH)
-	$(CC) $(CFLAGS) -g -o $(SW_BINARY_PATH).o -c $(SW_SRCS_C)
+	$(MKDIR) -p $(BUILD_SW_PATH)
+	$(CC) $(CFLAGS) -o $(SW_BINARY_PATH).o -c $(SW_SRCS_C)
+	$(STRIP) $(STRIP_FLAGS) $(SW_BINARY_PATH).o
 	$(CC) $(LDFLAGS) -o $(SW_BINARY_PATH) $(SW_BINARY_PATH).o
+	$(STRIP) $(STRIP_FLAGS) $(SW_BINARY_PATH)
 	$(READELF) --all $(SW_BINARY_PATH) > $(SW_READELF_TEXT_PATH)
 
-elf : sw-build-c
+sw-elf : sw-build-c
 	$(PYTHON) scripts/offline_elf_loader.py --elf $(SW_BINARY_PATH) --image $(SW_IMAGE_PATH)
 	$(OBJDUMP) -S -d $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
 
-sw-burn : elf
-	dd if=$(SW_IMAGE_PATH) of=/dev/disk2 oflag=sync
+sw-burn : sw-elf
+	$(DD) if=$(SW_IMAGE_PATH) of=/dev/disk2 oflag=sync
 
 sw-build-libc-clean:
 	cd $(SW_PICOLIBC_PATH) && $(GIT) add -A && $(GIT) stash && $(GIT) reset --hard && $(RM_ALL) build build-mips
@@ -197,7 +203,7 @@ ifneq ($(GTK),)
 endif
 
 hw-view-wave:
-	gtkwave $(TEST_BUILD_PATH)/test.vcd scripts/gtkwave_conf.gtkw --dark -A --rcvar 'fontname_signals Monospace 18' --rcvar 'fontname_waves Monospace 18'
+	gtkwave $(TEST_BUILD_PATH)/test.vcd $(SCRIPTS_PATH)/gtkwave_plugins/gtkwave_conf.gtkw --dark -A --rcvar 'fontname_signals Monospace 18' --rcvar 'fontname_waves Monospace 18'
 
 hw-test-instruction-set:
 	$(eval BUILD_PATH := $(BUILD_HW_TEST_PATH)/instruction_set_test)
@@ -237,7 +243,7 @@ hw-run-startup-test:
 	$(eval BUILD_PATH := $(BUILD_HW_TEST_PATH)/startup_test)
 	$(eval TEST_PATH := $(TESTS_HW_PATH)/startup_test)
 
-	make elf
+	make sw-elf
 	
 	mkdir -p $(BUILD_PATH)
 

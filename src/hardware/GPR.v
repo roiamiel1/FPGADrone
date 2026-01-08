@@ -1,6 +1,8 @@
 
 `timescale 1ns / 1ps
 
+`include "signal_def.v"
+
 module GPR (
     input wire clk,
     input wire rst,
@@ -24,8 +26,8 @@ module GPR (
         end
 
         // initiate stack and frame pointers.
-        gprRegisters[29] <= 32'hFFFFFFFF;
-        gprRegisters[30] <= 32'hFFFFFFFF;
+        gprRegisters[29] <= `MEM_TOP_ADDRESS;
+        gprRegisters[30] <= `MEM_TOP_ADDRESS;
     end
 
     always @(negedge clk, posedge rst) begin
@@ -35,8 +37,8 @@ module GPR (
             end
 
             // initiate stack and frame pointers.
-            gprRegisters[29] <= 32'hFFFFFFFF;
-            gprRegisters[30] <= 32'hFFFFFFFF;
+            gprRegisters[29] <= `MEM_TOP_ADDRESS;
+            gprRegisters[30] <= `MEM_TOP_ADDRESS;
         end else begin
             if(RegWrite) begin
                 gprRegisters[WriteRegister] <= WriteRegister ? WriteData : 32'b0;

@@ -7,8 +7,8 @@ module TESTBENCH;
     reg clk = 0;
     wire uart_tx_out;
 
-    // Clock generation: 27MHz -> Period ≈ 37.037 ns
-    always #18.518 clk = ~clk;  // Half-period
+    // Clock generation: 27MHz -> Period ≈ 37.037037 ns
+    always #18.5185185 clk = ~clk;  // Half-period
 
     // SD card stuff
     wire sdclk;
@@ -28,6 +28,8 @@ module TESTBENCH;
     string SDCardMemPath;
 
     initial begin
+        $display("\n\n***************  Test Started  ***************\n\n");
+
         if (!$value$plusargs("SDCARD_MEM_PATH=%s", SDCardMemPath)) begin
             $fatal(1, "Usage: vvp +SDCARD_MEM_PATH=path/to/file.bin");
         end

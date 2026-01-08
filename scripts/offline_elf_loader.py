@@ -105,23 +105,6 @@ if __name__ == "__main__":
     print(Fore.WHITE + "Base address: " + Fore.BLUE + f"0x{base:08X}")
     print(Fore.WHITE + "Entry point:  " + Fore.GREEN + f"0x{entry:08X}")
     print(Fore.WHITE + "Image length: " + Fore.RED + f"0x{len(mem):08X}")
-
-    print(Fore.MAGENTA + "Building image loader patch...")
-
-    loader_instructions = []
-    loader_instructions += set_register_32bit(SP, STACK_BASE_ADDR)
-    loader_instructions += set_register_32bit(FP, STACK_BASE_ADDR)
-    loader_instructions += encode_jump(entry)
-    loader_instructions += encode_nop()  # Delay slot for jump, so the processor doesn't execute random instruction
-    loader_instructions += encode_nop()
-
-    assert len(loader_instructions) <= (entry // 4), f"Loader patch exceeds {entry // 4} instructions limit"
-
-    print(Fore.CYAN + f"Loader patch length: {len(loader_instructions)*4} bytes ({len(loader_instructions)} instructions)")
-    for i, (instr, opcode) in enumerate(loader_instructions):
-        print(Fore.YELLOW + f"  [0x{(i * 4):04X}] 0x{instr:08X} " + Fore.WHITE + "// " + Fore.LIGHTRED_EX + f"{opcode}")
-        mem[i * 4 : (i + 1) * 4] = instr.to_bytes(4, 'big')
-
     print(Style.RESET_ALL)
 
     with open(args.image, 'wb') as f:
