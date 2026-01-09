@@ -79,15 +79,18 @@ module ALU(
                         ALURes <= 0;
                 end
             end
-            `ALUOp_LUI:
+            `ALUOp_LUI: begin
                 ALURes <= {DataIn2[15:0], 16'b0};
-            `ALUOp_IN1:
+            end
+            `ALUOp_IN1: begin
                 ALURes <= DataIn1;
+            end
             `ALUOp_SRA: begin
                 ALURes <= sra_shifter_out;
             end
-            default:
+            default: begin
                 ALURes <= 32'b0;
+            end
         endcase
     end
 endmodule
