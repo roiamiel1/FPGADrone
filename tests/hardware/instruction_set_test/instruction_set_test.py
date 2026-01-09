@@ -384,4 +384,46 @@
     ("bgtz_pos_unsuccess: addiu $k0, $zero, 100", FALSE),
     ("bgtz_pos_success: addiu $k1, $zero, 560", "{after_mem(REGS.K0)} == 0", "{after_mem(REGS.K1)} == 560"),
     ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
+
+    # Bgezal test when branch taken (grater than zero)
+    ("addiu $ra, $zero, 0",  "{after_mem(REGS.RA)} == 0"),
+    ("addiu $a0, $zero, 123", "{after_mem(REGS.A0)} == 123"),
+    ("bgezal $a0, bgezal_success", "{after_mem(REGS.PC)} == {before(REGS.PC)} - 4*4"),
+    ("nop", FALSE),
+    ("bgezal_unsuccess: addiu $k0, 100", FALSE),
+    ("nop", FALSE),
+    ("bgezal_success: addi $k1, $zero, -12312", 
+        "{after_mem(REGS.K0)} == 0",
+        "{after_mem(REGS.K1)} == -12312", 
+        "{after_mem(REGS.RA)} == {before(REGS.PC)} - 4*4"
+    ),
+    ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
+
+    # Bgezal test when branch taken (equal zero)
+    ("addiu $ra, $zero, 0", "{after_mem(REGS.RA)} == 0"),
+    ("addiu $a0, $zero, 0", "{after_mem(REGS.A0)} == 0"),
+    ("bgezal $a0, bgezal_success_1", "{after_mem(REGS.PC)} == {before(REGS.PC)} - 4*4"),
+    ("nop", FALSE),
+    ("bgezal_unsuccess_1: addiu $k0, 100", FALSE),
+    ("nop", FALSE),
+    ("bgezal_success_1: addi $k1, $zero, -12312", 
+        "{after_mem(REGS.K0)} == 0",
+        "{after_mem(REGS.K1)} == -12312", 
+        "{after_mem(REGS.RA)} == {before(REGS.PC)} - 4*4"
+    ),
+    ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
+
+    # Bgezal test when branch not taken (negative)
+    ("addiu $ra, $zero, 0", "{after_mem(REGS.RA)} == 0"),
+    ("addiu $a0, $zero, -1", "{after_mem(REGS.A0)} == -1"),
+    ("bgezal $a0, bgezal_success_2", "{after_mem(REGS.PC)} - 4*4 == {before(REGS.PC)}"),
+    ("nop", TRUE),
+    ("bgezal_unsuccess_2: addiu $k0, 100", "{after_mem(REGS.K0)} == 100",),
+    ("nop", TRUE),
+    ("bgezal_success_2: addi $k1, $zero, -12312", 
+        "{after_mem(REGS.K0)} == 100",
+        "{after_mem(REGS.K1)} == -12312", 
+        "{after_mem(REGS.RA)} == 0"
+    ),
+    ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
 ]
