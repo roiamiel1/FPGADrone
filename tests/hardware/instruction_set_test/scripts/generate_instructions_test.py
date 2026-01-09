@@ -1,4 +1,7 @@
 import argparse
+
+import sys
+sys.path.append("libs/mips_test_lib")
 from mips_test_lib.test_builder import TestBuilder, FALSE_CONDITION, TRUE_CONDITION
 
 
