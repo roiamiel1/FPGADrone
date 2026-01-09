@@ -34,11 +34,10 @@ def main():
                 "09": "NOR - A nor B",
                 "0a": "NAND - A nand B",
                 "0b": "XNOR - A xnor B",
-                "0c": "BNE - Zero = 1 if A!=B else 0",
-                "0d": "SLT - 1 if A<B else 0",
-                "0e": "LUI - 1 if A<B else 0",
-                "0f": "IN1 - A",
-                "10": "SRA - A >> 1 (with sign extension)"
+                "0c": "SLT - 1 if A<B else 0",
+                "0d": "LUI - 1 if A<B else 0",
+                "0e": "IN1 - A",
+                "0f": "SRA - A >> 1 (with sign extension)"
             }
 
             if l in alu_opcode_map:
