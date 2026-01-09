@@ -456,6 +456,18 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_IN1;
             SpecialOP <= `SpecialOP_BLEZ;
+        end else if (OpCode == 6'h1) begin
+            // bgezal case:
+            Jump      <= 1'b0;
+            RegDst    <= `REG_DST_RD;
+            Branch    <= 1;
+            MemRead   <= 1'b0;
+            MemWrite  <= 1'b0;
+            RegWrite  <= 1;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= `ALUOp_IN1;
+            SpecialOP <= `SpecialOP_BGEZAL;
         end else  begin
             // default case:
             Jump      <= 1'b0;

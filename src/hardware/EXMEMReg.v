@@ -29,6 +29,9 @@ module EXMEMReg (
     input wire [31:0] ALU_in,
     input [4:0] WriteBackRegAddr_in,
 
+    // For future branch or jump
+    input [31:0] NextPC_in,
+
     // MEM signal
     output Branch_out,
     output Jump_out,
@@ -47,9 +50,12 @@ module EXMEMReg (
     
     // data
     output [31:0] ALU_out,
-    output [4:0] WriteBackRegAddr_out
+    output [4:0] WriteBackRegAddr_out,
+
+    // For future branch or jump
+    output [31:0] NextPC_out
 );
-    reg[143:0] StageReg;
+    reg[175:0] StageReg;
 
     assign {
         Instr_out[31:0],
@@ -64,16 +70,17 @@ module EXMEMReg (
         Zero_out,
         Sign_out,
         ALU_out[31:0],
-        WriteBackRegAddr_out[4:0]
+        WriteBackRegAddr_out[4:0],
+        NextPC_out[31:0]
     } = StageReg;
 
     initial begin
-        StageReg <= 144'b0;
+        StageReg <= 176'b0;
     end
 
     always @(posedge clk, posedge rst) begin
         if (rst || HazardFlush)
-            StageReg <= 144'b0;
+            StageReg <= 176'b0;
         else begin
             StageReg <= {
                 Instr_in[31:0],
@@ -88,7 +95,8 @@ module EXMEMReg (
                 Zero_in,
                 Sign_in,
                 ALU_in[31:0],
-                WriteBackRegAddr_in[4:0]
+                WriteBackRegAddr_in[4:0],
+                NextPC_in[31:0]
             };
         end
     end

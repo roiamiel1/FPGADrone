@@ -35,6 +35,7 @@
 `define SpecialOP_BNE       4'b0110
 `define SpecialOP_BGTZ      4'b0111
 `define SpecialOP_BLEZ      4'b1000
+`define SpecialOP_BGEZAL    4'b1001
 
 // ALU Source
 `define ALU_SRC_REG 1'b0
@@ -66,8 +67,10 @@
 `define ALUOp_IN1   5'b01110    // ALURes = A;
 `define ALUOp_SRA   5'b01111    // ALURes = A >> 1 (with sign extension)
 
-
 // DataMemoryMode
 `define DataMemoryMode_WORD     2'b00
 `define DataMemoryMode_HALFWORD 2'b01
 `define DataMemoryMode_BYTE     2'b10
+
+// Registers
+`define REG_RA 5'd31

@@ -12,24 +12,24 @@ module IFIDReg (
     input  [31:0] NextPC_in,
     output [31:0] NextPC_out
 );
-    reg[95:0] StageReg;
+    reg[61:0] StageReg;
 
     assign {
-        NextPC_out   [31:0],
-        Instr_out[31:0]
-    } = StageReg [63:0];
+        NextPC_out[31:0],
+        Instr_out [31:0]
+    } = StageReg;
 
     initial begin
-        StageReg <= 96'b0;
+        StageReg <= 62'b0;
     end
 
     always @(posedge rst, posedge clk) begin
         if (rst || HazardFlush)
-            StageReg <= 96'b0;
+            StageReg <= 62'b0;
         else begin
-            StageReg[63:0] <= {
+            StageReg <= {
                 NextPC_in[31:0],
-                Instr_in[31:0]
+                Instr_in [31:0]
             };
         end
     end

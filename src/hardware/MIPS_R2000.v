@@ -43,12 +43,14 @@ module MIPS_R2000 (
     wire [31:0] U_EXMEMReg_Reg2_out;
     wire [3:0] U_EXMEMReg_SpecialOP_out;
     wire U_EXMEMReg_RegWrite_out;
+    wire U_EXMEMReg_ShouldRegWrite_out;
     wire U_EXMEMReg_Zero_out;
     wire U_EXMEMReg_Sign_out;
     wire [31:0] U_EXMEMReg_ALU_in;
     wire [31:0] U_EXMEMReg_ALU_out;
     wire [4:0] U_EXMEMReg_WriteBackRegAddr_out;
     wire [4:0] U_EXMEMReg_WriteBackRegAddr_in;
+    wire [31:0] U_EXMEMReg_NextPC_out;
 
     // U_IDEXReg connections.
     wire [31:0] IDEX_Instr;
@@ -70,8 +72,7 @@ module MIPS_R2000 (
     wire [4:0] U_IDEXReg_Rt_out;
     wire [4:0] U_IDEXReg_Rd_out;
     wire [4:0] U_IDEXReg_shamt_out;
-    wire [31:0] U_IDEXReg_Reg1_in;
-    wire [4:0] U_IDEXReg_Rd_in;
+    wire U_EXMEM_IsAndLinkOp;
 
     // U_GPR connections.
     wire [31:0] U_MEMWBReg_WriteBackValue;
@@ -112,6 +113,7 @@ module MIPS_R2000 (
 
     // BranchAddress connections.
     wire [31:0] BranchAddress;
+    wire U_EXMEMReg_ShouldJumpOrBranch;
 
     // Sign Extender connections.
     wire [15:0] ExtenderDataIn;
@@ -126,12 +128,19 @@ module MIPS_R2000 (
 
     // Branch and Jump assigns.
     assign U_PCU_PCSrc = U_EXMEMReg_Jump_out || (U_EXMEMReg_Branch_out && (
-        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BEQ  &&   U_EXMEMReg_Zero_out                          )  ||
-        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BNE  &&  !U_EXMEMReg_Zero_out                          )  ||
-        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BGTZ && (!U_EXMEMReg_Zero_out && !U_EXMEMReg_Sign_out ))  ||
-        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BLEZ &&  (U_EXMEMReg_Zero_out ||  U_EXMEMReg_Sign_out ))
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BEQ    &&   U_EXMEMReg_Zero_out                          ) ||
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BNE    &&  !U_EXMEMReg_Zero_out                          ) ||
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BGTZ   && (!U_EXMEMReg_Zero_out && !U_EXMEMReg_Sign_out )) ||
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BLEZ   &&  (U_EXMEMReg_Zero_out ||  U_EXMEMReg_Sign_out )) ||
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BGEZAL &&  (U_EXMEMReg_Zero_out || !U_EXMEMReg_Sign_out ))
     ));
-    assign HazardFlushRegs = U_PCU_PCSrc == 1'b1; // U_PCU_PCSrc == 1'b1 -> Jump or Branch.
+    assign U_EXMEMReg_ShouldJumpOrBranch = U_PCU_PCSrc;
+    assign HazardFlushRegs = U_PCU_PCSrc;
+
+    // In case the op is BGEZAL, we need to check if the branch is taken to write to the register.
+    assign U_EXMEMReg_ShouldRegWrite_out = U_EXMEMReg_RegWrite_out && (
+        U_EXMEMReg_SpecialOP_out == `SpecialOP_BGEZAL ? U_EXMEMReg_ShouldJumpOrBranch : 1'b1
+    );
 
     assign BranchAddress = (U_IDEXReg_SpecialOP_out == `SpecialOP_JR ? U_EXMEMReg_ALU_in : 
         (U_IDEXReg_Branch_out ? (U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)) :
@@ -139,10 +148,9 @@ module MIPS_R2000 (
         (U_IDEXReg_Jump_out ? {U_IDEXReg_NextPC_out[31:28], U_IDEXReg_JumpAddress_out, 2'b0} : 32'b0))
     );
 
-    // IDEXReg assigns.
     // In case the SpecialOP is JAL -> R[31] = $RA = $PC + 4 (Note that U_IFIDReg_NextPC_out = $PC + 4);
-    assign U_IDEXReg_Reg1_in = ((U_Ctrl_SpecialOP == `SpecialOP_JAL) ? U_IFIDReg_NextPC_out : U_GPR_DataOut1);
-    assign U_IDEXReg_Rd_in = ((U_Ctrl_SpecialOP == `SpecialOP_JAL) ? 31 : (`RD(IFID_Instr)));
+    assign U_EXMEM_IsAndLinkOp = U_EXMEMReg_ShouldJumpOrBranch &&
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_JAL || U_EXMEMReg_SpecialOP_out == `SpecialOP_BGEZAL);
 
     // Assigns Forwaring Mux's
     assign ALURegInput1 = `ForwardingMux(
@@ -157,7 +165,7 @@ module MIPS_R2000 (
         U_EXMEMReg_ALU_out,         // Forward from EX/MEM
         U_MEMWBReg_WriteBackValue   // Forward from MEM/WB
     );
-    
+
     PCU U_PCU(
         .clk(clk),
         .rst(rst),
@@ -193,51 +201,51 @@ module MIPS_R2000 (
     IDEXReg U_IDEXReg(
         .clk(clk),
         .rst(rst),
+        .HazardFlush(HazardFlushRegs),
         .Instr_in(IFID_Instr),
         .Instr_out(IDEX_Instr),
-        .HazardFlush(HazardFlushRegs),
         .RegDst_in(U_Ctrl_RegDst),
-        .ALUOp_in(U_Ctrl_ALUOp),
-        .ALUSrc_in(U_Ctrl_ALUSrc),
-        .SpecialOP_in(U_Ctrl_SpecialOP),
-        .Branch_in(U_Ctrl_Branch),
-        .Jump_in(U_Ctrl_Jump),
-        .JumpAddress_in(`JUMP_ADDRESS(IFID_Instr)),
-        .NextPC_in(U_IFIDReg_NextPC_out),
-        .MemRead_in(U_Ctrl_MemRead),
-        .MemWrite_in(U_Ctrl_MemWrite),
-        .RegWrite_in(U_Ctrl_RegWrite),
-        .Reg1_in(U_IDEXReg_Reg1_in),
-        .Reg2_in(U_GPR_DataOut2),
-        .ExtImm_in(U_OpcodeImmExtender_Out),
-        .Rs_in(`RS(IFID_Instr)),
-        .Rt_in(`RT(IFID_Instr)),
-        .Rd_in(U_IDEXReg_Rd_in),
-        .shamt_in(`SHAMT(IFID_Instr)),
         .RegDst_out(U_IDEXReg_RegDst_out),
+        .ALUOp_in(U_Ctrl_ALUOp),
         .ALUOp_out(U_IDEXReg_ALUOp_out),
+        .ALUSrc_in(U_Ctrl_ALUSrc),
         .ALUSrc_out(U_IDEXReg_ALUSrc_out),
+        .SpecialOP_in(U_Ctrl_SpecialOP),
         .SpecialOP_out(U_IDEXReg_SpecialOP_out),
+        .Branch_in(U_Ctrl_Branch),
         .Branch_out(U_IDEXReg_Branch_out),
+        .Jump_in(U_Ctrl_Jump),
         .Jump_out(U_IDEXReg_Jump_out),
+        .JumpAddress_in(`JUMP_ADDRESS(IFID_Instr)),
         .JumpAddress_out(U_IDEXReg_JumpAddress_out),
+        .NextPC_in(U_IFIDReg_NextPC_out),
         .NextPC_out(U_IDEXReg_NextPC_out),
+        .MemRead_in(U_Ctrl_MemRead),
         .MemRead_out(U_IDEXReg_MemRead_out),
+        .MemWrite_in(U_Ctrl_MemWrite),
         .MemWrite_out(U_IDEXReg_MemWrite_out),
+        .RegWrite_in(U_Ctrl_RegWrite),
         .RegWrite_out(U_IDEXReg_RegWrite_out),
+        .Reg1_in(U_GPR_DataOut1),
         .Reg1_out(U_IDEXReg_Reg1_out),
+        .Reg2_in(U_GPR_DataOut2),
         .Reg2_out(U_IDEXReg_Reg2_out),
+        .ExtImm_in(U_OpcodeImmExtender_Out),
         .ExtImm_out(U_IDEXReg_ExtImm_out),
+        .Rs_in(`RS(IFID_Instr)),
         .Rs_out(U_IDEXReg_Rs_out),
+        .Rt_in(`RT(IFID_Instr)),
         .Rt_out(U_IDEXReg_Rt_out),
+        .Rd_in(`RD(IFID_Instr)),
         .Rd_out(U_IDEXReg_Rd_out),
+        .shamt_in(`SHAMT(IFID_Instr)),
         .shamt_out(U_IDEXReg_shamt_out)
     );
 
     ForwardingUnit U_ForwardingUnit(
         .ALUDataIn1RegAddr_in(U_IDEXReg_Rs_out),
         .ALUDataIn2RegAddr_in(U_IDEXReg_Rt_out),
-        .EXMEM_WriteBackReg(U_EXMEMReg_RegWrite_out),
+        .EXMEM_WriteBackReg(U_EXMEMReg_ShouldRegWrite_out),
         .MEMWB_WriteBackReg(U_MEMWBReg_RegWrite_out),
         .EXMEM_WriteBackRegAddr(U_EXMEMReg_WriteBackRegAddr_out),
         .MEMWB_WriteBackRegAddr(U_MEMWBReg_WriteBackRegAddr_out),
@@ -273,6 +281,7 @@ module MIPS_R2000 (
         .Zero_in(U_ALU_Zero),
         .Sign_in(U_ALU_Sign),
         .WriteBackRegAddr_in(U_EXMEMReg_WriteBackRegAddr_in),
+        .NextPC_in(U_IDEXReg_NextPC_out),
         .Branch_out(U_EXMEMReg_Branch_out),
         .Jump_out(U_EXMEMReg_Jump_out),
         .BranchAddress_out(U_EXMEMReg_BranchAddress_out),
@@ -285,7 +294,8 @@ module MIPS_R2000 (
         .Sign_out(U_EXMEMReg_Sign_out),
         .ALU_in(U_EXMEMReg_ALU_in),
         .ALU_out(U_EXMEMReg_ALU_out),
-        .WriteBackRegAddr_out(U_EXMEMReg_WriteBackRegAddr_out)
+        .WriteBackRegAddr_out(U_EXMEMReg_WriteBackRegAddr_out),
+        .NextPC_out(U_EXMEMReg_NextPC_out)
     );
 
     DataMemoryInterface U_DataMemory(
@@ -323,11 +333,11 @@ module MIPS_R2000 (
         .rst(rst),
         .Instr_in(EXMEM_Instr),
         .Instr_out(MEMWB_Instr),
-        .RegWrite_in(U_EXMEMReg_RegWrite_out),
+        .RegWrite_in(U_EXMEMReg_ShouldRegWrite_out),
         .MemRead_in(U_EXMEMReg_MemRead_out),
         .Mem_in(U_DataMemory_DataOut),
-        .ALU_in(U_EXMEMReg_ALU_out),
-        .WriteBackRegAddr_in(U_EXMEMReg_WriteBackRegAddr_out),
+        .ALU_in(U_EXMEM_IsAndLinkOp ? U_EXMEMReg_NextPC_out : U_EXMEMReg_ALU_out),
+        .WriteBackRegAddr_in(U_EXMEM_IsAndLinkOp ? `REG_RA : U_EXMEMReg_WriteBackRegAddr_out),
         .RegWrite_out(U_MEMWBReg_RegWrite_out),
         .MemRead_out(U_MEMWBReg_MemRead_out),
         .Mem_out(U_MEMWBReg_Mem_out),
