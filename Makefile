@@ -95,7 +95,7 @@ endif
 
 # ------------------------- Software ------------------------- #
 
-CFLAGS := -mfp32 -march=r2000 -mno-shared -static -ffreestanding -ffunction-sections -fdata-sections -nostdlib -nodefaultlibs -fno-builtin -fno-builtin-memcpy -fno-builtin-memset -fno-builtin-memmove -fno-exceptions -fno-stack-protector -fno-unwind-tables -fno-asynchronous-unwind-tables --no-common -Os -g0
+CFLAGS := -mfp32 -march=r2000 -mno-shared -static -ffreestanding -ffunction-sections -fdata-sections -nostdlib -nodefaultlibs -fno-builtin -fno-builtin-memcpy -fno-builtin-memset -fno-builtin-memmove -fno-exceptions -fno-stack-protector -fno-unwind-tables -fno-asynchronous-unwind-tables --no-common -Os -g
 LDFLAGS := -T $(SCRIPTS_PATH)/linker.ld -nostdlib -nodefaultlibs -ffreestanding -Wl,-Map=$(SW_BINARY_PATH).map -static-libgcc -Wl,--gc-sections -Wl,--build-id=none
 STRIP_FLAGS := --strip-debug --strip-unneeded --strip-all
 
@@ -124,14 +124,13 @@ sw-build-2:
 sw-build-c:
 	$(MKDIR) -p $(BUILD_SW_PATH)
 	$(CC) $(CFLAGS) -o $(SW_BINARY_PATH).o -c $(SW_SRCS_C)
-	$(STRIP) $(STRIP_FLAGS) $(SW_BINARY_PATH).o
 	$(CC) $(LDFLAGS) -o $(SW_BINARY_PATH) $(SW_BINARY_PATH).o
-	$(STRIP) $(STRIP_FLAGS) $(SW_BINARY_PATH)
 	$(READELF) --all $(SW_BINARY_PATH) > $(SW_READELF_TEXT_PATH)
+	$(OBJDUMP) -S -d $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
+	$(STRIP) $(STRIP_FLAGS) $(SW_BINARY_PATH)
 
 sw-elf : sw-build-c
 	$(PYTHON) scripts/offline_elf_loader.py --elf $(SW_BINARY_PATH) --image $(SW_IMAGE_PATH)
-	$(OBJDUMP) -S -d $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
 
 sw-burn : sw-elf
 	$(DD) if=$(SW_IMAGE_PATH) of=/dev/disk2 oflag=sync
@@ -205,7 +204,7 @@ endif
 hw-view-wave:
 	gtkwave $(TEST_BUILD_PATH)/test.vcd $(SCRIPTS_PATH)/gtkwave_plugins/gtkwave_conf.gtkw --dark -A --rcvar 'fontname_signals Monospace 18' --rcvar 'fontname_waves Monospace 18'
 
-hw-test-instruction-set:
+hw-run-instruction-test:
 	$(eval BUILD_PATH := $(BUILD_HW_TEST_PATH)/instruction_set_test)
 	$(eval TEST_PATH := $(TESTS_HW_PATH)/instruction_set_test)
 	mkdir -p $(BUILD_PATH)

@@ -5,6 +5,7 @@ _stack_top = 0x3ff0;
 SECTIONS {
     . = 0x0;
     .text : {
+		KEEP(*(.main))
         KEEP(*(.text))
         KEEP(*(.text.*))
     }
