@@ -33,4 +33,6 @@ sra,       0,      x,   x,  3,     0,    `REG_DST_RD, 0,      0,       0,       
 nop,       0,      x,   x,  0,     0,    0,           0,      0,       0,        0,        0,             0,            0,           0
 bgtz,      7,      x,   x,  x,     0,    0,           1,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_IN1,  `SpecialOP_BGTZ
 blez,      6,      x,   x,  x,     0,    0,           1,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_IN1,  `SpecialOP_BLEZ
-bgezal,    1,      x,   x,  x,     0,    `REG_DST_RD, 1,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_IN1,  `SpecialOP_BGEZALs
+bgezal,    1,      x,   x,  x,     0,    `REG_DST_RD, 1,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_IN1,  `SpecialOP_BGEZAL
+xor,       0,      x,   x,  26,    0,    `REG_DST_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_XOR,  `SpecialOP_NONE
+xori,      e,      x,   x,  x,     0,    `REG_DST_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_ZERO,     `ALUOp_XOR,  `SpecialOP_NONE

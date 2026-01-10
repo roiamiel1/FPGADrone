@@ -467,6 +467,30 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_IN1;
             SpecialOP <= `SpecialOP_BGEZAL;
+        end else if (OpCode == 6'h0 && Funct == 6'h26) begin
+            // xor case:
+            Jump      <= 0;
+            RegDst    <= `REG_DST_RD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 1;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= `ALUOp_XOR;
+            SpecialOP <= `SpecialOP_NONE;
+        end else if (OpCode == 6'he) begin
+            // xori case:
+            Jump      <= 0;
+            RegDst    <= `REG_DST_RT;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 1;
+            ALUSrc    <= `ALU_SRC_EXT;
+            ExtOp     <= `EXT_ZERO;
+            ALUOp     <= `ALUOp_XOR;
+            SpecialOP <= `SpecialOP_NONE;
         end else  begin
             // default case:
             Jump      <= 1'b0;

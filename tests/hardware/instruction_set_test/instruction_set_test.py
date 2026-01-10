@@ -426,4 +426,10 @@
         "{after_mem(REGS.RA)} == 0"
     ),
     ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
+
+    # Xor tests
+    ("addi $a0, $zero, 170", "{after_mem(REGS.A0)} == 170"),
+    ("addi $a1, $zero, 204", "{after_mem(REGS.A1)} == 204"),
+    ("xor $a2, $a0, $a1", "{after_mem(REGS.A2)} == 102"),
+    ("xori $a3, $a0, 240", "{after_mem(REGS.A3)} == 90"),
 ]
