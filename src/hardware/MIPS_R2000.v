@@ -1,7 +1,6 @@
 `timescale 1ns / 1ps
 
 `include "signal_def.v"
-`include "instruction_def.v"
 
 module MIPS_R2000 (
     input clk,

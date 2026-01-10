@@ -11,7 +11,6 @@ add_file -type verilog src/hardware/IFIDReg.v
 add_file -type verilog src/hardware/MEMWBReg.v
 add_file -type verilog src/hardware/MIPS_R2000.v
 add_file -type verilog src/hardware/PCU.v
-add_file -type verilog src/hardware/instruction_def.v
 add_file -type verilog src/hardware/signal_def.v
 add_file -type verilog src/hardware/DataMemory.v
 add_file -type verilog src/hardware/DataMemoryInterface.v

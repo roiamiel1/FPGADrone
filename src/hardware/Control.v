@@ -1,7 +1,6 @@
 // AUTO-GENERATED - DO NOT CHNAGE!
 `timescale 1ns / 1ps
 
-`include "instruction_def.v"
 `include "signal_def.v"
 
 module Control(
