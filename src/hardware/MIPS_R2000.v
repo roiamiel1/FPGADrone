@@ -12,7 +12,10 @@ module MIPS_R2000 (
     input sddat0
 );
     // U_Ctrl connections.
-    wire U_Ctrl_RegDst;
+    wire [1:0] U_Ctrl_InstType;
+    wire [1:0] U_Ctrl_ReadReg1;
+    wire [1:0] U_Ctrl_ReadReg2;
+    wire [1:0] U_Ctrl_RegDst;
     wire [4:0] U_Ctrl_ALUOp;
     wire U_Ctrl_ALUSrc;
     wire U_Ctrl_Branch;
@@ -53,7 +56,7 @@ module MIPS_R2000 (
 
     // U_IDEXReg connections.
     wire [31:0] IDEX_Instr;
-    wire U_IDEXReg_RegDst_out;
+    wire [1:0] U_IDEXReg_RegDst_out;
     wire [4:0] U_IDEXReg_ALUOp_out;
     wire U_IDEXReg_ALUSrc_out;
     wire [3:0] U_IDEXReg_SpecialOP_out;
@@ -70,7 +73,6 @@ module MIPS_R2000 (
     wire [4:0] U_IDEXReg_Rs_out;
     wire [4:0] U_IDEXReg_Rt_out;
     wire [4:0] U_IDEXReg_Rd_out;
-    wire [4:0] U_IDEXReg_shamt_out;
     wire U_EXMEM_IsAndLinkOp;
 
     // U_GPR connections.
@@ -118,11 +120,14 @@ module MIPS_R2000 (
     wire [15:0] ExtenderDataIn;
     
     // Sign Extender assigns.
-    assign ExtenderDataIn = `IMMEDIATE(IFID_Instr);
+    assign ExtenderDataIn = 
+        U_Ctrl_InstType == `INST_TYPE_I ? `IMMEDIATE(IFID_Instr) :
+        U_Ctrl_InstType == `INST_TYPE_R ? {11'b0, `SHAMT(IFID_Instr)} : 
+        16'b0;
     assign U_OpcodeImmExtender_Out = {U_Ctrl_ExtOp ? {16{ExtenderDataIn[15]}} : 16'b0, ExtenderDataIn[15:0]};
 
     // Connections assigns.
-    assign U_EXMEMReg_WriteBackRegAddr_in = (U_IDEXReg_RegDst_out == `REG_DST_RD) ? U_IDEXReg_Rd_out : U_IDEXReg_Rt_out;
+    assign U_EXMEMReg_WriteBackRegAddr_in = `REG_MUX(U_IDEXReg_RegDst_out, U_IDEXReg_Rt_out, U_IDEXReg_Rd_out, U_IDEXReg_Rs_out);
     assign U_MEMWBReg_WriteBackValue = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
 
     // Branch and Jump assigns.
@@ -190,8 +195,8 @@ module MIPS_R2000 (
         .WriteData(U_MEMWBReg_WriteBackValue),
         .RegWrite(U_MEMWBReg_RegWrite_out),
         .WriteRegister(U_MEMWBReg_WriteBackRegAddr_out),
-        .ReadRegister1(`RS(IFID_Instr)),
-        .ReadRegister2(`RT(IFID_Instr)),
+        .ReadRegister1(`INSTR_REG_MUX(U_Ctrl_ReadReg1, IFID_Instr)),
+        .ReadRegister2(`INSTR_REG_MUX(U_Ctrl_ReadReg2, IFID_Instr)),
         .DataOut1(U_GPR_DataOut1),
         .DataOut2(U_GPR_DataOut2)
     );
@@ -235,9 +240,7 @@ module MIPS_R2000 (
         .Rt_in(`RT(IFID_Instr)),
         .Rt_out(U_IDEXReg_Rt_out),
         .Rd_in(`RD(IFID_Instr)),
-        .Rd_out(U_IDEXReg_Rd_out),
-        .shamt_in(`SHAMT(IFID_Instr)),
-        .shamt_out(U_IDEXReg_shamt_out)
+        .Rd_out(U_IDEXReg_Rd_out)
     );
 
     ForwardingUnit U_ForwardingUnit(
@@ -256,7 +259,6 @@ module MIPS_R2000 (
         .DataIn1(ALURegInput1),
         .DataIn2(U_IDEXReg_ALUSrc_out ? U_IDEXReg_ExtImm_out : ALURegInput2),
         .ALUOp(U_IDEXReg_ALUOp_out),
-        .shamt(U_IDEXReg_shamt_out),
         .ALURes(U_EXMEMReg_ALU_in),
         .Zero(U_ALU_Zero),
         .Sign(U_ALU_Sign)
@@ -354,6 +356,9 @@ module MIPS_R2000 (
         .rst(rst),
         .OpCode(`OP(IFID_Instr)),
         .Funct(`FUNCT(IFID_Instr)),
+        .InstType(U_Ctrl_InstType),
+        .ReadReg1(U_Ctrl_ReadReg1),
+        .ReadReg2(U_Ctrl_ReadReg2),
         .RegDst(U_Ctrl_RegDst),
         .ALUOp(U_Ctrl_ALUOp),
         .ALUSrc(U_Ctrl_ALUSrc),

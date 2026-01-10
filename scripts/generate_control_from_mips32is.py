@@ -23,15 +23,18 @@ while True:
         continue
     
     opcode, fmt, ft, funct = (int(str(x), 16) if x else x for x in next_row[1:5])
-    jump, reg_dst, branch, mem_read, mem_write, reg_write, alu_src, ext_op, alu_op, special_op = next_row[5:15]
+    inst_type, jump, read_reg1, read_reg2, reg_dst, branch, mem_read, mem_write, reg_write, alu_src, ext_op, alu_op, special_op = next_row[5:18]
 
     pairs = zip((opcode, fmt, ft, funct), instructions_parts, instructions_parts_bytes)
     logic_statments = ["{} == {}'h{}".format(key, nbyte, hex(value)[2:]) for (value, key, nbyte) in pairs if value is not None]
     logic_statment = " && ".join(logic_statments)
     DATA_BLOCK += f"""if ({logic_statment}) begin
             // {cmd} case:
+            InstType  <= {inst_type or  "2'b00"};
             Jump      <= {jump       or "1'b0"};
-            RegDst    <= {reg_dst    or "1'b0"};
+            ReadReg1  <= {read_reg1  or "2'b00"};
+            ReadReg2  <= {read_reg2  or "2'b00"};
+            RegDst    <= {reg_dst    or "2'b00"};
             Branch    <= {branch     or "1'b0"};
             MemRead   <= {mem_read   or "1'b0"};
             MemWrite  <= {mem_write  or "1'b0"};
@@ -52,8 +55,11 @@ module Control(
     input wire rst,
     input wire [5:0] OpCode,
     input wire [5:0] Funct,
+    output reg [1:0] InstType,
     output reg Jump,
-    output reg RegDst,
+    output reg [1:0] ReadReg1,
+    output reg [1:0] ReadReg2,
+    output reg [1:0] RegDst,
     output reg Branch,
     output reg MemRead,
     output reg MemWrite,
@@ -67,8 +73,11 @@ module Control(
     assign nBranch = ~Branch;
 
     initial begin
+        InstType  <= 2'b00;
         Jump      <= 1'b0;
-        RegDst    <= 1'b0;
+        ReadReg1  <= 2'b00;
+        ReadReg2  <= 2'b00;
+        RegDst    <= 2'b00;
         Branch    <= 1'b0;
         MemRead   <= 1'b0;
         MemWrite  <= 1'b0;
@@ -81,8 +90,11 @@ module Control(
 
     always @(negedge clk, posedge rst) begin
         if (rst) begin
+            InstType  <= 2'b00;
             Jump      <= 1'b0;
-            RegDst    <= 1'b0;
+            ReadReg1  <= 2'b00;
+            ReadReg2 <= 2'b00;
+            RegDst    <= 2'b00;
             Branch    <= 1'b0;
             MemRead   <= 1'b0;
             MemWrite  <= 1'b0;
@@ -93,8 +105,11 @@ module Control(
             SpecialOP <= 4'b0;
         end else {DATA_BLOCK} begin
             // default case:
+            InstType  <= 2'b00;
             Jump      <= 1'b0;
-            RegDst    <= 1'b0;
+            ReadReg1  <= 2'b00;
+            ReadReg2  <= 2'b00;
+            RegDst    <= 2'b00;
             Branch    <= 1'b0;
             MemRead   <= 1'b0;
             MemWrite  <= 1'b0;

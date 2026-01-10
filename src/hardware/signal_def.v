@@ -42,8 +42,11 @@
 `define ALU_SRC_EXT 1'b1
 
 // Register
-`define REG_DST_RT  1'b0
-`define REG_DST_RD  1'b1
+`define REG_RT  2'b00
+`define REG_RD  2'b01
+`define REG_RS  2'b10
+`define REG_MUX(register, rt, rd, rs) (register == `REG_RT ? rt : ((register == `REG_RD) ? rd : rs))
+`define INSTR_REG_MUX(register, inst) (register == `REG_RT ? `RT(inst) : ((register == `REG_RD) ? `RD(inst) : `RS(inst)))
 
 // Extender
 `define EXT_ZERO    1'b0
@@ -74,3 +77,8 @@
 
 // Registers
 `define REG_RA 5'd31
+
+// Instruction Types
+`define INST_TYPE_R    2'b00
+`define INST_TYPE_I    2'b01
+`define INST_TYPE_J    2'b10

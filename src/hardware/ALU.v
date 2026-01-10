@@ -2,39 +2,17 @@
 
 `include "signal_def.v"
 
-module sra_shifter_manual (
-    input  [31:0] rt,       // Source register value
-    input  [4:0]  shamt,    // Shift amount (MIPS standard is 5 bits)
-    output [31:0] rd        // Destination register for the result
-);
-    wire sign_bit;
-    wire [31:0] sign_extend_filler;
-
-    assign sign_bit = rt[31];
-    assign sign_extend_filler = {32{sign_bit}};
-    assign rd = (sign_extend_filler << (32 - shamt)) | (rt >> shamt);
-endmodule
-
 module ALU(
     input wire clk,
     input wire [31:0] DataIn1,
     input wire [31:0] DataIn2,
-    input wire [4:0] shamt,
     input wire [4:0] ALUOp,
     output reg [31:0] ALURes,
     output wire Zero,
     output wire Sign
 );
-    wire [31:0] sra_shifter_out;
-
     assign Zero = ALURes == 32'b0;
     assign Sign = ALURes[31];
-
-    sra_shifter_manual sra_shifter (
-        .rt(DataIn2),
-        .shamt(shamt),
-        .rd(sra_shifter_out)
-    );
 
     always @(negedge clk) begin
         case(ALUOp)
@@ -51,9 +29,9 @@ module ALU(
                 ALURes <= DataIn1 / DataIn2;
             `endif
             `ALUOp_SLL:
-                ALURes <= DataIn2 << shamt;
+                ALURes <= DataIn1 << DataIn2;
             `ALUOp_SRL:
-                ALURes <= DataIn2 >> shamt;
+                ALURes <= DataIn1 >> DataIn2;
             `ALUOp_AND:
                 ALURes <= DataIn1 & DataIn2;
             `ALUOp_OR:
@@ -86,7 +64,7 @@ module ALU(
                 ALURes <= DataIn1;
             end
             `ALUOp_SRA: begin
-                ALURes <= sra_shifter_out;
+                ALURes <= ({32{DataIn1[31]}} << (32 - DataIn2)) | (DataIn1 >> DataIn2);
             end
             default: begin
                 ALURes <= 32'b0;

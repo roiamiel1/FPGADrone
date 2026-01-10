@@ -11,7 +11,7 @@ module IDEXReg (
 
     // EX signal
     input [31:0] NextPC_in,
-    input RegDst_in,
+    input [1:0] RegDst_in,
     input [4:0] ALUOp_in,
     input ALUSrc_in,
     input [3:0] SpecialOP_in,
@@ -33,11 +33,10 @@ module IDEXReg (
     input [4:0] Rs_in,
     input [4:0] Rt_in,
     input [4:0] Rd_in,
-    input [4:0] shamt_in,
 
     // EX signal
     output [31:0] NextPC_out,
-    output RegDst_out,
+    output [1:0] RegDst_out,
     output [4:0] ALUOp_out,
     output ALUSrc_out,
     output [3:0] SpecialOP_out,
@@ -58,16 +57,15 @@ module IDEXReg (
     output [31:0] ExtImm_out,
     output [4:0] Rs_out,
     output [4:0] Rt_out,
-    output [4:0] Rd_out,
-    output [4:0] shamt_out
+    output [4:0] Rd_out
 );
 
-    reg [221:0] StageReg;
+    reg [217:0] StageReg;
 
     assign {
         Instr_out[31:0],
         NextPC_out[31:0],
-        RegDst_out,
+        RegDst_out[1:0],
         ALUOp_out[4:0],
         ALUSrc_out,
         SpecialOP_out[3:0],
@@ -82,22 +80,21 @@ module IDEXReg (
         ExtImm_out[31:0],
         Rs_out[4:0],
         Rt_out[4:0],
-        Rd_out[4:0],
-        shamt_out[4:0]
+        Rd_out[4:0]
     } = StageReg;
 
     initial begin
-        StageReg <= 222'b0;
+        StageReg <= 218'b0;
     end
 
     always @(posedge clk, posedge rst) begin
         if (rst || HazardFlush)
-            StageReg <= 222'b0;
+            StageReg <= 218'b0;
         else begin
             StageReg <= {
                 Instr_in[31:0],
                 NextPC_in[31:0],
-                RegDst_in,
+                RegDst_in[1:0],
                 ALUOp_in[4:0],
                 ALUSrc_in,
                 SpecialOP_in[3:0],
@@ -112,8 +109,7 @@ module IDEXReg (
                 ExtImm_in[31:0],
                 Rs_in[4:0],
                 Rt_in[4:0],
-                Rd_in[4:0],
-                shamt_in[4:0]
+                Rd_in[4:0]
             };
         end
     end
