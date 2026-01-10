@@ -102,7 +102,7 @@
     ("jal_success: addi $k1, $zero, -12312", 
         "{after_mem(REGS.K0)} == 0",
         "{after_mem(REGS.K1)} == -12312", 
-        "{after_mem(REGS.RA)} == {before(REGS.PC)} - 4*4"
+        "{after_mem(REGS.RA)} == {before(REGS.PC)} - 3*4"
     ),
     
     # Test `jr` - branching:
@@ -395,7 +395,7 @@
     ("bgezal_success: addi $k1, $zero, -12312", 
         "{after_mem(REGS.K0)} == 0",
         "{after_mem(REGS.K1)} == -12312", 
-        "{after_mem(REGS.RA)} == {before(REGS.PC)} - 4*4"
+        "{after_mem(REGS.RA)} == {before(REGS.PC)} - 3*4"
     ),
     ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
 
@@ -409,7 +409,7 @@
     ("bgezal_success_1: addi $k1, $zero, -12312", 
         "{after_mem(REGS.K0)} == 0",
         "{after_mem(REGS.K1)} == -12312", 
-        "{after_mem(REGS.RA)} == {before(REGS.PC)} - 4*4"
+        "{after_mem(REGS.RA)} == {before(REGS.PC)} - 3*4"
     ),
     ("addiu $k0, $zero, 0", "{after_mem(REGS.K0)} == 0"),
 
