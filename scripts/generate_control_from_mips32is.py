@@ -23,7 +23,7 @@ while True:
         continue
     
     opcode, fmt, ft, funct = (int(str(x), 16) if x else x for x in next_row[1:5])
-    jump, reg_dst, branch, mem_read, mem_write, reg_write, alu_src, alu_op, ext_op, special_op = next_row[5:15]
+    jump, reg_dst, branch, mem_read, mem_write, reg_write, alu_src, ext_op, alu_op, special_op = next_row[5:15]
 
     pairs = zip((opcode, fmt, ft, funct), instructions_parts, instructions_parts_bytes)
     logic_statments = ["{} == {}'h{}".format(key, nbyte, hex(value)[2:]) for (value, key, nbyte) in pairs if value is not None]
