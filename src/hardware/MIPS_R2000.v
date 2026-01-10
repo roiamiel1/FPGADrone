@@ -147,7 +147,6 @@ module MIPS_R2000 (
         (U_IDEXReg_Jump_out ? {U_IDEXReg_NextPC_out[31:28], U_IDEXReg_JumpAddress_out, 2'b0} : 32'b0))
     );
 
-    // In case the SpecialOP is JAL -> R[31] = $RA = $PC + 4 (Note that U_IFIDReg_NextPC_out = $PC + 4);
     assign U_EXMEM_IsAndLinkOp = U_EXMEMReg_ShouldJumpOrBranch &&
         (U_EXMEMReg_SpecialOP_out == `SpecialOP_JAL || U_EXMEMReg_SpecialOP_out == `SpecialOP_BGEZAL);
 
@@ -268,7 +267,10 @@ module MIPS_R2000 (
         .rst(rst),
         .Instr_in(IDEX_Instr),
         .Instr_out(EXMEM_Instr),
-        .HazardFlush(HazardFlushRegs),
+        // EXMEM stage does not need hazard flush because it is after the branch decision, 
+        // In mips there is a concept of delay slot, i.e. the instruction after a branch 
+        //is always executed. So we do not flush the EXMEM stage.
+        .HazardFlush(1'b0),
         .Branch_in(U_IDEXReg_Branch_out),
         .Jump_in(U_IDEXReg_Jump_out),
         .BranchAddress_in(U_EXMEMReg_BranchAddress_in),
@@ -335,7 +337,10 @@ module MIPS_R2000 (
         .RegWrite_in(U_EXMEMReg_ShouldRegWrite_out),
         .MemRead_in(U_EXMEMReg_MemRead_out),
         .Mem_in(U_DataMemory_DataOut),
-        .ALU_in(U_EXMEM_IsAndLinkOp ? U_EXMEMReg_NextPC_out : U_EXMEMReg_ALU_out),
+        // In case the SpecialOP is *AndLink (JAL or BGEZAL) so R[31] = $RA = $PC + 8 
+        // Why +8? because we need to return to the instruction after the delay slot,
+        // Note that U_EXMEMReg_NextPC_out = $PC + 4, so we add another 4 to it.
+        .ALU_in(U_EXMEM_IsAndLinkOp ? (U_EXMEMReg_NextPC_out + 4) : U_EXMEMReg_ALU_out),
         .WriteBackRegAddr_in(U_EXMEM_IsAndLinkOp ? `REG_RA : U_EXMEMReg_WriteBackRegAddr_out),
         .RegWrite_out(U_MEMWBReg_RegWrite_out),
         .MemRead_out(U_MEMWBReg_MemRead_out),
