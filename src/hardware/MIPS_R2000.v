@@ -111,7 +111,7 @@ module MIPS_R2000 (
     wire HazardFlushRegs;
 
     // BranchAddress connections.
-    wire [31:0] BranchAddress;
+    wire [31:0] U_EXMEMReg_BranchAddress_in;
     wire U_EXMEMReg_ShouldJumpOrBranch;
 
     // Sign Extender connections.
@@ -141,7 +141,7 @@ module MIPS_R2000 (
         U_EXMEMReg_SpecialOP_out == `SpecialOP_BGEZAL ? U_EXMEMReg_ShouldJumpOrBranch : 1'b1
     );
 
-    assign BranchAddress = (U_IDEXReg_SpecialOP_out == `SpecialOP_JR ? U_EXMEMReg_ALU_in : 
+    assign U_EXMEMReg_BranchAddress_in = (U_IDEXReg_SpecialOP_out == `SpecialOP_JR ? U_EXMEMReg_ALU_in : 
         (U_IDEXReg_Branch_out ? (U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)) :
         // According to the DOC https://www.eecis.udel.edu/~davis/cpeg222/AssemblyTutorial/Chapter-17/ass17_5.html
         (U_IDEXReg_Jump_out ? {U_IDEXReg_NextPC_out[31:28], U_IDEXReg_JumpAddress_out, 2'b0} : 32'b0))
@@ -271,7 +271,7 @@ module MIPS_R2000 (
         .HazardFlush(HazardFlushRegs),
         .Branch_in(U_IDEXReg_Branch_out),
         .Jump_in(U_IDEXReg_Jump_out),
-        .BranchAddress_in(BranchAddress),
+        .BranchAddress_in(U_EXMEMReg_BranchAddress_in),
         .MemRead_in(U_IDEXReg_MemRead_out),
         .MemWrite_in(U_IDEXReg_MemWrite_out),
         .Reg2_in(ALURegInput2),
