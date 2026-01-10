@@ -233,6 +233,7 @@
     ("addi $s2, $zero, 534",  "{after_mem(REGS.S2)} == 534"),
     ("addi $s3, $zero, 534",  "{after_mem(REGS.S3)} == 534"),
     ("addi $s4, $zero, -322",  "{after_mem(REGS.S4)} == -322"),
+    ("addi $t0, $zero, 3",  "{after_mem(REGS.T0)} == 3"),
 
     # Test `nor`
     ("nor $a0, $s0, $s1",  "{after_mem(REGS.A0)} == -380"),
@@ -263,11 +264,17 @@
     ("sltu $a0, $s1, $s0",  "{after_mem(REGS.A0)} == 0"),
     ("sltu $a0, $s2, $s3",  "{after_mem(REGS.A0)} == 0"),
 
-    # Test `sll`
+    # Test `sll` and `sllv`
     ("sll $a0, $s0, 3",  "{after_mem(REGS.A0)} == 984"),
+    ("sllv $a0, $s0, $t0",  "{before(REGS.T0)} == 3", "{before(REGS.S0)} == 123", "{after_mem(REGS.A0)} == 984"),
 
-    # Test `srl`
-    ("srl $a0, $s0, 2",  "{after_mem(REGS.A0)} == 30"),
+    # Test `srl` and `srlv`
+    ("srl $a0, $s0, 2", "{before(REGS.S0)} == 123", "{after_mem(REGS.A0)} == 30"),
+    ("srlv $a0, $s0, $t0",  "{before(REGS.T0)} == 3", "{before(REGS.S0)} == 123", "{after_mem(REGS.A0)} == 15"),
+
+    # Test `sra` and `srav`
+    ("sra $a0, $s4, 2", "{before(REGS.S4)} == -322", "{after_mem(REGS.A0)} == -81"),
+    ("srav $a0, $s4, $t0",  "{before(REGS.T0)} == 3", "{before(REGS.S4)} == -322", "{after_mem(REGS.A0)} == -41"),
 
     # Test `sub`
     ("sub $a0, $s0, $s1",  "{after_mem(REGS.A0)} == -198"),
