@@ -124,7 +124,10 @@ module MIPS_R2000 (
         U_Ctrl_InstType == `INST_TYPE_I ? `IMMEDIATE(IFID_Instr) :
         U_Ctrl_InstType == `INST_TYPE_R ? {11'b0, `SHAMT(IFID_Instr)} : 
         16'b0;
-    assign U_OpcodeImmExtender_Out = {U_Ctrl_ExtOp ? {16{ExtenderDataIn[15]}} : 16'b0, ExtenderDataIn[15:0]};
+    assign U_OpcodeImmExtender_Out = {
+        (U_Ctrl_ExtOp == `EXT_SIGNED ? {16{ExtenderDataIn[15]}} : 16'b0),
+        ExtenderDataIn[15:0]
+    };
 
     // Connections assigns.
     assign U_EXMEMReg_WriteBackRegAddr_in = `REG_MUX(U_IDEXReg_RegDst_out, U_IDEXReg_Rt_out, U_IDEXReg_Rd_out, U_IDEXReg_Rs_out);
