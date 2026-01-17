@@ -6,7 +6,8 @@ module MIPS_R2000 (
     input clk,
     input rst,
     output uart_tx_out,
-    output pwm_esc1_out,
+    output [1:0] pwm_esc_out,
+    input  esc_ready_in,
     output sdclk,
     inout sdcmd,
     input sddat0
@@ -259,6 +260,7 @@ module MIPS_R2000 (
 
     ALU U_ALU(
         .clk(clk),
+        .rst(rst),
         .DataIn1(ALURegInput1),
         .DataIn2(U_IDEXReg_ALUSrc_out ? U_IDEXReg_ExtImm_out : ALURegInput2),
         .ALUOp(U_IDEXReg_ALUOp_out),
@@ -326,7 +328,8 @@ module MIPS_R2000 (
         .uart_tx_out(uart_tx_out),
 
         // ESC interface
-        .pwm_esc1_out(pwm_esc1_out),
+        .pwm_esc_out(pwm_esc_out),
+        .esc_ready_in(esc_ready_in),
 
         // SD card interface
         .sdclk(sdclk),

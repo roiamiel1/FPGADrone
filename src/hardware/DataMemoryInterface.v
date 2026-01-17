@@ -4,7 +4,9 @@
 `define P_UART_START 32'hFFFFFFFE
 `define P_UART_DONE  32'hFFFFFFFD
 `define P_UART_BUSY  32'hFFFFFFFC
-`define P_ESC1_SPEED  32'hFFFFFFFB
+`define P_ESC0_SPEED 32'hFFFFFFFB
+`define P_ESC1_SPEED 32'hFFFFFFFA
+`define P_ESC_READY  32'hFFFFFFF0
 
 // states of SDReader state machine
 `define S_SD_RESET               3'b001
@@ -38,7 +40,8 @@ module DataMemoryInterface(
     output wire uart_tx_out,
 
     // ESC interface
-    output wire pwm_esc1_out,
+    output wire [1:0] pwm_esc_out,
+    input wire esc_ready_in,
 
     // SD card interface
     output sdclk,
@@ -60,6 +63,7 @@ module DataMemoryInterface(
     wire UART_Busy;
 
     // ESC Interface
+    reg [9:0] ESC0_Speed = 10'b0;
     reg [9:0] ESC1_Speed = 10'b0;
 
     // SD Interface
@@ -81,6 +85,7 @@ module DataMemoryInterface(
         UART_Start <= 1'b0;
         UART_In <= 8'b0;
 
+        ESC0_Speed <= 10'b0;
         ESC1_Speed <= 10'b0;
 
         SD_State <= `S_SD_RESET;
@@ -100,7 +105,9 @@ module DataMemoryInterface(
         (address == `P_UART_START) ||
         (address == `P_UART_DONE ) ||
         (address == `P_UART_BUSY ) ||
-        (address == `P_ESC1_SPEED)
+        (address == `P_ESC0_SPEED) ||
+        (address == `P_ESC1_SPEED) ||
+        (address == `P_ESC_READY )
     );
     assign DataMemoryWriteEnable = (write_enable && !IsSpacialAddress) || IsInitiateWordPending;
     assign DataMemoryAddress = IsInitiateWordPending ? (InitiateWordAddr << 2) : address[13:0];
@@ -108,16 +115,25 @@ module DataMemoryInterface(
     assign DataMemoryMode = IsInitiateWordPending ? `DataMemoryMode_WORD : mode;
 
     assign data_out = !IsSpacialAddress ? MemoryDataOut :
-                      address == `P_UART_DONE  ? {31'b0, UART_Done}  :
-                      address == `P_UART_BUSY  ? {31'b0, UART_Busy}  :
-                      address == `P_ESC1_SPEED ? {22'b0, ESC1_Speed} :
+                      address == `P_UART_DONE  ? {31'b0, UART_Done   } :
+                      address == `P_UART_BUSY  ? {31'b0, UART_Busy   } :
+                      address == `P_ESC0_SPEED ? {22'b0, ESC0_Speed  } :
+                      address == `P_ESC1_SPEED ? {22'b0, ESC1_Speed  } :
+                      address == `P_ESC_READY  ? {31'b0, esc_ready_in} :
                       32'b0;
 
-    ESCDriver U_ESCDriver(
+    ESCDriver U_ESC0Driver(
+        .clk(clk),
+        .rst(rst),
+        .speed(ESC0_Speed),
+        .pwm_out(pwm_esc_out[0])
+    );
+
+    ESCDriver U_ESC1Driver(
         .clk(clk),
         .rst(rst),
         .speed(ESC1_Speed),
-        .pwm_out(pwm_esc1_out)
+        .pwm_out(pwm_esc_out[1])
     );
 
     Uart8Transmitter U_Uart(
@@ -173,13 +189,16 @@ module DataMemoryInterface(
         if (rst) begin
             UART_Start <= 1'b0;
             UART_In <= 8'b0;
+            ESC0_Speed <= 10'b0;
             ESC1_Speed <= 10'b0;
         end else begin
             if (write_enable) begin
                 case (address)
                     `P_UART_CHAR: UART_In <= data_in[7:0];
                     `P_UART_START: UART_Start <= data_in[0];
+                    `P_ESC0_SPEED: ESC0_Speed <= data_in[9:0];
                     `P_ESC1_SPEED: ESC1_Speed <= data_in[9:0];
+                    `P_ESC_READY: ; // Read only
                 endcase
             end
         end
