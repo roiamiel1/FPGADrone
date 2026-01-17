@@ -37,7 +37,10 @@ def main():
                 "0c": "SLT - 1 if A<B else 0",
                 "0d": "LUI - 1 if A<B else 0",
                 "0e": "IN1 - A",
-                "0f": "SRA - A >> 1 (with sign extension)"
+                "0f": "SRA - A >> 1 (with sign extension)",
+                "10": "MFHI - HI",
+                "11": "MFLO - LO",
+                "12": "MULTU - A * B (but unsigned)"
             }
 
             if l in alu_opcode_map:

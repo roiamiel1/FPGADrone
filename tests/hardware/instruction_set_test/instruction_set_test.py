@@ -265,6 +265,7 @@
     ("sltu $a0, $s2, $s3",  "{after_mem(REGS.A0)} == 0"),
 
     # Test `sll` and `sllv`
+    ("sll $a0, $s0, 0",  "{after_mem(REGS.A0)} == 123"),
     ("sll $a0, $s0, 3",  "{after_mem(REGS.A0)} == 984"),
     ("sllv $a0, $s0, $t0",  "{before(REGS.T0)} == 3", "{before(REGS.S0)} == 123", "{after_mem(REGS.A0)} == 984"),
 
@@ -439,4 +440,21 @@
     ("addi $a1, $zero, 204", "{after_mem(REGS.A1)} == 204"),
     ("xor $a2, $a0, $a1", "{after_mem(REGS.A2)} == 102"),
     ("xori $a3, $a0, 240", "{after_mem(REGS.A3)} == 90"),
+
+    # Test mult, multu, mfhi, mflo
+    ("addi $a0, $zero, 20", "{after_mem(REGS.A0)} == 20"),
+    ("addi $a1, $zero, 30", "{after_mem(REGS.A1)} == 30"),
+    ("mult $a0, $a1", TRUE),
+    ("mflo $v0", "{after_mem(REGS.V0)} == 600"),
+    ("mfhi $v1", "{after_mem(REGS.V1)} == 0"),
+    ("addi $a0, $zero, -20", "{after_mem(REGS.A0)} == -20"),
+    ("addi $a1, $zero, 30", "{after_mem(REGS.A1)} == 30"),
+    # Unsigned multiplication
+    ("multu $a0, $a1", TRUE),
+    ("mflo $v0", "{after_mem(REGS.V0)} == 4294966696"),
+    ("mfhi $v1", "{after_mem(REGS.V1)} == 29"),
+    # Signed multiplication
+    ("mult $a0, $a1", TRUE),
+    ("mflo $v0", "{after_mem(REGS.V0)} == -600"),
+    ("mfhi $v1", "{after_mem(REGS.V1)} == 4294967295"),
 ]

@@ -656,6 +656,66 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_IN1;
             SpecialOP <= `SpecialOP_BGEZAL;
+        end else if (OpCode == 6'h0 && Funct == 6'h18) begin
+            // mult case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RS;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= 0;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= 0;
+            ALUOp     <= `ALUOp_MULT;
+            SpecialOP <= 0;
+        end else if (OpCode == 6'h0 && Funct == 6'h19) begin
+            // multu case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RS;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= 0;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= 0;
+            ALUOp     <= `ALUOp_MULTU;
+            SpecialOP <= 0;
+        end else if (OpCode == 6'h0 && Funct == 6'h10) begin
+            // mfhi case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= 0;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_RD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 1;
+            ALUSrc    <= 0;
+            ExtOp     <= 0;
+            ALUOp     <= `ALUOp_MFHI;
+            SpecialOP <= 0;
+        end else if (OpCode == 6'h0 && Funct == 6'h12) begin
+            // mtlo case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= 0;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_RD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 1;
+            ALUSrc    <= 0;
+            ExtOp     <= 0;
+            ALUOp     <= `ALUOp_MFLO;
+            SpecialOP <= 0;
         end else  begin
             // default case:
             InstType  <= 2'b00;

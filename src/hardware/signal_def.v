@@ -55,7 +55,7 @@
 // ALU Arithmetic and Logic Operations
 `define ALUOp_ADD   5'b00000    // ALURes = A + B;
 `define ALUOp_SUB   5'b00001    // ALURes = A - B;
-`define ALUOp_MUL   5'b00010    // ALURes = A * B;
+`define ALUOp_MULT  5'b00010    // ALURes = A * B;
 `define ALUOp_DIV   5'b00011    // ALURes = A / B;
 `define ALUOp_SLL   5'b00100    // ALURes = A << 1;
 `define ALUOp_SRL   5'b00101    // ALURes = A >> 1;
@@ -69,6 +69,9 @@
 `define ALUOp_LUI   5'b01101    // ALURes = 1 if A<B else 0;
 `define ALUOp_IN1   5'b01110    // ALURes = A;
 `define ALUOp_SRA   5'b01111    // ALURes = A >> 1 (with sign extension)
+`define ALUOp_MFHI  5'b10000    // ALURes = HI;
+`define ALUOp_MFLO  5'b10001    // ALURes = LO;
+`define ALUOp_MULTU 5'b10010    // ALURes = A * B (but unsigned);
 
 // DataMemoryMode
 `define DataMemoryMode_WORD     2'b00

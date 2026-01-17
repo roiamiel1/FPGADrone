@@ -7,7 +7,22 @@ TRUE_CONDITION = "1 /* always true */"
 
 
 class TestBuilder():
-    _NOP_PADDED_OPCODES = ["bne", "beq", "j", "jal", "jr", "lbu", "lb", "lhu", "lw", "bgtz", "blez", "bgezal"]
+    _NOP_PADDED_OPCODES = {
+        "bne":      1, 
+        "beq":      1, 
+        "j":        1, 
+        "jal":      1, 
+        "jr":       1, 
+        "lbu":      1, 
+        "lb":       1, 
+        "lhu":      1, 
+        "lw":       1, 
+        "bgtz":     1, 
+        "blez":     1, 
+        "bgezal":   1,
+        "mflo":     2,
+        "mfhi":     2
+    }
 
     def __init__(self, hex_path, output_folder_path) -> None:
         self._builder = TestbanchBuilder(hex_path=hex_path, output_folder_path=output_folder_path)
@@ -23,8 +38,7 @@ class TestBuilder():
             # This is a patch, the builtin GNU assembler add a NOP after some opcodes (branch or load).
             # The nop is needed beacuse of the branch pipeline.
             # TODO: in the future, use our own assembler to be able to control it. 
-            if self._is_nop_padded_inst(inst[0]):
-                self._pc += 1    
+            self._pc += self._get_nop_padded_inst_count(inst[0])
 
             self._pc += 1
 
@@ -57,8 +71,8 @@ class TestBuilder():
 
         return inst_parts[0]
 
-    def _is_nop_padded_inst(self, inst):
-        return self._inst_to_opcode(inst) in TestBuilder._NOP_PADDED_OPCODES
+    def _get_nop_padded_inst_count(self, inst):
+        return self._NOP_PADDED_OPCODES.get(self._inst_to_opcode(inst), 0)
     
     def write(self, output_path_tb, output_path_asm):
         os.makedirs(os.path.dirname(output_path_tb), exist_ok=True)
