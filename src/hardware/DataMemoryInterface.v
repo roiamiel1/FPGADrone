@@ -7,6 +7,7 @@
 `define P_ESC0_SPEED 32'hFFFFFFFB
 `define P_ESC1_SPEED 32'hFFFFFFFA
 `define P_ESC_READY  32'hFFFFFFF0
+`define P_UPTIME_MS  32'hFFFFFFEF
 
 // states of SDReader state machine
 `define S_SD_RESET               3'b001
@@ -66,6 +67,9 @@ module DataMemoryInterface(
     reg [9:0] ESC0_Speed = 10'b0;
     reg [9:0] ESC1_Speed = 10'b0;
 
+    // Timer Interface
+    wire [31:0] uptime_ms;
+
     // SD Interface
     reg [2:0] SD_State = `S_SD_RESET;
     reg [5:0] SD_ReadSectorIndex;
@@ -107,7 +111,8 @@ module DataMemoryInterface(
         (address == `P_UART_BUSY ) ||
         (address == `P_ESC0_SPEED) ||
         (address == `P_ESC1_SPEED) ||
-        (address == `P_ESC_READY )
+        (address == `P_ESC_READY ) ||
+        (address == `P_UPTIME_MS )
     );
     assign DataMemoryWriteEnable = (write_enable && !IsSpacialAddress) || IsInitiateWordPending;
     assign DataMemoryAddress = IsInitiateWordPending ? (InitiateWordAddr << 2) : address[13:0];
@@ -120,6 +125,7 @@ module DataMemoryInterface(
                       address == `P_ESC0_SPEED ? {22'b0, ESC0_Speed  } :
                       address == `P_ESC1_SPEED ? {22'b0, ESC1_Speed  } :
                       address == `P_ESC_READY  ? {31'b0, esc_ready_in} :
+                      address == `P_UPTIME_MS  ? uptime_ms             :
                       32'b0;
 
     ESCDriver U_ESC0Driver(
@@ -145,6 +151,12 @@ module DataMemoryInterface(
         .out(uart_tx_out),
         .done(UART_Done),
         .busy(UART_Busy)
+    );
+
+    Timer U_Timer(
+        .clk(clk),
+        .rst(rst),
+        .uptime_ms(uptime_ms)
     );
 
     // Data memory interface
@@ -199,6 +211,7 @@ module DataMemoryInterface(
                     `P_ESC0_SPEED: ESC0_Speed <= data_in[9:0];
                     `P_ESC1_SPEED: ESC1_Speed <= data_in[9:0];
                     `P_ESC_READY: ; // Read only
+                    `P_UPTIME_MS: ; // Read only
                 endcase
             end
         end

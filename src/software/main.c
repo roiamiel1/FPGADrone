@@ -1,19 +1,18 @@
-#include <stdio.h>
+// #include <stdio.h>
 
-#include <unistd.h>
+// #include <unistd.h>
 
 /* Create actual FILE objects (storage) */
-FILE __stdin_struct;
-FILE __stdout_struct;
-FILE __stderr_struct;
+// FILE __stdin_struct;
+// FILE __stdout_struct;
+// FILE __stderr_struct;
 
 /* Define the constant pointers to these objects */
-FILE* const stdin  = &__stdin_struct;
-FILE* const stdout = &__stdout_struct;
-FILE* const stderr = &__stderr_struct;
+// FILE* const stdin  = &__stdin_struct;
+// FILE* const stdout = &__stdout_struct;
+// FILE* const stderr = &__stderr_struct;
 
-#define CPU_FREQ_HZ   27000000 // 27 MHz
-#define CYCLES_PER_MS (CPU_FREQ_HZ / 1000)
+typedef unsigned int size_t;
 
 #define P_UART_CHAR  ((unsigned char*) 0xFFFFFFFF)
 #define P_UART_START ((unsigned char*) 0xFFFFFFFE)
@@ -21,6 +20,7 @@ FILE* const stderr = &__stderr_struct;
 #define P_UART_BUSY  ((unsigned char*) 0xFFFFFFFC)
 #define P_ESC0_SPEED ((unsigned int*)  0xFFFFFFFB)
 #define P_ESC1_SPEED ((unsigned int*)  0xFFFFFFFA)
+#define P_UPTIME_MS  ((unsigned int*)  0xFFFFFFEF)
 
 void memcpy(void* dest, const void* src, size_t n) __attribute__((optimize("O0")));
 void memcpy(void* dest, const void* src, size_t n) {
@@ -100,33 +100,27 @@ void _exit(int status) {
  * @param ms The number of milliseconds to sleep.
  * 
  * (*) This function will sleep at least the given number of milliseconds, 
- * with a small overhead (around ~10 more cpu instructions).
+ * with a small overhead (around ~5 more cpu instructions).
  */
 void sleep_ms(unsigned int ms) __attribute__((optimize("O0")));
 void sleep_ms(unsigned int ms) {
-	// each loop iteration is 4 cycles
-	// addi   $t0, $t0, -1			- decrement counter
-	// sll    $t0, $t0, 0		    - placeholder round instruction count to power of 2, so divition is just a shift
-	// bnez   $t0, sleep_ms_loop	- branch instruction
-	// nop 							- delay slot
-    unsigned int cycles = (CYCLES_PER_MS >> 2) * ms;
-
-    __asm__ volatile (
-		"addi  $t0, %0, 0     \n"
-		"sleep_loop:          \n"
-		"addi $t0, $t0, -1    \n"   // decrement counter
-		"bgtz $t0, sleep_loop \n"   // branch if greater than zero
-		"nop                  \n"   // delay slot
-		:							// no output
-        : "r" (cycles)              // input
-        : "$t0"                     // clobbered registers
-    );
+	unsigned int start_time = *P_UPTIME_MS;
+	while ((*P_UPTIME_MS) < start_time + ms) {
+		// Do nothing.
+	}
+	return;
 }
 
 void main(void) __attribute__((section(".main"), used));
 void main(void) {
 	char message[] = "hello my name is roi\n\r";
 	
+	while (1) {
+		_write(0, message, sizeof(message));
+		sleep_ms(1000);	
+	}
+
+	/*
 	sleep_ms(3000); // sleep 3 seconds
 
 	esc_set_speed(0, 1023);
@@ -148,6 +142,8 @@ void main(void) {
 
 		sleep_ms(1000);
 	}
+
+	*/
 
 	return;
 }
