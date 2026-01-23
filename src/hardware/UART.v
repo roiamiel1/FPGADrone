@@ -20,11 +20,12 @@ module Uart8Transmitter(
     input wire clk,
     input wire rst,
     input wire en,
-    input wire start, // start of transaction
-    input wire [7:0] in,    // data to transmit
-    output reg out,   // tx
-    output reg done,  // end on transaction
-    output reg busy   // transaction is in process
+    
+    input  logic start,      // start of transaction
+    input  logic [7:0] in,   // data to transmit
+    output logic out,        // tx
+    output logic done,       // end on transaction
+    output logic busy        // transaction is in process
 );
     parameter UART_DIV = `CLOCK_RATE / `UART_BAUD_RATE;
     parameter UART_CNT_W = $clog2(UART_DIV);

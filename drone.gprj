@@ -22,6 +22,7 @@
         <File path="src/hardware/gowin_dpb_16384_8/gowin_dpb_16384_8.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/ESCDriver.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/signal_def.v" type="file.verilog" enable="1"/>
+        <File path="src/hardware/MMIO.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/drone.cst" type="file.cst" enable="1"/>
         <File path="src/hardware/drone.sdc" type="file.sdc" enable="1"/>
     </FileList>

@@ -85,3 +85,16 @@
 `define INST_TYPE_R    2'b00
 `define INST_TYPE_I    2'b01
 `define INST_TYPE_J    2'b10
+
+// MMIO
+`define MMIO_REGS_COUNT 20
+`define MMIO_ADDR_WIDTH $clog2(`MMIO_REGS_COUNT)
+
+// MMIO Addresses
+`define MMIO_REG_UART_CHAR  000
+`define MMIO_REG_UART_START 001
+`define MMIO_REG_UART_DONE  002
+`define MMIO_REG_UART_BUSY  003
+`define MMIO_REG_ESC0_SPEED 004
+`define MMIO_REG_ESC1_SPEED 005
+`define MMIO_REG_ESC_READY  006

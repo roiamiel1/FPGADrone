@@ -104,6 +104,13 @@ module MIPS_R2000 (
     wire [31:0] U_DataMemory_DataOut;
     wire MemoryReady;
 
+    // MMIO interface
+    wire [`MMIO_ADDR_WIDTH - 1:0] MMIO_write_addr;
+    wire [`MMIO_ADDR_WIDTH - 1:0] MMIO_read_addr;
+    wire [31:0]                   MMIO_write_data;
+    wire [31:0]                   MMIO_read_data;
+    wire                          MMIO_write_enable;
+
     // U_ForwardingUnit connections.
     wire [2:0] ALUDataIn1Mux;
     wire [2:0] ALUDataIn2Mux;
@@ -172,6 +179,9 @@ module MIPS_R2000 (
         U_EXMEMReg_ALU_out,         // Forward from EX/MEM
         U_MEMWBReg_WriteBackValue   // Forward from MEM/WB
     );
+
+    // MMIO Assigns
+    assign MMIO_read_data = (MMIO_read_addr < `MMIO_REGS_COUNT) ? MMIO[MMIO_read_addr] : 32'b0;
 
     PCU U_PCU(
         .clk(clk),
@@ -324,17 +334,43 @@ module MIPS_R2000 (
         .IMAdress(U_PCU_PC),
         .IR(U_InstructionMemory_IR),
 
-        // UART interface
-        .uart_tx_out(uart_tx_out),
-
-        // ESC interface
-        .pwm_esc_out(pwm_esc_out),
-        .esc_ready_in(esc_ready_in),
+        // MMIO interface
+        .MMIO_write_addr(MMIO_write_addr),
+        .MMIO_read_addr(MMIO_read_addr),
+        .MMIO_write_data(MMIO_write_data),
+        .MMIO_read_data(MMIO_read_data),
+        .MMIO_write_enable(MMIO_write_enable),
 
         // SD card interface
         .sdclk(sdclk),
         .sdcmd(sdcmd),
         .sddat0(sddat0)
+    );
+
+    ESCDriver U_ESC0Driver(
+        .clk(clk),
+        .rst(rst),
+        .speed(MMIO[`MMIO_REG_ESC0_SPEED][9:0]),
+        .pwm_out(pwm_esc_out[0])
+    );
+
+    ESCDriver U_ESC1Driver(
+        .clk(clk),
+        .rst(rst),
+        .speed(MMIO[`MMIO_REG_ESC1_SPEED][9:0]),
+        .pwm_out(pwm_esc_out[1])
+    );
+
+    Uart8Transmitter U_Uart(
+        .clk(clk),
+        .rst(rst),
+        .en(MemoryReady),
+
+        .start(MMIO[`MMIO_REG_UART_START][0] ),
+        .in   (MMIO[`MMIO_REG_UART_CHAR][7:0]),
+        .out  (uart_tx_out                   ),
+        .done (MMIO[`MMIO_REG_UART_DONE][0]  ),
+        .busy (MMIO[`MMIO_REG_UART_BUSY][0]  )
     );
 
     MEMWBReg U_MEMWBReg (

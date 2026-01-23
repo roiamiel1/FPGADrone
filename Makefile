@@ -96,8 +96,20 @@ endif
 
 # ------------------------- Software ------------------------- #
 
-CFLAGS := -mfp32 -march=r2000 -mno-shared -static -ffreestanding -ffunction-sections -fdata-sections -nostdlib -nodefaultlibs -fno-builtin -fno-builtin-memcpy -fno-builtin-memset -fno-builtin-memmove -fno-exceptions -fno-stack-protector -fno-unwind-tables -fno-asynchronous-unwind-tables --no-common -Os -g
-LDFLAGS := -T $(SCRIPTS_PATH)/linker.ld -nostdlib -nodefaultlibs -ffreestanding -Wl,-Map=$(SW_BINARY_PATH).map -static-libgcc -Wl,--gc-sections -Wl,--build-id=none
+CFLAGS := -mfp32 -march=r2000 -mno-shared -static -ffreestanding \
+          -ffunction-sections -fdata-sections -nostdlib -nodefaultlibs \
+          -fno-builtin -fno-builtin-memcpy -fno-builtin-memset -fno-builtin-memmove \
+          -fno-exceptions -fno-stack-protector -fno-unwind-tables -fno-asynchronous-unwind-tables \
+          --no-common -Os -g \
+          -I$(SW_PICOLIBC_PATH)/libc/include \
+          -I$(SW_PICOLIBC_PATH)/build-mips
+LDFLAGS := -T $(SCRIPTS_PATH)/linker.ld \
+           -nostdlib -nodefaultlibs -ffreestanding \
+           -static \
+           -Wl,-Map=$(SW_BINARY_PATH).map \
+           -Wl,--gc-sections -Wl,--build-id=none \
+           -L$(SW_PICOLIBC_PATH)/build-mips
+LDLIBS := -lc -lgcc
 STRIP_FLAGS := --strip-debug --strip-unneeded --strip-all
 
 ASFLAGS := -mips1 -march=r2000 -O0
@@ -111,7 +123,7 @@ $(BUILD_SW_PATH)/%.o: $(SRC_SW_PATH)/%.c | $(BUILD_SW_PATH)
 
 # Linker
 sw-build: $(SW_OBJ_FILES)
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 	$(STRIP) $(STRIP_FLAGS) $@
 
 sw-build-2:
@@ -125,7 +137,7 @@ sw-build-2:
 sw-build-c:
 	$(MKDIR) -p $(BUILD_SW_PATH)
 	$(CC) $(CFLAGS) -o $(SW_BINARY_PATH).o -c $(SW_SRCS_C)
-	$(CC) $(LDFLAGS) -o $(SW_BINARY_PATH) $(SW_BINARY_PATH).o
+	$(CC) $(LDFLAGS) $(SW_BINARY_PATH).o $(LDLIBS) -o $(SW_BINARY_PATH)
 	$(READELF) --all $(SW_BINARY_PATH) > $(SW_READELF_TEXT_PATH)
 	$(OBJDUMP) -S -d $(SW_BINARY_PATH) > $(SW_SHELLCODE_TEXT_PATH)
 	$(STRIP) $(STRIP_FLAGS) $(SW_BINARY_PATH)
@@ -171,7 +183,6 @@ sw-build-libc: sw-build-libc-clean
 			-Dfast-strcmp=false 						\
 			-Dpicocrt=false 							\
 			-Dpicocrt-enable-mmu=false 					\
-			-Dpicocrt-lib=false 						\
 			-Dinitfini-array=false 						\
 			--cross-file cross-mips.txt &&				\
 		ninja -C build-mips								\

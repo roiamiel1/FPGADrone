@@ -21,6 +21,7 @@ FILE* const stderr = &__stderr_struct;
 #define P_UART_BUSY  ((unsigned char*) 0xFFFFFFFC)
 #define P_ESC0_SPEED ((unsigned int*)  0xFFFFFFFB)
 #define P_ESC1_SPEED ((unsigned int*)  0xFFFFFFFA)
+#define P_ESC_READY  ((unsigned char*) 0xFFFFFFF0)
 
 void memcpy(void* dest, const void* src, size_t n) __attribute__((optimize("O0")));
 void memcpy(void* dest, const void* src, size_t n) {
@@ -37,6 +38,11 @@ void memset(void* dest, int val, size_t n) {
 	for (size_t i = 0; i < n; i++) {
 		d[i] = (unsigned char) val;
 	}
+}
+
+int is_esc_ready() __attribute__((optimize("O0")));
+int is_esc_ready() {
+	return (*P_ESC_READY) == 0;
 }
 
 void esc_set_speed(const unsigned short index, const unsigned int speed) __attribute__((optimize("O0")));
@@ -123,30 +129,85 @@ void sleep_ms(unsigned int ms) {
     );
 }
 
+void calibrate_esc(int index) {
+	esc_set_speed(index, 1023);
+	sleep_ms(8000);
+	esc_set_speed(index, 0);
+	sleep_ms(8000);
+}
+
 void main(void) __attribute__((section(".main"), used));
 void main(void) {
-	char message[] = "hello my name is roi\n\r";
+	char msg1[] = "Wait for ESC to shutdown\n\r";
+	char msg2[] = "Wait for ESC to start\n\r";
+	char msg3[] = "Calibrate ESC\n\r";
+	char msg4[] = "Start\n\r";
+	char msg5[] = "Set ESC max throttle\n\r";
+	char msg6[] = "Set ESC min throttle\n\r";
+	char msg7[] = "While loop\n\r";
+	char msg8[] = "Switch to 0 -> 1023\n\r";
+	char msg9[] = "Switch to 1023 -> 0\n\r";
 	
-	sleep_ms(3000); // sleep 3 seconds
-
-	esc_set_speed(0, 1023);
-	esc_set_speed(1, 1023);
-
-	sleep_ms(3000); // sleep 3 seconds
-
 	esc_set_speed(0, 0);
 	esc_set_speed(1, 0);
 
-	sleep_ms(3000); // sleep 3 seconds
+	if (is_esc_ready()) {
+		_write(1, msg1, sizeof(msg1) - 1);
+		while (is_esc_ready()); // wait until ESC is not ready
+	}
+
+	// esc_set_speed(0, 1023);
+	// esc_set_speed(1, 1023);
+
+	_write(1, msg2, sizeof(msg2) - 1);
+
+	while (!is_esc_ready()); // wait until ESC is ready
+
+	// calibrate_esc(0);
+	// calibrate_esc(1);
+
+	_write(1, msg4, sizeof(msg4) - 1);
+
+	sleep_ms(8000);
+
+	int direction = 50;
+	int speed = 0;
+
+	int startup = 1;
+	int top_speed = 0;
 
 	while (1) {
-		for (int speed = 0; speed <= 1023; speed += 10) {
+		_write(1, msg7, sizeof(msg7) - 1);
+		speed += direction;
+		if (speed >= 1023) {
+			direction *= -1;
+			speed = 1023;
+			top_speed = 1;
+			_write(1, msg9, sizeof(msg9) - 1);
+		} else if (speed <= 0) {
+			direction *= -1;
+			speed = 0;
+			startup = 1;
+			_write(1, msg8, sizeof(msg8) - 1);
 			esc_set_speed(0, speed);
 			esc_set_speed(1, speed);
-			sleep_ms(100);
+			sleep_ms(400);
+			speed += direction;
 		}
 
-		sleep_ms(1000);
+		esc_set_speed(0, speed);
+		esc_set_speed(1, speed);
+		sleep_ms(400);
+
+		if (top_speed) {
+			sleep_ms(3000);
+			top_speed = 0;
+		}
+
+		if (startup) {
+			sleep_ms(3000);
+			startup = 0;
+		}
 	}
 
 	return;

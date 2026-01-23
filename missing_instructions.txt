@@ -1,0 +1,15 @@
+xor sllv srlv srav jalr mthi mtlo div divu break syscall xori lh bltz bgez bltzal
+
+
+jalr,      0,      x,   x,  9,     1,    `REG_DST_RD, 0,      0,       0,        1,        `ALU_SRC_REG, 0,           `ALUOp_IN1,  `SpecialOP_JALR
+mfhi,      0,      x,   x,  10,    0,    `REG_DST_RD, 0,      0,       0,        1,        0,            0,           `ALUOp_IN1,  `SpecialOP_MFHI
+mthi,      0,      x,   x,  11,    0,    0,           0,      0,       0,        0,        `ALU_SRC_REG, 0,           `ALUOp_IN1,  `SpecialOP_MTHI
+mflo,      0,      x,   x,  12,    0,    `REG_DST_RD, 0,      0,       0,        1,        0,            0,           `ALUOp_IN1,  `SpecialOP_MFLO
+mtlo,      0,      x,   x,  13,    0,    0,           0,      0,       0,        0,        `ALU_SRC_REG, 0,           `ALUOp_IN1,  `SpecialOP_MTLOdiv,       0,      x,   x,  1a,    0,    0,           0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED, `ALUOp_DIV,  `SpecialOP_NONE
+divu,      0,      x,   x,  1b,    0,    0,           0,      0,       0,        0,        `ALU_SRC_REG, `EXT_ZERO,   `ALUOp_DIV,  `SpecialOP_NONE
+break,     0,      x,   x,  d,     0,    0,           0,      0,       0,        0,        0,            0,           `ALUOp_IN1,  `SpecialOP_BREAK
+syscall,   0,      x,   x,  c,     0,    0,           0,      0,       0,        0,        0,            0,           `ALUOp_IN1,  `SpecialOP_SYSCALL
+lh,        21,     x,   x,  x,     0,    `REG_DST_RT, 0,      1,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED, `ALUOp_ADD,  `SpecialOP_DM_HW
+bltz,      1,      x,   x,  x,     0,    0,           1,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED, `ALUOp_IN1,  `SpecialOP_BLTZ
+bgez,      1,      x,   x,  x,     0,    0,           1,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED, `ALUOp_IN1,  `SpecialOP_BGEZ
+bltzal,    1,      x,   x,  x,     0,    `REG_DST_RD, 1,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED, `ALUOp_IN1,  `SpecialOP_BLTZAL

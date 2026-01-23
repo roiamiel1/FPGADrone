@@ -5,7 +5,7 @@
 module ESCDriver(
     input wire clk,
     input wire rst, 
-    input wire [9:0] speed, // 0 - 1023
+    inout logic [9:0] speed, // 0 - 1023
     output reg pwm_out
 );
     // ESC constants

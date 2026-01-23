@@ -18,6 +18,7 @@ add_file -type verilog src/hardware/UART.v
 add_file -type verilog src/hardware/SDCard.v
 add_file -type verilog src/hardware/gowin_dpb_16384_8/gowin_dpb_16384_8.v
 add_file -type verilog src/hardware/ESCDriver.v
+add_file -type verilog src/hardware/MMIO.v
 add_file -type cst src/hardware/drone.cst
 add_file -type sdc src/hardware/drone.sdc
 run all
