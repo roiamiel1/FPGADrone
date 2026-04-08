@@ -19,6 +19,7 @@
         <File path="src/hardware/PCU.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/SDCard.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/UART.v" type="file.verilog" enable="1"/>
+        <File path="src/hardware/i2c.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/gowin_dpb_16384_8/gowin_dpb_16384_8.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/ESCDriver.v" type="file.verilog" enable="1"/>
         <File path="src/hardware/signal_def.v" type="file.verilog" enable="1"/>

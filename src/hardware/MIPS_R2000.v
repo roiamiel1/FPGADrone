@@ -3,14 +3,16 @@
 `include "signal_def.v"
 
 module MIPS_R2000 (
-    input clk,
-    input rst,
+    input  clk,
+    input  rst,
     output uart_tx_out,
     output [1:0] pwm_esc_out,
     input  esc_ready_in,
     output sdclk,
-    inout sdcmd,
-    input sddat0
+    inout  sdcmd,
+    input  sddat0,
+    output i2c_scl,
+    inout  i2c_sda
 );
     // U_Ctrl connections.
     wire [1:0] U_Ctrl_InstType;
@@ -330,6 +332,10 @@ module MIPS_R2000 (
         // ESC interface
         .pwm_esc_out(pwm_esc_out),
         .esc_ready_in(esc_ready_in),
+
+        // I2C interface
+        .i2c_scl(i2c_scl),
+        .i2c_sda(i2c_sda),
 
         // SD card interface
         .sdclk(sdclk),

@@ -6,6 +6,8 @@
 `define UART_BAUD_RATE (`CLOCK_RATE / 2) // for debugging purposes
 `endif
 
+`define I2C_BAUD_RATE 400_000 // 400kHz
+
 `define MS_IN_SEC (1000) // There is 1000ms in one second
 
 `define MEM_TOP_ADDRESS     32'h0000_3FF0

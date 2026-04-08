@@ -38,7 +38,7 @@ module Uart8Transmitter(
 
     initial begin
         state <= `RESET;
-        out <= 1'b0;
+        out <= 1'b1; // idle level
         done <= 1'b0;
         busy <= 1'b0;
         bitIdx <= 3'b0;
@@ -63,7 +63,7 @@ module Uart8Transmitter(
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             state   <= `RESET;
-            out     <= 1'b1;   // idle level
+            out     <= 1'b1; // idle level
             done    <= 1'b0;
             busy    <= 1'b0;
             bitIdx  <= 3'b0;

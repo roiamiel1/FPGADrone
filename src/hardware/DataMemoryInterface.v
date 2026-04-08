@@ -1,13 +1,20 @@
 `timescale 1ns / 1ps
 
-`define P_UART_CHAR  32'hFFFFFFFF
-`define P_UART_START 32'hFFFFFFFE
-`define P_UART_DONE  32'hFFFFFFFD
-`define P_UART_BUSY  32'hFFFFFFFC
-`define P_ESC0_SPEED 32'hFFFFFFFB
-`define P_ESC1_SPEED 32'hFFFFFFFA
-`define P_ESC_READY  32'hFFFFFFF0
-`define P_UPTIME_MS  32'hFFFFFFEF
+`define P_UART_CHAR    32'hFFFFFFFF
+`define P_UART_START   32'hFFFFFFFE
+`define P_UART_DONE    32'hFFFFFFFD
+`define P_UART_BUSY    32'hFFFFFFFC
+`define P_ESC0_SPEED   32'hFFFFFFFB
+`define P_ESC1_SPEED   32'hFFFFFFFA
+`define P_ESC_READY    32'hFFFFFFF9
+`define P_UPTIME_MS    32'hFFFFFFF8
+`define P_I2C_DEV_ADDR 32'hFFFFFFF7
+`define P_I2C_REG_ADDR 32'hFFFFFFF6
+`define P_I2C_RW       32'hFFFFFFF5
+`define P_I2C_START    32'hFFFFFFF4
+`define P_I2C_DATA_IN  32'hFFFFFFF3
+`define P_I2C_DATA_OUT 32'hFFFFFFF2
+`define P_I2C_DONE     32'hFFFFFFF1
 
 // states of SDReader state machine
 `define S_SD_RESET               3'b001
@@ -26,15 +33,15 @@ module DataMemoryInterface(
     input wire rst,
 
     // Data memory interface
-    input wire write_enable,
-    input wire [1:0] mode,
-    input wire [31:0] address,
-    input wire [31:0] data_in, 
+    input  wire        write_enable,
+    input  wire [1:0]  mode,
+    input  wire [31:0] address,
+    input  wire [31:0] data_in, 
     output wire [31:0] data_out,
-    output reg ready,
+    output reg         ready,
 
     // Instruction memory interface
-    input wire [31:0] IMAdress,
+    input  wire [31:0] IMAdress,
     output wire [31:0] IR,
 
     // UART interface
@@ -42,12 +49,16 @@ module DataMemoryInterface(
 
     // ESC interface
     output wire [1:0] pwm_esc_out,
-    input wire esc_ready_in,
+    input  wire       esc_ready_in,
+
+    // Gyro I2C interface
+    output wire i2c_scl,
+    inout  wire i2c_sda,
 
     // SD card interface
     output sdclk,
-    inout sdcmd,
-    input sddat0
+    inout  sdcmd,
+    input  sddat0
 );
     // Data memory interface
     wire IsSpacialAddress;
@@ -58,10 +69,19 @@ module DataMemoryInterface(
     wire [1:0] DataMemoryMode;
 
     // UART Interface
-    reg UART_Start = 0;
-    reg [7:0] UART_In = 8'b0;
-    wire UART_Done;
-    wire UART_Busy;
+    reg       UART_Start = 1'b0;
+    reg  [7:0] UART_In   = 8'b0;
+    wire      UART_Done;
+    wire      UART_Busy;
+
+    // Gyro I2C Interface
+    reg  [6:0] I2C_Device_Addr = 7'h0;
+    reg  [7:0] I2C_Reg_Addr    = 8'h0;
+    reg        I2C_RW          = 1'h0;
+    reg        I2C_Start       = 1'h0;
+    reg  [7:0] I2C_Data_In     = 8'h0;
+    wire [7:0] I2C_Data_out          ;
+    wire       I2C_Done              ;
 
     // ESC Interface
     reg [9:0] ESC0_Speed = 10'b0;
@@ -71,61 +91,75 @@ module DataMemoryInterface(
     wire [31:0] uptime_ms;
 
     // SD Interface
-    reg [2:0] SD_State = `S_SD_RESET;
-    reg [5:0] SD_ReadSectorIndex;
-    reg SD_Start;
-    wire SD_Busy;
-    wire SD_Done;
-    wire SD_OutEn;
+    reg  [2:0] SD_State           = `S_SD_RESET;
+    reg  [5:0] SD_ReadSectorIndex = 6'b0       ;
+    reg        SD_Start           = 1'b0       ;
+    wire       SD_Busy;
+    wire       SD_Done;
+    wire       SD_OutEn;
     wire [8:0] SD_OutAddr;
     wire [7:0] SD_OutByte;
 
     // Read SD and write to memory registers
-    reg IsInitiateWordPending;
-    reg [31:0] InitiateWordBuffer;
-    reg [13:0] InitiateWordAddr;
+    reg        IsInitiateWordPending = 01'b0;
+    reg [31:0] InitiateWordBuffer    = 32'b0;
+    reg [13:0] InitiateWordAddr      = 14'b0;
 
     initial begin
         UART_Start <= 1'b0;
-        UART_In <= 8'b0;
+        UART_In    <= 8'b0;
 
         ESC0_Speed <= 10'b0;
         ESC1_Speed <= 10'b0;
+    
+        I2C_Device_Addr <= 7'h0;
+        I2C_Reg_Addr    <= 8'h0;
+        I2C_RW          <= 1'h0;
+        I2C_Data_In     <= 8'h0;
 
-        SD_State <= `S_SD_RESET;
+        SD_State           <= `S_SD_RESET;
         SD_ReadSectorIndex <= 2'b0;
-        SD_Start <= 1'b0;
+        SD_Start           <= 1'b0;
 
         IsInitiateWordPending <= 1'b0;
-        InitiateWordBuffer <= 32'b0;
-        InitiateWordAddr <= 14'b0;
+        InitiateWordBuffer    <= 32'b0;
+        InitiateWordAddr      <= 14'b0;
 
         ready <= 1'b0;
     end 
 
     // Assigns
     assign IsSpacialAddress = (
-        (address == `P_UART_CHAR ) ||
-        (address == `P_UART_START) ||
-        (address == `P_UART_DONE ) ||
-        (address == `P_UART_BUSY ) ||
-        (address == `P_ESC0_SPEED) ||
-        (address == `P_ESC1_SPEED) ||
-        (address == `P_ESC_READY ) ||
-        (address == `P_UPTIME_MS )
+        (address == `P_UART_CHAR   ) ||
+        (address == `P_UART_START  ) ||
+        (address == `P_UART_DONE   ) ||
+        (address == `P_UART_BUSY   ) ||
+        (address == `P_ESC0_SPEED  ) ||
+        (address == `P_ESC1_SPEED  ) ||
+        (address == `P_ESC_READY   ) ||
+        (address == `P_UPTIME_MS   ) || 
+        (address == `P_I2C_DEV_ADDR) ||
+        (address == `P_I2C_REG_ADDR) ||
+        (address == `P_I2C_RW      ) ||
+        (address == `P_I2C_START   ) ||
+        (address == `P_I2C_DATA_IN ) ||
+        (address == `P_I2C_DATA_OUT) ||
+        (address == `P_I2C_DONE    )
     );
     assign DataMemoryWriteEnable = (write_enable && !IsSpacialAddress) || IsInitiateWordPending;
-    assign DataMemoryAddress = IsInitiateWordPending ? (InitiateWordAddr << 2) : address[13:0];
-    assign DataMemoryIn = IsInitiateWordPending ? InitiateWordBuffer : data_in;
-    assign DataMemoryMode = IsInitiateWordPending ? `DataMemoryMode_WORD : mode;
+    assign DataMemoryAddress     = IsInitiateWordPending ? (InitiateWordAddr << 2) : address[13:0];
+    assign DataMemoryIn          = IsInitiateWordPending ? InitiateWordBuffer      : data_in;
+    assign DataMemoryMode        = IsInitiateWordPending ? `DataMemoryMode_WORD    : mode;
 
     assign data_out = !IsSpacialAddress ? MemoryDataOut :
-                      address == `P_UART_DONE  ? {31'b0, UART_Done   } :
-                      address == `P_UART_BUSY  ? {31'b0, UART_Busy   } :
-                      address == `P_ESC0_SPEED ? {22'b0, ESC0_Speed  } :
-                      address == `P_ESC1_SPEED ? {22'b0, ESC1_Speed  } :
-                      address == `P_ESC_READY  ? {31'b0, esc_ready_in} :
-                      address == `P_UPTIME_MS  ? uptime_ms             :
+                      address == `P_UART_DONE    ? {31'b0, UART_Done   } :
+                      address == `P_UART_BUSY    ? {31'b0, UART_Busy   } :
+                      address == `P_ESC0_SPEED   ? {22'b0, ESC0_Speed  } :
+                      address == `P_ESC1_SPEED   ? {22'b0, ESC1_Speed  } :
+                      address == `P_ESC_READY    ? {31'b0, esc_ready_in} :
+                      address == `P_UPTIME_MS    ? {       uptime_ms   } :
+                      address == `P_I2C_DATA_OUT ? {24'b0, I2C_Data_out} :
+                      address == `P_I2C_DONE     ? {31'b0, I2C_Done    } :
                       32'b0;
 
     ESCDriver U_ESC0Driver(
@@ -151,6 +185,20 @@ module DataMemoryInterface(
         .out(uart_tx_out),
         .done(UART_Done),
         .busy(UART_Busy)
+    );
+
+    I2C_Master U_I2C(
+        .clk(clk),
+        .rst(rst),
+        .i2c_device_addr(I2C_Device_Addr),
+        .i2c_register_addr(I2C_Reg_Addr),
+        .i2c_rw(I2C_RW),
+        .i2c_data_write(I2C_Data_In),
+        .i2c_data_read(I2C_Data_out),
+        .start(I2C_Start),
+        .done(I2C_Done),
+        .scl(i2c_scl),
+        .sda(i2c_sda)
     );
 
     Timer U_Timer(
@@ -199,19 +247,30 @@ module DataMemoryInterface(
 
     always @(posedge clk, posedge rst) begin
         if (rst) begin
-            UART_Start <= 1'b0;
-            UART_In <= 8'b0;
-            ESC0_Speed <= 10'b0;
-            ESC1_Speed <= 10'b0;
+            UART_Start      <= 01'b0;
+            UART_In         <= 08'b0;
+            ESC0_Speed      <= 10'b0;
+            ESC1_Speed      <= 10'b0;
+            I2C_Device_Addr <= 07'h0;
+            I2C_Reg_Addr    <= 08'h0;
+            I2C_RW          <= 01'h0;
+            I2C_Data_In     <= 08'h0;
         end else begin
             if (write_enable) begin
                 case (address)
-                    `P_UART_CHAR: UART_In <= data_in[7:0];
-                    `P_UART_START: UART_Start <= data_in[0];
-                    `P_ESC0_SPEED: ESC0_Speed <= data_in[9:0];
-                    `P_ESC1_SPEED: ESC1_Speed <= data_in[9:0];
-                    `P_ESC_READY: ; // Read only
-                    `P_UPTIME_MS: ; // Read only
+                    `P_UART_CHAR   : UART_In <= data_in[7:0];
+                    `P_UART_START  : UART_Start <= data_in[0];
+                    `P_ESC0_SPEED  : ESC0_Speed <= data_in[9:0];
+                    `P_ESC1_SPEED  : ESC1_Speed <= data_in[9:0];
+                    `P_ESC_READY   : ; // Read only
+                    `P_UPTIME_MS   : ; // Read only
+                    `P_I2C_DEV_ADDR: I2C_Device_Addr <= data_in[6:0];
+                    `P_I2C_REG_ADDR: I2C_Reg_Addr    <= data_in[7:0];
+                    `P_I2C_RW      : I2C_RW          <= data_in[0];
+                    `P_I2C_START   : I2C_Start       <= data_in[0];
+                    `P_I2C_DATA_IN : I2C_Data_In     <= data_in[7:0];
+                    `P_I2C_DATA_OUT: ; // Read only
+                    `P_I2C_DONE    : ; // Read only
                 endcase
             end
         end
