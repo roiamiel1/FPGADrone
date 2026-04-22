@@ -126,19 +126,12 @@ void _exit(int status) {
 }
 
 /**
- * TODO: this function sleep 12,000 ms when ms=10,000 is requested. Fix it.
- * 
- * Sleep for at least (*) the given number of milliseconds.
- * This function uses a busy-wait loop to achieve the delay.
- * 
- * @param ms The number of milliseconds to sleep.
- * 
- * (*) This function will sleep at least the given number of milliseconds, 
- * with a small overhead (around ~5 more cpu instructions).
+ * Sleep for at least the given number of milliseconds.
+ * Uses unsigned subtraction so it handles 32-bit timer wraparound correctly.
  */
 void sleep_ms(unsigned int ms) {
     unsigned int start_time = mmio_read(UPTIME_MS);
-    while (mmio_read(UPTIME_MS) < start_time + ms) {
+    while ((mmio_read(UPTIME_MS) - start_time) < ms) {
         // Do nothing.
     }
     return;

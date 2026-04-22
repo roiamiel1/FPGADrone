@@ -70,12 +70,13 @@
 `define ALUOp_NAND  5'b01010    // ALURes = A nand B;
 `define ALUOp_XNOR  5'b01011    // ALURes = A xnor B;
 `define ALUOp_SLT   5'b01100    // ALURes = 1 if A<B else 0;
-`define ALUOp_LUI   5'b01101    // ALURes = 1 if A<B else 0;
+`define ALUOp_LUI   5'b01101    // ALURes = {DataIn2[15:0], 16'b0};
 `define ALUOp_IN1   5'b01110    // ALURes = A;
 `define ALUOp_SRA   5'b01111    // ALURes = A >> 1 (with sign extension)
 `define ALUOp_MFHI  5'b10000    // ALURes = HI;
 `define ALUOp_MFLO  5'b10001    // ALURes = LO;
 `define ALUOp_MULTU 5'b10010    // ALURes = A * B (but unsigned);
+`define ALUOp_SLTU  5'b10011    // ALURes = 1 if A<B else 0 (unsigned);
 
 // DataMemoryMode
 `define DataMemoryMode_WORD     2'b00

@@ -151,10 +151,12 @@ module I2C_Master(
                 end
                 `I2C_STATE_SEND_ADDRESS: begin
                     sda_out <= i2c_device_addr[3'h6 - i2c_counter];
-                    i2c_counter = i2c_counter + 1'b1;
-                    
+                    // Check BEFORE incrementing so addr[0] is sent before transitioning
                     if (i2c_counter == 3'h6) begin
-                        i2c_state = `I2C_STATE_SEND_RW;
+                        i2c_state   = `I2C_STATE_SEND_RW;
+                        i2c_counter = 3'b0;
+                    end else begin
+                        i2c_counter = i2c_counter + 1'b1;
                     end
                 end
                 `I2C_STATE_SEND_RW: begin
@@ -169,10 +171,12 @@ module I2C_Master(
                 end
                 `I2C_STATE_SEND_REGISTER: begin
                     sda_out <= i2c_register_addr[3'h7 - i2c_counter];
-                    i2c_counter = i2c_counter + 1'b1;
-                    
+                    // Check BEFORE incrementing so reg[0] is sent before transitioning
                     if (i2c_counter == 3'h7) begin
-                        i2c_state <= `I2C_STATE_WAIT_REGISTER_ACK;
+                        i2c_state   <= `I2C_STATE_WAIT_REGISTER_ACK;
+                        i2c_counter = 3'b0;
+                    end else begin
+                        i2c_counter = i2c_counter + 1'b1;
                     end
                 end
                 `I2C_STATE_WAIT_REGISTER_ACK: begin
@@ -187,12 +191,12 @@ module I2C_Master(
                     end else begin
                         sda_out <= i2c_data_write[3'h7 - i2c_counter];
                     end
-
-                    i2c_counter = i2c_counter + 1'b1;
-
+                    // Check BEFORE incrementing so bit[0] is processed before transitioning
                     if (i2c_counter == 3'h7) begin
-                        i2c_state = `I2C_STATE_DATA_ACK;
+                        i2c_state   = `I2C_STATE_DATA_ACK;
                         i2c_counter = 0;
+                    end else begin
+                        i2c_counter = i2c_counter + 1'b1;
                     end
                 end
                 `I2C_STATE_DATA_ACK: begin

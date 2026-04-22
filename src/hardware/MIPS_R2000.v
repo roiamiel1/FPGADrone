@@ -107,8 +107,8 @@ module MIPS_R2000 (
     wire MemoryReady;
 
     // U_ForwardingUnit connections.
-    wire [2:0] ALUDataIn1Mux;
-    wire [2:0] ALUDataIn2Mux;
+    wire [1:0] ALUDataIn1Mux;
+    wire [1:0] ALUDataIn2Mux;
     wire [31:0] ALURegInput1;
     wire [31:0] ALURegInput2;
 

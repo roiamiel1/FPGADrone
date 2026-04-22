@@ -129,23 +129,9 @@ module DataMemoryInterface(
     end 
 
     // Assigns
-    assign IsSpacialAddress = (
-        (address == `P_UART_CHAR   ) ||
-        (address == `P_UART_START  ) ||
-        (address == `P_UART_DONE   ) ||
-        (address == `P_UART_BUSY   ) ||
-        (address == `P_ESC0_SPEED  ) ||
-        (address == `P_ESC1_SPEED  ) ||
-        (address == `P_ESC_READY   ) ||
-        (address == `P_UPTIME_MS   ) || 
-        (address == `P_I2C_DEV_ADDR) ||
-        (address == `P_I2C_REG_ADDR) ||
-        (address == `P_I2C_RW      ) ||
-        (address == `P_I2C_START   ) ||
-        (address == `P_I2C_DATA_IN ) ||
-        (address == `P_I2C_DATA_OUT) ||
-        (address == `P_I2C_DONE    )
-    );
+    // All MMIO addresses are 0xFFFFFFF1..0xFFFFFFFF (bits[31:4] all-ones, bits[3:0] != 0)
+    // This single range-check replaces 15 full 32-bit comparisons.
+    assign IsSpacialAddress = (address[31:4] == 28'hFFFFFFF) && (address[3:0] != 4'h0);
     assign DataMemoryWriteEnable = (write_enable && !IsSpacialAddress) || IsInitiateWordPending;
     assign DataMemoryAddress     = IsInitiateWordPending ? (InitiateWordAddr << 2) : address[13:0];
     assign DataMemoryIn          = IsInitiateWordPending ? InitiateWordBuffer      : data_in;
@@ -308,7 +294,7 @@ module DataMemoryInterface(
                     SD_Start <= 1'b1;
                 end
                 `S_SD_READ_SECTOR: begin
-                    IsInitiateWordPending = 1'b0;
+                    IsInitiateWordPending <= 1'b0;
                     if (SD_OutEn) begin
                         case (SD_OutAddr & 2'b11)
                             2'b00: InitiateWordBuffer[31:24] <= SD_OutByte;

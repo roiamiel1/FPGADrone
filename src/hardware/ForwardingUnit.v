@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+`include "signal_def.v"
+
 module ForwardingUnit (
     input wire [4:0] ALUDataIn1RegAddr_in,  // Address of the register being insterted as first input to the ALU?
     input wire [4:0] ALUDataIn2RegAddr_in,  // Address of the register being insterted as second input to the ALU?
@@ -10,8 +12,8 @@ module ForwardingUnit (
     input wire [4:0] EXMEM_WriteBackRegAddr,  // Which register address EXMEM planning to write to.
     input wire [4:0] MEMWB_WriteBackRegAddr,  // Which register address MEMWB planning to write to.
 
-    output wire [2:0] ALUDataIn1Mux_out,  // First MUX output.
-    output wire [2:0] ALUDataIn2Mux_out   // Second MUX output.
+    output wire [1:0] ALUDataIn1Mux_out,  // First MUX output.
+    output wire [1:0] ALUDataIn2Mux_out   // Second MUX output.
 );
     assign ALUDataIn1Mux_out = 
         ((ALUDataIn1RegAddr_in != 0 && ALUDataIn1RegAddr_in == EXMEM_WriteBackRegAddr) && EXMEM_WriteBackReg) ? `FOWARD_MUX_EXMEM_FORWARD :

@@ -54,9 +54,9 @@ module ALU(
                     ALURes <= DataIn1 / DataIn2;
                 `endif
                 `ALUOp_SLL:
-                    ALURes <= DataIn1 << DataIn2;
+                    ALURes <= DataIn1 << DataIn2[4:0];
                 `ALUOp_SRL:
-                    ALURes <= DataIn1 >> DataIn2;
+                    ALURes <= DataIn1 >> DataIn2[4:0];
                 `ALUOp_AND:
                     ALURes <= DataIn1 & DataIn2;
                 `ALUOp_OR:
@@ -82,6 +82,9 @@ module ALU(
                             ALURes <= 0;
                     end
                 end
+                `ALUOp_SLTU: begin
+                    ALURes <= (DataIn1 < DataIn2) ? 32'b1 : 32'b0;
+                end
                 `ALUOp_LUI: begin
                     ALURes <= {DataIn2[15:0], 16'b0};
                 end
@@ -89,7 +92,7 @@ module ALU(
                     ALURes <= DataIn1;
                 end
                 `ALUOp_SRA: begin
-                    ALURes <= ({32{DataIn1[31]}} << (32 - DataIn2)) | (DataIn1 >> DataIn2);
+                    ALURes <= $signed(DataIn1) >>> DataIn2[4:0];
                 end
                 default: begin
                     ALURes <= 32'b0;

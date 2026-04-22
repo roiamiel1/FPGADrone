@@ -399,7 +399,7 @@ module Control(
             RegWrite  <= 1;
             ALUSrc    <= `ALU_SRC_EXT;
             ExtOp     <= `EXT_ZERO;
-            ALUOp     <= `ALUOp_SLT;
+            ALUOp     <= `ALUOp_SLTU;
             SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h0 && Funct == 6'h2b) begin
             // sltu case:
@@ -414,7 +414,7 @@ module Control(
             RegWrite  <= 1;
             ALUSrc    <= `ALU_SRC_REG;
             ExtOp     <= `EXT_ZERO;
-            ALUOp     <= `ALUOp_SLT;
+            ALUOp     <= `ALUOp_SLTU;
             SpecialOP <= `SpecialOP_NONE;
         end else if (OpCode == 6'h0 && Funct == 6'h0) begin
             // sll case:
@@ -596,21 +596,6 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_DM_BYTE;
-        end else if (OpCode == 6'h0 && Funct == 6'h0) begin
-            // nop case:
-            InstType  <= `INST_TYPE_R;
-            Jump      <= 0;
-            ReadReg1  <= `REG_RS;
-            ReadReg2  <= `REG_RT;
-            RegDst    <= 0;
-            Branch    <= 0;
-            MemRead   <= 0;
-            MemWrite  <= 0;
-            RegWrite  <= 0;
-            ALUSrc    <= 0;
-            ExtOp     <= 0;
-            ALUOp     <= 0;
-            SpecialOP <= 0;
         end else if (OpCode == 6'h7) begin
             // bgtz case:
             InstType  <= `INST_TYPE_I;
@@ -702,7 +687,7 @@ module Control(
             ALUOp     <= `ALUOp_MFHI;
             SpecialOP <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h12) begin
-            // mtlo case:
+            // mflo case:
             InstType  <= `INST_TYPE_R;
             Jump      <= 0;
             ReadReg1  <= 0;

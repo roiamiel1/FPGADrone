@@ -38,7 +38,7 @@ module ESCDriver(
             pwm_out <= 1'b1;
         end else begin
             if (counter < PWM_PERIOD - 1) begin
-                counter = counter + 1;
+                counter <= counter + 1;
                 pwm_out <= (counter < pulse_width) ? 1'b1 : 1'b0;
             end else begin
                 counter <= 32'b0;
