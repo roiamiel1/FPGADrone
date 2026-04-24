@@ -7,6 +7,8 @@ module Control(
     input wire clk,
     input wire rst,
     input wire [5:0] OpCode,
+    input wire [4:0] FMT,
+    input wire [4:0] FT,
     input wire [5:0] Funct,
     output reg [1:0] InstType,
     output reg Jump,
@@ -21,6 +23,8 @@ module Control(
     output reg ExtOp,
     output reg [4:0] ALUOp,
     output reg [3:0] SpecialOP,
+    output reg [5:0] FPUOp,
+    output reg FPUWrite,
     output wire nBranch
 );
     assign nBranch = ~Branch;
@@ -39,6 +43,8 @@ module Control(
         ExtOp     <= 1'b0;
         ALUOp     <= 5'b0;
         SpecialOP <= 4'b0;
+        FPUOp     <= 6'b0;
+        FPUWrite  <= 1'b0;
     end
 
     always @(negedge clk, posedge rst) begin
@@ -56,6 +62,8 @@ module Control(
             ExtOp     <= 1'b0;
             ALUOp     <= 5'b0;
             SpecialOP <= 4'b0;
+            FPUOp     <= 6'b0;
+            FPUWrite  <= 1'b0;
         end else if (OpCode == 6'h0 && Funct == 6'h20) begin
             // add case:
             InstType  <= `INST_TYPE_R;
@@ -71,6 +79,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h8) begin
             // addi case:
             InstType  <= `INST_TYPE_I;
@@ -86,6 +96,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h9) begin
             // addiu case:
             InstType  <= `INST_TYPE_I;
@@ -101,6 +113,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h21) begin
             // addu case:
             InstType  <= `INST_TYPE_R;
@@ -116,6 +130,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h24) begin
             // and case:
             InstType  <= `INST_TYPE_R;
@@ -131,6 +147,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_AND;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'hc) begin
             // andi case:
             InstType  <= `INST_TYPE_I;
@@ -146,6 +164,8 @@ module Control(
             ExtOp     <= `EXT_ZERO;
             ALUOp     <= `ALUOp_AND;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h4) begin
             // beq case:
             InstType  <= `INST_TYPE_I;
@@ -161,6 +181,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SUB;
             SpecialOP <= `SpecialOP_BEQ;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h5) begin
             // bne case:
             InstType  <= `INST_TYPE_I;
@@ -176,6 +198,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SUB;
             SpecialOP <= `SpecialOP_BNE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h2) begin
             // j case:
             InstType  <= `INST_TYPE_J;
@@ -191,6 +215,8 @@ module Control(
             ExtOp     <= 0;
             ALUOp     <= 0;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h3) begin
             // jal case:
             InstType  <= `INST_TYPE_J;
@@ -206,6 +232,8 @@ module Control(
             ExtOp     <= 0;
             ALUOp     <= `ALUOp_IN1;
             SpecialOP <= `SpecialOP_JAL;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h8) begin
             // jr case:
             InstType  <= `INST_TYPE_R;
@@ -221,6 +249,8 @@ module Control(
             ExtOp     <= 0;
             ALUOp     <= `ALUOp_IN1;
             SpecialOP <= `SpecialOP_JR;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h24) begin
             // lbu case:
             InstType  <= `INST_TYPE_I;
@@ -236,6 +266,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_DM_BYTE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h25) begin
             // lhu case:
             InstType  <= `INST_TYPE_I;
@@ -251,6 +283,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_DM_HW;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'hf) begin
             // lui case:
             InstType  <= `INST_TYPE_I;
@@ -266,6 +300,8 @@ module Control(
             ExtOp     <= `EXT_ZERO;
             ALUOp     <= `ALUOp_LUI;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h23) begin
             // lw case:
             InstType  <= `INST_TYPE_I;
@@ -281,6 +317,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h26) begin
             // xor case:
             InstType  <= `INST_TYPE_R;
@@ -296,6 +334,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_XOR;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'he) begin
             // xori case:
             InstType  <= `INST_TYPE_I;
@@ -311,6 +351,8 @@ module Control(
             ExtOp     <= `EXT_ZERO;
             ALUOp     <= `ALUOp_XOR;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h27) begin
             // nor case:
             InstType  <= `INST_TYPE_R;
@@ -326,6 +368,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_NOR;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h25) begin
             // or case:
             InstType  <= `INST_TYPE_R;
@@ -341,6 +385,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_OR;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'hd) begin
             // ori case:
             InstType  <= `INST_TYPE_I;
@@ -356,6 +402,8 @@ module Control(
             ExtOp     <= `EXT_ZERO;
             ALUOp     <= `ALUOp_OR;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h2a) begin
             // slt case:
             InstType  <= `INST_TYPE_R;
@@ -371,6 +419,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SLT;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'ha) begin
             // slti case:
             InstType  <= `INST_TYPE_I;
@@ -386,6 +436,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SLT;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'hb) begin
             // sltiu case:
             InstType  <= `INST_TYPE_I;
@@ -399,8 +451,10 @@ module Control(
             RegWrite  <= 1;
             ALUSrc    <= `ALU_SRC_EXT;
             ExtOp     <= `EXT_ZERO;
-            ALUOp     <= `ALUOp_SLTU;
+            ALUOp     <= `ALUOp_SLT;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h2b) begin
             // sltu case:
             InstType  <= `INST_TYPE_R;
@@ -414,8 +468,10 @@ module Control(
             RegWrite  <= 1;
             ALUSrc    <= `ALU_SRC_REG;
             ExtOp     <= `EXT_ZERO;
-            ALUOp     <= `ALUOp_SLTU;
+            ALUOp     <= `ALUOp_SLT;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h0) begin
             // sll case:
             InstType  <= `INST_TYPE_R;
@@ -431,6 +487,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SLL;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h4) begin
             // sllv case:
             InstType  <= `INST_TYPE_R;
@@ -446,6 +504,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SLL;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h2) begin
             // srl case:
             InstType  <= `INST_TYPE_R;
@@ -461,6 +521,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SRL;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h6) begin
             // srlv case:
             InstType  <= `INST_TYPE_R;
@@ -476,6 +538,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SRL;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h3) begin
             // sra case:
             InstType  <= `INST_TYPE_R;
@@ -491,6 +555,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SRA;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h7) begin
             // srav case:
             InstType  <= `INST_TYPE_R;
@@ -506,6 +572,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SRA;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h28) begin
             // sb case:
             InstType  <= `INST_TYPE_I;
@@ -521,6 +589,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_DM_BYTE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h29) begin
             // sh case:
             InstType  <= `INST_TYPE_I;
@@ -536,6 +606,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_DM_HW;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h2b) begin
             // sw case:
             InstType  <= `INST_TYPE_I;
@@ -551,6 +623,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h22) begin
             // sub case:
             InstType  <= `INST_TYPE_R;
@@ -566,6 +640,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SUB;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h23) begin
             // subu case:
             InstType  <= `INST_TYPE_R;
@@ -581,6 +657,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_SUB;
             SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h20) begin
             // lb case:
             InstType  <= `INST_TYPE_I;
@@ -596,6 +674,25 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_ADD;
             SpecialOP <= `SpecialOP_DM_BYTE;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
+        end else if (OpCode == 6'h0 && Funct == 6'h0) begin
+            // nop case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RS;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= 0;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= 0;
+            ExtOp     <= 0;
+            ALUOp     <= 0;
+            SpecialOP <= 0;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h7) begin
             // bgtz case:
             InstType  <= `INST_TYPE_I;
@@ -611,6 +708,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_IN1;
             SpecialOP <= `SpecialOP_BGTZ;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h6) begin
             // blez case:
             InstType  <= `INST_TYPE_I;
@@ -626,6 +725,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_IN1;
             SpecialOP <= `SpecialOP_BLEZ;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h1) begin
             // bgezal case:
             InstType  <= `INST_TYPE_I;
@@ -641,6 +742,8 @@ module Control(
             ExtOp     <= `EXT_SIGNED;
             ALUOp     <= `ALUOp_IN1;
             SpecialOP <= `SpecialOP_BGEZAL;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h18) begin
             // mult case:
             InstType  <= `INST_TYPE_R;
@@ -656,6 +759,8 @@ module Control(
             ExtOp     <= 0;
             ALUOp     <= `ALUOp_MULT;
             SpecialOP <= 0;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h19) begin
             // multu case:
             InstType  <= `INST_TYPE_R;
@@ -671,6 +776,8 @@ module Control(
             ExtOp     <= 0;
             ALUOp     <= `ALUOp_MULTU;
             SpecialOP <= 0;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h10) begin
             // mfhi case:
             InstType  <= `INST_TYPE_R;
@@ -686,8 +793,10 @@ module Control(
             ExtOp     <= 0;
             ALUOp     <= `ALUOp_MFHI;
             SpecialOP <= 0;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
         end else if (OpCode == 6'h0 && Funct == 6'h12) begin
-            // mflo case:
+            // mtlo case:
             InstType  <= `INST_TYPE_R;
             Jump      <= 0;
             ReadReg1  <= 0;
@@ -701,6 +810,552 @@ module Control(
             ExtOp     <= 0;
             ALUOp     <= `ALUOp_MFLO;
             SpecialOP <= 0;
+            FPUOp     <= `FPUOp_NONE;
+            FPUWrite  <= 0;
+        end else if (OpCode == 6'h11 && FMT == 5'h10 && Funct == 6'h0) begin
+            // add.s case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_ADD_S;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h10 && Funct == 6'h1) begin
+            // sub.s case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_SUB_S;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h10 && Funct == 6'h2) begin
+            // mul.s case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_MUL_S;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h10 && Funct == 6'h3) begin
+            // div.s case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_DIV_S;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h10 && Funct == 6'h5) begin
+            // abs.s case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_ABS_S;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h10 && Funct == 6'h7) begin
+            // neg.s case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NEG_S;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h10 && Funct == 6'h6) begin
+            // mov.s case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_MOV_S;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h10 && Funct == 6'h21) begin
+            // cvt.d.s case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_CVT_D_S;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h10 && Funct == 6'h24) begin
+            // cvt.w.s case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_CVT_W_S;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h10 && Funct == 6'h32) begin
+            // c.eq.s case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= 0;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_C_EQ_S;
+            FPUWrite  <= 0;
+        end else if (OpCode == 6'h11 && FMT == 5'h10 && Funct == 6'h3c) begin
+            // c.lt.s case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= 0;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_C_LT_S;
+            FPUWrite  <= 0;
+        end else if (OpCode == 6'h11 && FMT == 5'h10 && Funct == 6'h3e) begin
+            // c.le.s case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= 0;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_C_LE_S;
+            FPUWrite  <= 0;
+        end else if (OpCode == 6'h11 && FMT == 5'h11 && Funct == 6'h0) begin
+            // add.d case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_ADD_D;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h11 && Funct == 6'h1) begin
+            // sub.d case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_SUB_D;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h11 && Funct == 6'h2) begin
+            // mul.d case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_MUL_D;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h11 && Funct == 6'h3) begin
+            // div.d case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_DIV_D;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h11 && Funct == 6'h5) begin
+            // abs.d case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_ABS_D;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h11 && Funct == 6'h7) begin
+            // neg.d case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_NEG_D;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h11 && Funct == 6'h6) begin
+            // mov.d case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_MOV_D;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h11 && Funct == 6'h20) begin
+            // cvt.s.d case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_CVT_S_D;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h11 && Funct == 6'h24) begin
+            // cvt.w.d case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_CVT_W_D;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h11 && Funct == 6'h32) begin
+            // c.eq.d case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= 0;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_C_EQ_D;
+            FPUWrite  <= 0;
+        end else if (OpCode == 6'h11 && FMT == 5'h11 && Funct == 6'h3c) begin
+            // c.lt.d case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= 0;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_C_LT_D;
+            FPUWrite  <= 0;
+        end else if (OpCode == 6'h11 && FMT == 5'h11 && Funct == 6'h3e) begin
+            // c.le.d case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= 0;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_C_LE_D;
+            FPUWrite  <= 0;
+        end else if (OpCode == 6'h11 && FMT == 5'h14 && Funct == 6'h20) begin
+            // cvt.s.w case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_CVT_S_W;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h14 && Funct == 6'h21) begin
+            // cvt.d.w case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_FD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_CVT_D_W;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h11 && FMT == 5'h0) begin
+            // mfc1 case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RD;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_RT;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 1;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_MFC1;
+            FPUWrite  <= 0;
+        end else if (OpCode == 6'h11 && FMT == 5'h4) begin
+            // mtc1 case:
+            InstType  <= `INST_TYPE_R;
+            Jump      <= 0;
+            ReadReg1  <= 0;
+            ReadReg2  <= `REG_RT;
+            RegDst    <= `REG_RD;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_REG;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_MTC1;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h31) begin
+            // lwc1 case:
+            InstType  <= `INST_TYPE_I;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RS;
+            ReadReg2  <= 0;
+            RegDst    <= `REG_RT;
+            Branch    <= 0;
+            MemRead   <= 1;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_EXT;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= `ALUOp_ADD;
+            SpecialOP <= `SpecialOP_NONE;
+            FPUOp     <= `FPUOp_LWC1;
+            FPUWrite  <= 1;
+        end else if (OpCode == 6'h39) begin
+            // swc1 case:
+            InstType  <= `INST_TYPE_I;
+            Jump      <= 0;
+            ReadReg1  <= `REG_RS;
+            ReadReg2  <= 0;
+            RegDst    <= 0;
+            Branch    <= 0;
+            MemRead   <= 0;
+            MemWrite  <= 1;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_EXT;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= `ALUOp_ADD;
+            SpecialOP <= `SpecialOP_SWC1;
+            FPUOp     <= `FPUOp_SWC1;
+            FPUWrite  <= 0;
+        end else if (OpCode == 6'h11 && FMT == 5'h8 && FT == 5'h0) begin
+            // bc1f case:
+            InstType  <= `INST_TYPE_I;
+            Jump      <= 0;
+            ReadReg1  <= 0;
+            ReadReg2  <= 0;
+            RegDst    <= 0;
+            Branch    <= 1;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_EXT;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_BC1F;
+            FPUOp     <= `FPUOp_BC1F;
+            FPUWrite  <= 0;
+        end else if (OpCode == 6'h11 && FMT == 5'h8 && FT == 5'h1) begin
+            // bc1t case:
+            InstType  <= `INST_TYPE_I;
+            Jump      <= 0;
+            ReadReg1  <= 0;
+            ReadReg2  <= 0;
+            RegDst    <= 0;
+            Branch    <= 1;
+            MemRead   <= 0;
+            MemWrite  <= 0;
+            RegWrite  <= 0;
+            ALUSrc    <= `ALU_SRC_EXT;
+            ExtOp     <= `EXT_SIGNED;
+            ALUOp     <= 0;
+            SpecialOP <= `SpecialOP_BC1T;
+            FPUOp     <= `FPUOp_BC1T;
+            FPUWrite  <= 0;
         end else  begin
             // default case:
             InstType  <= 2'b00;
@@ -716,16 +1371,18 @@ module Control(
             ExtOp     <= 1'b0;
             ALUOp     <= 5'b0;
             SpecialOP <= 4'b0;
+            FPUOp     <= 6'b0;
+            FPUWrite  <= 1'b0;
             `ifdef DEBUG
             if (OpCode !== 6'bx && Funct !== 6'bx) begin
-                $display("\n*************** Warning ***************"); 
+                $display("\n*************** Warning ***************");
                 $display(   "  Unsupported instruction encountered  ");
                 $display("Time: %t", $time);
                 $display("OpCode: 0x%h", OpCode);
                 $display("Funct: 0x%h", Funct);
                 $display("Inst: 0x%h", TESTBENCH.U_MIPS_R2000.IFID_Instr);
                 $display("PCU: 0x%h", TESTBENCH.U_MIPS_R2000.U_PCU_PC);
-                $display("***************************************\n"); 
+                $display("***************************************\n");
             end
             `endif
         end

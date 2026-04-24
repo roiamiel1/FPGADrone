@@ -8,20 +8,32 @@ TRUE_CONDITION = "1 /* always true */"
 
 class TestBuilder():
     _NOP_PADDED_OPCODES = {
-        "bne":      1, 
-        "beq":      1, 
-        "j":        1, 
-        "jal":      1, 
-        "jr":       1, 
-        "lbu":      1, 
-        "lb":       1, 
-        "lhu":      1, 
-        "lw":       1, 
-        "bgtz":     1, 
-        "blez":     1, 
+        "bne":      1,
+        "beq":      1,
+        "j":        1,
+        "jal":      1,
+        "jr":       1,
+        "lbu":      1,
+        "lb":       1,
+        "lhu":      1,
+        "lw":       1,
+        "bgtz":     1,
+        "blez":     1,
         "bgezal":   1,
         "mflo":     2,
-        "mfhi":     2
+        "mfhi":     2,
+        "lwc1":     1,
+        "bc1t":     1,
+        "bc1f":     1,
+        # COP1 instructions: assembler (-mips1 -march=r2000) auto-inserts 1 NOP after each
+        "mtc1":     1,
+        "mfc1":     1,
+        "c.eq.s":   1,
+        "c.lt.s":   1,
+        "c.le.s":   1,
+        "c.eq.d":   1,
+        "c.lt.d":   1,
+        "c.le.d":   1,
     }
 
     def __init__(self, hex_path, output_folder_path) -> None:

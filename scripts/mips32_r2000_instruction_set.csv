@@ -1,45 +1,83 @@
-COMMAND,   OPCODE, FMT, FT, FUNCT, INST_TYPE,      Jump, ReadReg1, ReadReg2, RegDst,  Branch, MemRead, MemWrite, RegWrite, ALUSrc,       ExtOp,         ALUOp,        SpecialOP
-add,       0,      x,   x,  20,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE
-addi,      8,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE
-addiu,     9,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE
-addu,      0,      x,   x,  21,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE
-and,       0,      x,   x,  24,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_AND,   `SpecialOP_NONE
-andi,      c,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_ZERO,     `ALUOp_AND,   `SpecialOP_NONE
-beq,       4,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       1,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SUB,   `SpecialOP_BEQ
-bne,       5,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       1,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SUB,   `SpecialOP_BNE
-j,         2,      x,   x,  x,     `INST_TYPE_J,   1,    `REG_RS,  `REG_RT,  0,       0,      0,       0,        0,        0,            0,             0,            `SpecialOP_NONE
-jal,       3,      x,   x,  x,     `INST_TYPE_J,   1,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, 0,             `ALUOp_IN1,   `SpecialOP_JAL
-jr,        0,      x,   x,  8,     `INST_TYPE_R,   1,    `REG_RS,  `REG_RT,  0,       0,      0,       0,        0,        `ALU_SRC_REG, 0,             `ALUOp_IN1,   `SpecialOP_JR
-lbu,       24,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      1,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_DM_BYTE
-lhu,       25,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      1,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_DM_HW
-lui,       f,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_ZERO,     `ALUOp_LUI,   `SpecialOP_NONE
-lw,        23,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      1,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE
-xor,       0,      x,   x,  26,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_XOR,   `SpecialOP_NONE
-xori,      e,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_ZERO,     `ALUOp_XOR,   `SpecialOP_NONE
-nor,       0,      x,   x,  27,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_NOR,   `SpecialOP_NONE
-or,        0,      x,   x,  25,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_OR,    `SpecialOP_NONE
-ori,       d,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_ZERO,     `ALUOp_OR,    `SpecialOP_NONE
-slt,       0,      x,   x,  2a,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SLT,   `SpecialOP_NONE
-slti,      a,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_SLT,   `SpecialOP_NONE
-sltiu,     b,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_ZERO,     `ALUOp_SLT,   `SpecialOP_NONE
-sltu,      0,      x,   x,  2b,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_ZERO,     `ALUOp_SLT,   `SpecialOP_NONE
-sll,       0,      x,   x,  0,     `INST_TYPE_R,   0,    `REG_RT,  0,        `REG_RD, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_SLL,   `SpecialOP_NONE
-sllv,      0,      x,   x,  4,     `INST_TYPE_R,   0,    `REG_RT,  `REG_RS,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SLL,   `SpecialOP_NONE
-srl,       0,      x,   x,  2,     `INST_TYPE_R,   0,    `REG_RT,  0,        `REG_RD, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_SRL,   `SpecialOP_NONE
-srlv,      0,      x,   x,  6,     `INST_TYPE_R,   0,    `REG_RT,  `REG_RS,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SRL,   `SpecialOP_NONE
-sra,       0,      x,   x,  3,     `INST_TYPE_R,   0,    `REG_RT,  0,        `REG_RD, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_SRA,   `SpecialOP_NONE
-srav,      0,      x,   x,  7,     `INST_TYPE_R,   0,    `REG_RT,  `REG_RS,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SRA,   `SpecialOP_NONE
-sb,        28,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       0,      0,       1,        0,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_DM_BYTE
-sh,        29,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       0,      0,       1,        0,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_DM_HW
-sw,        2b,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       0,      0,       1,        0,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE
-sub,       0,      x,   x,  22,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SUB,   `SpecialOP_NONE
-subu,      0,      x,   x,  23,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SUB,   `SpecialOP_NONE
-lb,        20,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      1,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_DM_BYTE
-nop,       0,      x,   x,  0,     `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  0,       0,      0,       0,        0,        0,             0,            0,            0
-bgtz,      7,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       1,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_IN1,   `SpecialOP_BGTZ
-blez,      6,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       1,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_IN1,   `SpecialOP_BLEZ
-bgezal,    1,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RD, 1,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_IN1,   `SpecialOP_BGEZAL
-mult,      0,      x,   x,  18,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  0,       0,      0,       0,        0,        `ALU_SRC_REG, 0,             `ALUOp_MULT,  0
-multu,     0,      x,   x,  19,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  0,       0,      0,       0,        0,        `ALU_SRC_REG, 0,             `ALUOp_MULTU, 0
-mfhi,      0,      x,   x,  10,    `INST_TYPE_R,   0,    0,        0,        `REG_RD, 0,      0,       0,        1,        0,            0,             `ALUOp_MFHI,  0
-mtlo,      0,      x,   x,  12,    `INST_TYPE_R,   0,    0,        0,        `REG_RD, 0,      0,       0,        1,        0,            0,             `ALUOp_MFLO,  0
+COMMAND,   OPCODE, FMT, FT, FUNCT, INST_TYPE,      Jump, ReadReg1, ReadReg2, RegDst,  Branch, MemRead, MemWrite, RegWrite, ALUSrc,       ExtOp,         ALUOp,        SpecialOP,        FPUOp,           FPUWrite
+add,       0,      x,   x,  20,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+addi,      8,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+addiu,     9,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+addu,      0,      x,   x,  21,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+and,       0,      x,   x,  24,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_AND,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+andi,      c,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_ZERO,     `ALUOp_AND,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+beq,       4,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       1,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SUB,   `SpecialOP_BEQ,   `FPUOp_NONE,     0
+bne,       5,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       1,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SUB,   `SpecialOP_BNE,   `FPUOp_NONE,     0
+j,         2,      x,   x,  x,     `INST_TYPE_J,   1,    `REG_RS,  `REG_RT,  0,       0,      0,       0,        0,        0,            0,             0,            `SpecialOP_NONE,  `FPUOp_NONE,     0
+jal,       3,      x,   x,  x,     `INST_TYPE_J,   1,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, 0,             `ALUOp_IN1,   `SpecialOP_JAL,   `FPUOp_NONE,     0
+jr,        0,      x,   x,  8,     `INST_TYPE_R,   1,    `REG_RS,  `REG_RT,  0,       0,      0,       0,        0,        `ALU_SRC_REG, 0,             `ALUOp_IN1,   `SpecialOP_JR,    `FPUOp_NONE,     0
+lbu,       24,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      1,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_DM_BYTE, `FPUOp_NONE,   0
+lhu,       25,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      1,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_DM_HW, `FPUOp_NONE,     0
+lui,       f,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_ZERO,     `ALUOp_LUI,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+lw,        23,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      1,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+xor,       0,      x,   x,  26,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_XOR,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+xori,      e,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_ZERO,     `ALUOp_XOR,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+nor,       0,      x,   x,  27,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_NOR,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+or,        0,      x,   x,  25,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_OR,    `SpecialOP_NONE,  `FPUOp_NONE,     0
+ori,       d,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_ZERO,     `ALUOp_OR,    `SpecialOP_NONE,  `FPUOp_NONE,     0
+slt,       0,      x,   x,  2a,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SLT,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+slti,      a,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_SLT,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+sltiu,     b,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_ZERO,     `ALUOp_SLT,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+sltu,      0,      x,   x,  2b,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_ZERO,     `ALUOp_SLT,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+sll,       0,      x,   x,  0,     `INST_TYPE_R,   0,    `REG_RT,  0,        `REG_RD, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_SLL,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+sllv,      0,      x,   x,  4,     `INST_TYPE_R,   0,    `REG_RT,  `REG_RS,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SLL,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+srl,       0,      x,   x,  2,     `INST_TYPE_R,   0,    `REG_RT,  0,        `REG_RD, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_SRL,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+srlv,      0,      x,   x,  6,     `INST_TYPE_R,   0,    `REG_RT,  `REG_RS,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SRL,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+sra,       0,      x,   x,  3,     `INST_TYPE_R,   0,    `REG_RT,  0,        `REG_RD, 0,      0,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_SRA,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+srav,      0,      x,   x,  7,     `INST_TYPE_R,   0,    `REG_RT,  `REG_RS,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SRA,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+sb,        28,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       0,      0,       1,        0,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_DM_BYTE, `FPUOp_NONE,   0
+sh,        29,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       0,      0,       1,        0,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_DM_HW, `FPUOp_NONE,     0
+sw,        2b,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       0,      0,       1,        0,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+sub,       0,      x,   x,  22,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SUB,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+subu,      0,      x,   x,  23,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  `REG_RD, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_SUB,   `SpecialOP_NONE,  `FPUOp_NONE,     0
+lb,        20,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      1,       0,        1,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_DM_BYTE, `FPUOp_NONE,   0
+nop,       0,      x,   x,  0,     `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  0,       0,      0,       0,        0,        0,             0,            0,            0,                `FPUOp_NONE,     0
+bgtz,      7,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       1,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_IN1,   `SpecialOP_BGTZ,  `FPUOp_NONE,     0
+blez,      6,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       1,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_IN1,   `SpecialOP_BLEZ,  `FPUOp_NONE,     0
+bgezal,    1,      x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RD, 1,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   `ALUOp_IN1,   `SpecialOP_BGEZAL, `FPUOp_NONE,   0
+mult,      0,      x,   x,  18,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  0,       0,      0,       0,        0,        `ALU_SRC_REG, 0,             `ALUOp_MULT,  0,                `FPUOp_NONE,     0
+multu,     0,      x,   x,  19,    `INST_TYPE_R,   0,    `REG_RS,  `REG_RT,  0,       0,      0,       0,        0,        `ALU_SRC_REG, 0,             `ALUOp_MULTU, 0,                `FPUOp_NONE,     0
+mfhi,      0,      x,   x,  10,    `INST_TYPE_R,   0,    0,        0,        `REG_RD, 0,      0,       0,        1,        0,            0,             `ALUOp_MFHI,  0,                `FPUOp_NONE,     0
+mtlo,      0,      x,   x,  12,    `INST_TYPE_R,   0,    0,        0,        `REG_RD, 0,      0,       0,        1,        0,            0,             `ALUOp_MFLO,  0,                `FPUOp_NONE,     0
+// ---- COP1: Single precision arithmetic (opcode=0x11, fmt=0x10) ----
+add.s,     11,     10,  x,  0,     `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_ADD_S,   1
+sub.s,     11,     10,  x,  1,     `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_SUB_S,   1
+mul.s,     11,     10,  x,  2,     `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_MUL_S,   1
+div.s,     11,     10,  x,  3,     `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_DIV_S,   1
+abs.s,     11,     10,  x,  5,     `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_ABS_S,   1
+neg.s,     11,     10,  x,  7,     `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_NEG_S,   1
+mov.s,     11,     10,  x,  6,     `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_MOV_S,   1
+cvt.d.s,   11,     10,  x,  21,    `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_CVT_D_S, 1
+cvt.w.s,   11,     10,  x,  24,    `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_CVT_W_S, 1
+c.eq.s,    11,     10,  x,  32,    `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  0,       0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_C_EQ_S,  0
+c.lt.s,    11,     10,  x,  3c,    `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  0,       0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_C_LT_S,  0
+c.le.s,    11,     10,  x,  3e,    `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  0,       0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_C_LE_S,  0
+// ---- COP1: Double precision arithmetic (opcode=0x11, fmt=0x11) ----
+add.d,     11,     11,  x,  0,     `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_ADD_D,   1
+sub.d,     11,     11,  x,  1,     `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_SUB_D,   1
+mul.d,     11,     11,  x,  2,     `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_MUL_D,   1
+div.d,     11,     11,  x,  3,     `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_DIV_D,   1
+abs.d,     11,     11,  x,  5,     `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_ABS_D,   1
+neg.d,     11,     11,  x,  7,     `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_NEG_D,   1
+mov.d,     11,     11,  x,  6,     `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_MOV_D,   1
+cvt.s.d,   11,     11,  x,  20,    `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_CVT_S_D, 1
+cvt.w.d,   11,     11,  x,  24,    `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_CVT_W_D, 1
+c.eq.d,    11,     11,  x,  32,    `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  0,       0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_C_EQ_D,  0
+c.lt.d,    11,     11,  x,  3c,    `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  0,       0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_C_LT_D,  0
+c.le.d,    11,     11,  x,  3e,    `INST_TYPE_R,   0,    `REG_RD,  `REG_RT,  0,       0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_C_LE_D,  0
+// ---- COP1: Integer word conversions (opcode=0x11, fmt=0x14) ----
+cvt.s.w,   11,     14,  x,  20,    `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_CVT_S_W, 1
+cvt.d.w,   11,     14,  x,  21,    `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_FD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_CVT_D_W, 1
+// ---- COP1: Register moves (opcode=0x11) ----
+mfc1,      11,     0,   x,  x,     `INST_TYPE_R,   0,    `REG_RD,  0,        `REG_RT, 0,      0,       0,        1,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_MFC1,    0
+mtc1,      11,     4,   x,  x,     `INST_TYPE_R,   0,    0,        `REG_RT,  `REG_RD, 0,      0,       0,        0,        `ALU_SRC_REG, `EXT_SIGNED,   0,            `SpecialOP_NONE,  `FPUOp_MTC1,    1
+// ---- COP1: Load/store (separate opcodes) ----
+lwc1,      31,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        `REG_RT, 0,      1,       0,        0,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_NONE,  `FPUOp_LWC1,    1
+swc1,      39,     x,   x,  x,     `INST_TYPE_I,   0,    `REG_RS,  0,        0,       0,      0,       1,        0,        `ALU_SRC_EXT, `EXT_SIGNED,   `ALUOp_ADD,   `SpecialOP_SWC1,  `FPUOp_SWC1,    0
+// ---- COP1: Branches on condition code (opcode=0x11, fmt=0x08) ----
+bc1f,      11,     8,   0,  x,     `INST_TYPE_I,   0,    0,        0,        0,       1,      0,       0,        0,        `ALU_SRC_EXT, `EXT_SIGNED,   0,            `SpecialOP_BC1F,  `FPUOp_BC1F,    0
+bc1t,      11,     8,   1,  x,     `INST_TYPE_I,   0,    0,        0,        0,       1,      0,       0,        0,        `ALU_SRC_EXT, `EXT_SIGNED,   0,            `SpecialOP_BC1T,  `FPUOp_BC1T,    0

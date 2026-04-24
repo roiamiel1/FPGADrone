@@ -29,6 +29,8 @@ module MIPS_R2000 (
     wire [3:0] U_Ctrl_SpecialOP;
     wire U_Ctrl_nBranch;
     wire U_Ctrl_ExtOp;
+    wire [5:0] U_Ctrl_FPUOp;
+    wire U_Ctrl_FPUWrite;
 
     // U_MEMWBReg connections.
     wire [31:0] MEMWB_Instr;
@@ -37,6 +39,12 @@ module MIPS_R2000 (
     wire [31:0] U_MEMWBReg_Mem_out;
     wire [31:0] U_MEMWBReg_ALU_out;
     wire [4:0] U_MEMWBReg_WriteBackRegAddr_out;
+    wire U_MEMWBReg_FPUWrite_out;
+    wire [63:0] U_MEMWBReg_FPU_out;
+    wire U_MEMWBReg_IsDouble_out;
+    wire [4:0] U_MEMWBReg_FPRWriteAddr_out;
+    wire U_MEMWBReg_CC_out;
+    wire U_MEMWBReg_CCWrite_out;
 
     // U_EXMEMReg connections.
     wire [31:0] EXMEM_Instr;
@@ -51,11 +59,15 @@ module MIPS_R2000 (
     wire U_EXMEMReg_ShouldRegWrite_out;
     wire U_EXMEMReg_Zero_out;
     wire U_EXMEMReg_Sign_out;
-    wire [31:0] U_EXMEMReg_ALU_in;
     wire [31:0] U_EXMEMReg_ALU_out;
     wire [4:0] U_EXMEMReg_WriteBackRegAddr_out;
-    wire [4:0] U_EXMEMReg_WriteBackRegAddr_in;
     wire [31:0] U_EXMEMReg_NextPC_out;
+    wire U_EXMEMReg_FPUWrite_out;
+    wire [63:0] U_EXMEMReg_FPU_out;
+    wire U_EXMEMReg_IsDouble_out;
+    wire U_EXMEMReg_CC_out;
+    wire [31:0] U_EXMEMReg_FPR2_out;
+    wire [4:0] U_EXMEMReg_FPRWriteAddr_out;
 
     // U_IDEXReg connections.
     wire [31:0] IDEX_Instr;
@@ -76,12 +88,27 @@ module MIPS_R2000 (
     wire [4:0] U_IDEXReg_Rs_out;
     wire [4:0] U_IDEXReg_Rt_out;
     wire [4:0] U_IDEXReg_Rd_out;
+    wire [5:0] U_IDEXReg_FPUOp_out;
+    wire U_IDEXReg_FPUWrite_out;
+    wire [63:0] U_IDEXReg_FPReg1_out;
+    wire [63:0] U_IDEXReg_FPReg2_out;
     wire U_EXMEM_IsAndLinkOp;
 
     // U_GPR connections.
     wire [31:0] U_MEMWBReg_WriteBackValue;
     wire [31:0] U_GPR_DataOut1;
     wire [31:0] U_GPR_DataOut2;
+
+    // U_FPR connections.
+    wire [63:0] U_FPR_DataOut1;
+    wire [63:0] U_FPR_DataOut2;
+    wire U_FPR_CC;
+
+    // U_FPU connections.
+    wire [63:0] U_FPU_FPURes;
+    wire U_FPU_IsDouble;
+    wire U_FPU_CCOut;
+    wire U_FPU_CCWrite;
 
     // U_IFIDReg connections.
     wire [31:0] U_IFIDReg_NextPC_out;
@@ -101,6 +128,8 @@ module MIPS_R2000 (
     // U_ALU connections.
     wire U_ALU_Zero;
     wire U_ALU_Sign;
+    wire [31:0] U_ALU_Result;       // raw ALU result
+    wire [31:0] U_EXMEMReg_ALU_in; // muxed: ALU result, or FPU result for mfc1
 
     // U_DataMemory connections.
     wire [31:0] U_DataMemory_DataOut;
@@ -117,24 +146,52 @@ module MIPS_R2000 (
 
     // BranchAddress connections.
     wire [31:0] U_EXMEMReg_BranchAddress_in;
+    wire [4:0]  U_EXMEMReg_WriteBackRegAddr_in;
     wire U_EXMEMReg_ShouldJumpOrBranch;
 
     // Sign Extender connections.
     wire [15:0] ExtenderDataIn;
-    
+
     // Sign Extender assigns.
-    assign ExtenderDataIn = 
+    assign ExtenderDataIn =
         U_Ctrl_InstType == `INST_TYPE_I ? `IMMEDIATE(IFID_Instr) :
-        U_Ctrl_InstType == `INST_TYPE_R ? {11'b0, `SHAMT(IFID_Instr)} : 
+        U_Ctrl_InstType == `INST_TYPE_R ? {11'b0, `SHAMT(IFID_Instr)} :
         16'b0;
     assign U_OpcodeImmExtender_Out = {
         (U_Ctrl_ExtOp == `EXT_SIGNED ? {16{ExtenderDataIn[15]}} : 16'b0),
         ExtenderDataIn[15:0]
     };
 
-    // Connections assigns.
-    assign U_EXMEMReg_WriteBackRegAddr_in = `REG_MUX(U_IDEXReg_RegDst_out, U_IDEXReg_Rt_out, U_IDEXReg_Rd_out, U_IDEXReg_Rs_out);
+    // GPR write-back value: memory data (load) or ALU/FPU result.
     assign U_MEMWBReg_WriteBackValue = U_MEMWBReg_MemRead_out ? U_MEMWBReg_Mem_out : U_MEMWBReg_ALU_out;
+
+    // FPR write data: memory data (lwc1) or FPU result.
+    wire [63:0] FPRWriteData;
+    assign FPRWriteData = (U_MEMWBReg_MemRead_out && U_MEMWBReg_FPUWrite_out) ?
+                          {32'b0, U_MEMWBReg_Mem_out} : U_MEMWBReg_FPU_out;
+
+    // GPR write-back address (for all instructions, unchanged from before).
+    assign U_EXMEMReg_WriteBackRegAddr_in = `REG_MUX(
+        U_IDEXReg_RegDst_out,
+        U_IDEXReg_Rt_out,      // REG_RT
+        U_IDEXReg_Rd_out,      // REG_RD
+        U_IDEXReg_Rs_out,      // REG_RS
+        `SHAMT(IDEX_Instr)     // REG_FD — fd field [10:6]
+    );
+
+    // FPR write-back address (same field selection as GPR write-back).
+    wire [4:0] FPRWriteAddr_in;
+    assign FPRWriteAddr_in = `REG_MUX(
+        U_IDEXReg_RegDst_out,
+        U_IDEXReg_Rt_out,
+        U_IDEXReg_Rd_out,
+        U_IDEXReg_Rs_out,
+        `SHAMT(IDEX_Instr)
+    );
+
+    // mfc1: route FPU result (=FPR[fs]) into the integer ALU result path so GPR is written.
+    assign U_EXMEMReg_ALU_in = (U_IDEXReg_FPUOp_out == `FPUOp_MFC1) ?
+                                U_FPU_FPURes[31:0] : U_ALU_Result;
 
     // Branch and Jump assigns.
     assign U_PCU_PCSrc = U_EXMEMReg_Jump_out || (U_EXMEMReg_Branch_out && (
@@ -142,7 +199,9 @@ module MIPS_R2000 (
         (U_EXMEMReg_SpecialOP_out == `SpecialOP_BNE    &&  !U_EXMEMReg_Zero_out                          ) ||
         (U_EXMEMReg_SpecialOP_out == `SpecialOP_BGTZ   && (!U_EXMEMReg_Zero_out && !U_EXMEMReg_Sign_out )) ||
         (U_EXMEMReg_SpecialOP_out == `SpecialOP_BLEZ   &&  (U_EXMEMReg_Zero_out ||  U_EXMEMReg_Sign_out )) ||
-        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BGEZAL &&  (U_EXMEMReg_Zero_out || !U_EXMEMReg_Sign_out ))
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BGEZAL &&  (U_EXMEMReg_Zero_out || !U_EXMEMReg_Sign_out )) ||
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BC1T   &&   U_EXMEMReg_CC_out                            ) ||
+        (U_EXMEMReg_SpecialOP_out == `SpecialOP_BC1F   &&  !U_EXMEMReg_CC_out                            )
     ));
     assign U_EXMEMReg_ShouldJumpOrBranch = U_PCU_PCSrc;
     assign HazardFlushRegs = U_PCU_PCSrc;
@@ -152,7 +211,7 @@ module MIPS_R2000 (
         U_EXMEMReg_SpecialOP_out == `SpecialOP_BGEZAL ? U_EXMEMReg_ShouldJumpOrBranch : 1'b1
     );
 
-    assign U_EXMEMReg_BranchAddress_in = (U_IDEXReg_SpecialOP_out == `SpecialOP_JR ? U_EXMEMReg_ALU_in : 
+    assign U_EXMEMReg_BranchAddress_in = (U_IDEXReg_SpecialOP_out == `SpecialOP_JR ? U_EXMEMReg_ALU_in :
         (U_IDEXReg_Branch_out ? (U_IDEXReg_NextPC_out + (U_IDEXReg_ExtImm_out << 2)) :
         // According to the DOC https://www.eecis.udel.edu/~davis/cpeg222/AssemblyTutorial/Chapter-17/ass17_5.html
         (U_IDEXReg_Jump_out ? {U_IDEXReg_NextPC_out[31:28], U_IDEXReg_JumpAddress_out, 2'b0} : 32'b0))
@@ -161,7 +220,7 @@ module MIPS_R2000 (
     assign U_EXMEM_IsAndLinkOp = U_EXMEMReg_ShouldJumpOrBranch &&
         (U_EXMEMReg_SpecialOP_out == `SpecialOP_JAL || U_EXMEMReg_SpecialOP_out == `SpecialOP_BGEZAL);
 
-    // Assigns Forwaring Mux's
+    // Assigns Forwarding Mux's
     assign ALURegInput1 = `ForwardingMux(
         ALUDataIn1Mux,              // Selector
         U_IDEXReg_Reg1_out,         // No forwarding
@@ -174,6 +233,11 @@ module MIPS_R2000 (
         U_EXMEMReg_ALU_out,         // Forward from EX/MEM
         U_MEMWBReg_WriteBackValue   // Forward from MEM/WB
     );
+
+    // swc1: store data comes from FPR[ft] (captured in FPR2), not from GPR.
+    wire [31:0] MemStoreData;
+    assign MemStoreData = (U_EXMEMReg_SpecialOP_out == `SpecialOP_SWC1) ?
+                          U_EXMEMReg_FPR2_out : U_EXMEMReg_Reg2_out;
 
     PCU U_PCU(
         .clk(clk),
@@ -207,6 +271,23 @@ module MIPS_R2000 (
         .DataOut2(U_GPR_DataOut2)
     );
 
+    // FPR is read using fs=instr[15:11] and ft=instr[20:16] from the IFID instruction.
+    FPR U_FPR(
+        .clk(clk),
+        .rst(rst),
+        .RegWrite(U_MEMWBReg_FPUWrite_out),
+        .ReadRegister1(`RD(IFID_Instr)),   // fs = instr[15:11]
+        .ReadRegister2(`RT(IFID_Instr)),   // ft = instr[20:16]
+        .WriteRegister(U_MEMWBReg_FPRWriteAddr_out),
+        .WriteData(FPRWriteData),
+        .WriteDouble(U_MEMWBReg_IsDouble_out),
+        .CCWrite(U_MEMWBReg_CCWrite_out),
+        .CCIn(U_MEMWBReg_CC_out),
+        .DataOut1(U_FPR_DataOut1),
+        .DataOut2(U_FPR_DataOut2),
+        .CC(U_FPR_CC)
+    );
+
     IDEXReg U_IDEXReg(
         .clk(clk),
         .rst(rst),
@@ -235,6 +316,10 @@ module MIPS_R2000 (
         .MemWrite_out(U_IDEXReg_MemWrite_out),
         .RegWrite_in(U_Ctrl_RegWrite),
         .RegWrite_out(U_IDEXReg_RegWrite_out),
+        .FPUOp_in(U_Ctrl_FPUOp),
+        .FPUOp_out(U_IDEXReg_FPUOp_out),
+        .FPUWrite_in(U_Ctrl_FPUWrite),
+        .FPUWrite_out(U_IDEXReg_FPUWrite_out),
         .Reg1_in(U_GPR_DataOut1),
         .Reg1_out(U_IDEXReg_Reg1_out),
         .Reg2_in(U_GPR_DataOut2),
@@ -246,7 +331,11 @@ module MIPS_R2000 (
         .Rt_in(`RT(IFID_Instr)),
         .Rt_out(U_IDEXReg_Rt_out),
         .Rd_in(`RD(IFID_Instr)),
-        .Rd_out(U_IDEXReg_Rd_out)
+        .Rd_out(U_IDEXReg_Rd_out),
+        .FPReg1_in(U_FPR_DataOut1),
+        .FPReg1_out(U_IDEXReg_FPReg1_out),
+        .FPReg2_in(U_FPR_DataOut2),
+        .FPReg2_out(U_IDEXReg_FPReg2_out)
     );
 
     ForwardingUnit U_ForwardingUnit(
@@ -266,9 +355,22 @@ module MIPS_R2000 (
         .DataIn1(ALURegInput1),
         .DataIn2(U_IDEXReg_ALUSrc_out ? U_IDEXReg_ExtImm_out : ALURegInput2),
         .ALUOp(U_IDEXReg_ALUOp_out),
-        .ALURes(U_EXMEMReg_ALU_in),
+        .ALURes(U_ALU_Result),
         .Zero(U_ALU_Zero),
         .Sign(U_ALU_Sign)
+    );
+
+    FPU U_FPU(
+        .clk(clk),
+        .rst(rst),
+        .DataIn1(U_IDEXReg_FPReg1_out),
+        .DataIn2(U_IDEXReg_FPReg2_out),
+        .IntDataIn(ALURegInput2),   // forwarded GPR value (for mtc1)
+        .FPUOp(U_IDEXReg_FPUOp_out),
+        .FPURes(U_FPU_FPURes),
+        .IsDouble(U_FPU_IsDouble),
+        .CCOut(U_FPU_CCOut),
+        .CCWrite(U_FPU_CCWrite)
     );
 
     EXMEMReg U_EXMEMReg (
@@ -276,9 +378,9 @@ module MIPS_R2000 (
         .rst(rst),
         .Instr_in(IDEX_Instr),
         .Instr_out(EXMEM_Instr),
-        // EXMEM stage does not need hazard flush because it is after the branch decision, 
-        // In mips there is a concept of delay slot, i.e. the instruction after a branch 
-        //is always executed. So we do not flush the EXMEM stage.
+        // EXMEM stage does not need hazard flush because it is after the branch decision,
+        // In mips there is a concept of delay slot, i.e. the instruction after a branch
+        // is always executed. So we do not flush the EXMEM stage.
         .HazardFlush(1'b0),
         .Branch_in(U_IDEXReg_Branch_out),
         .Jump_in(U_IDEXReg_Jump_out),
@@ -292,6 +394,12 @@ module MIPS_R2000 (
         .Sign_in(U_ALU_Sign),
         .WriteBackRegAddr_in(U_EXMEMReg_WriteBackRegAddr_in),
         .NextPC_in(U_IDEXReg_NextPC_out),
+        .FPUWrite_in(U_IDEXReg_FPUWrite_out),
+        .FPU_in(U_FPU_FPURes),
+        .IsDouble_in(U_FPU_IsDouble),
+        .CC_in(U_FPR_CC),        // sample current CC flag (from FPR) for bc1t/bc1f
+        .FPR2_in(U_IDEXReg_FPReg2_out[31:0]),  // FPR[ft] for swc1 store data
+        .FPRWriteAddr_in(FPRWriteAddr_in),
         .Branch_out(U_EXMEMReg_Branch_out),
         .Jump_out(U_EXMEMReg_Jump_out),
         .BranchAddress_out(U_EXMEMReg_BranchAddress_out),
@@ -305,7 +413,13 @@ module MIPS_R2000 (
         .ALU_in(U_EXMEMReg_ALU_in),
         .ALU_out(U_EXMEMReg_ALU_out),
         .WriteBackRegAddr_out(U_EXMEMReg_WriteBackRegAddr_out),
-        .NextPC_out(U_EXMEMReg_NextPC_out)
+        .NextPC_out(U_EXMEMReg_NextPC_out),
+        .FPUWrite_out(U_EXMEMReg_FPUWrite_out),
+        .FPU_out(U_EXMEMReg_FPU_out),
+        .IsDouble_out(U_EXMEMReg_IsDouble_out),
+        .CC_out(U_EXMEMReg_CC_out),
+        .FPR2_out(U_EXMEMReg_FPR2_out),
+        .FPRWriteAddr_out(U_EXMEMReg_FPRWriteAddr_out)
     );
 
     DataMemoryInterface U_DataMemory(
@@ -319,10 +433,10 @@ module MIPS_R2000 (
             `DataMemoryMode_WORD
         )),
         .address(U_EXMEMReg_ALU_out),
-        .data_in(U_EXMEMReg_Reg2_out),
+        .data_in(MemStoreData),
         .data_out(U_DataMemory_DataOut),
         .ready(MemoryReady),
-        
+
         .IMAdress(U_PCU_PC),
         .IR(U_InstructionMemory_IR),
 
@@ -351,22 +465,36 @@ module MIPS_R2000 (
         .RegWrite_in(U_EXMEMReg_ShouldRegWrite_out),
         .MemRead_in(U_EXMEMReg_MemRead_out),
         .Mem_in(U_DataMemory_DataOut),
-        // In case the SpecialOP is *AndLink (JAL or BGEZAL) so R[31] = $RA = $PC + 8 
+        // In case the SpecialOP is *AndLink (JAL or BGEZAL) so R[31] = $RA = $PC + 8
         // Why +8? because we need to return to the instruction after the delay slot,
         // Note that U_EXMEMReg_NextPC_out = $PC + 4, so we add another 4 to it.
         .ALU_in(U_EXMEM_IsAndLinkOp ? (U_EXMEMReg_NextPC_out + 4) : U_EXMEMReg_ALU_out),
         .WriteBackRegAddr_in(U_EXMEM_IsAndLinkOp ? `REG_RA : U_EXMEMReg_WriteBackRegAddr_out),
+        .FPUWrite_in(U_EXMEMReg_FPUWrite_out),
+        .FPU_in(U_EXMEMReg_FPU_out),
+        .IsDouble_in(U_EXMEMReg_IsDouble_out),
+        .FPRWriteAddr_in(U_EXMEMReg_FPRWriteAddr_out),
+        .CC_in(U_FPU_CCOut),
+        .CCWrite_in(U_FPU_CCWrite),
         .RegWrite_out(U_MEMWBReg_RegWrite_out),
         .MemRead_out(U_MEMWBReg_MemRead_out),
         .Mem_out(U_MEMWBReg_Mem_out),
         .ALU_out(U_MEMWBReg_ALU_out),
-        .WriteBackRegAddr_out(U_MEMWBReg_WriteBackRegAddr_out)
+        .WriteBackRegAddr_out(U_MEMWBReg_WriteBackRegAddr_out),
+        .FPUWrite_out(U_MEMWBReg_FPUWrite_out),
+        .FPU_out(U_MEMWBReg_FPU_out),
+        .IsDouble_out(U_MEMWBReg_IsDouble_out),
+        .FPRWriteAddr_out(U_MEMWBReg_FPRWriteAddr_out),
+        .CC_out(U_MEMWBReg_CC_out),
+        .CCWrite_out(U_MEMWBReg_CCWrite_out)
     );
 
     Control U_Ctrl(
         .clk(clk),
         .rst(rst),
         .OpCode(`OP(IFID_Instr)),
+        .FMT(`RS(IFID_Instr)),     // instr[25:21] — COP1 fmt field
+        .FT(`RT(IFID_Instr)),      // instr[20:16] — COP1 ft/cc field (bc1t/bc1f)
         .Funct(`FUNCT(IFID_Instr)),
         .InstType(U_Ctrl_InstType),
         .ReadReg1(U_Ctrl_ReadReg1),
@@ -381,7 +509,9 @@ module MIPS_R2000 (
         .Jump(U_Ctrl_Jump),
         .SpecialOP(U_Ctrl_SpecialOP),
         .nBranch(U_Ctrl_nBranch),
-        .ExtOp(U_Ctrl_ExtOp)
+        .ExtOp(U_Ctrl_ExtOp),
+        .FPUOp(U_Ctrl_FPUOp),
+        .FPUWrite(U_Ctrl_FPUWrite)
     );
 
 endmodule

@@ -16,14 +16,16 @@ while True:
         break
 
     next_row = list(map(lambda x: x.strip() if x.strip() != "x" else None, line))
-    
+
     cmd = next_row[0]
-    
-    if not cmd:
+
+    if not cmd or cmd.startswith('//'):
         continue
-    
+
     opcode, fmt, ft, funct = (int(str(x), 16) if x else x for x in next_row[1:5])
     inst_type, jump, read_reg1, read_reg2, reg_dst, branch, mem_read, mem_write, reg_write, alu_src, ext_op, alu_op, special_op = next_row[5:18]
+    fpu_op  = next_row[18] if len(next_row) > 18 else None
+    fpu_write = next_row[19] if len(next_row) > 19 else None
 
     pairs = zip((opcode, fmt, ft, funct), instructions_parts, instructions_parts_bytes)
     logic_statments = ["{} == {}'h{}".format(key, nbyte, hex(value)[2:]) for (value, key, nbyte) in pairs if value is not None]
@@ -43,6 +45,8 @@ while True:
             ExtOp     <= {ext_op     or "1'b0"};
             ALUOp     <= {alu_op     or "5'b0"};
             SpecialOP <= {special_op or "4'b0"};
+            FPUOp     <= {fpu_op     or "6'b0"};
+            FPUWrite  <= {fpu_write  or "1'b0"};
         end else """
 
 template = f"""// AUTO-GENERATED - DO NOT CHNAGE!
@@ -54,6 +58,8 @@ module Control(
     input wire clk,
     input wire rst,
     input wire [5:0] OpCode,
+    input wire [4:0] FMT,
+    input wire [4:0] FT,
     input wire [5:0] Funct,
     output reg [1:0] InstType,
     output reg Jump,
@@ -68,6 +74,8 @@ module Control(
     output reg ExtOp,
     output reg [4:0] ALUOp,
     output reg [3:0] SpecialOP,
+    output reg [5:0] FPUOp,
+    output reg FPUWrite,
     output wire nBranch
 );
     assign nBranch = ~Branch;
@@ -86,6 +94,8 @@ module Control(
         ExtOp     <= 1'b0;
         ALUOp     <= 5'b0;
         SpecialOP <= 4'b0;
+        FPUOp     <= 6'b0;
+        FPUWrite  <= 1'b0;
     end
 
     always @(negedge clk, posedge rst) begin
@@ -103,6 +113,8 @@ module Control(
             ExtOp     <= 1'b0;
             ALUOp     <= 5'b0;
             SpecialOP <= 4'b0;
+            FPUOp     <= 6'b0;
+            FPUWrite  <= 1'b0;
         end else {DATA_BLOCK} begin
             // default case:
             InstType  <= 2'b00;
@@ -118,16 +130,18 @@ module Control(
             ExtOp     <= 1'b0;
             ALUOp     <= 5'b0;
             SpecialOP <= 4'b0;
+            FPUOp     <= 6'b0;
+            FPUWrite  <= 1'b0;
             `ifdef DEBUG
             if (OpCode !== 6'bx && Funct !== 6'bx) begin
-                $display("\\n*************** Warning ***************"); 
+                $display("\\n*************** Warning ***************");
                 $display(   "  Unsupported instruction encountered  ");
                 $display("Time: %t", $time);
                 $display("OpCode: 0x%h", OpCode);
                 $display("Funct: 0x%h", Funct);
                 $display("Inst: 0x%h", TESTBENCH.U_MIPS_R2000.IFID_Instr);
                 $display("PCU: 0x%h", TESTBENCH.U_MIPS_R2000.U_PCU_PC);
-                $display("***************************************\\n"); 
+                $display("***************************************\\n");
             end
             `endif
         end
